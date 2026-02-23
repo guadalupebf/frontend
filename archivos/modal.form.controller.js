@@ -2,11 +2,11 @@
   'use strict';
 
   angular.module('inspinia')
-    .controller('CondicionesGeneralesModalCtrl', CondicionesGeneralesModalCtrl)
+    .controller('CondicionesGeneralesModalCtrl', CondicionesGeneralesModalCtrl);
 
-  CondicionesGeneralesModalCtrl.$inject = ['$uibModalInstance','providerService','$uibModal','$scope', 'FileUploader', '$timeout', 'toaster', 'MESSAGES', '$sessionStorage', '$http', 'url', '$state', 'SweetAlert', '$stateParams','dataFactory'];
+  CondicionesGeneralesModalCtrl.$inject = ['$uibModalInstance', 'toaster', 'CondicionesGeneralesService', 'item', 'aseguradoras', 'subramos'];
 
-  function CondicionesGeneralesModalCtrl($uibModalInstance, toastr, CondicionesGeneralesService, item, aseguradoras, subramos){
+  function CondicionesGeneralesModalCtrl($uibModalInstance, toaster, CondicionesGeneralesService, item, aseguradoras, subramos){
     var md = this;
 
     md.item = item;
@@ -18,7 +18,7 @@
       id: item.id,
       nombre: item.nombre,
       tipo: item.tipo || 'CONDICIONES',
-      aseguradora: item.aseguradora,
+      aseguradora: item.aseguradora || item.provider,
       subramo: item.subramo
     } : {
       nombre: '',
@@ -29,18 +29,21 @@
 
     md.file = null;
 
+    md.setFile = function(files) {
+      md.file = files && files.length ? files[0] : null;
+    };
+
     md.save = function(){
       if(!md.form.nombre || !md.form.aseguradora || !md.form.subramo){
-        toastr.warning('Completa nombre, aseguradora y subramo');
+        toaster.warning('Completa nombre, aseguradora y subramo');
         return;
       }
 
       md.saving = true;
 
-      // Crear (multipart con PDF)
       if(!md.item){
         if(!md.file){
-          toastr.warning('Selecciona el PDF');
+          toaster.warning('Selecciona el PDF');
           md.saving = false;
           return;
         }
@@ -49,39 +52,44 @@
         fd.append('nombre', md.form.nombre);
         fd.append('tipo', md.form.tipo);
         fd.append('aseguradora', md.form.aseguradora);
+        fd.append('provider', md.form.aseguradora);
         fd.append('subramo', md.form.subramo);
         fd.append('arch', md.file);
 
         CondicionesGeneralesService.create(fd)
           .then(function(){
-            toastr.success('Condición creada');
+            toaster.success('Condición general creada');
             $uibModalInstance.close(true);
           })
-          .catch(function(){
-            toastr.error('No se pudo crear');
+          .catch(function(err){
+            var msg = (err && err.data && (err.data.detail || err.data.message)) ? (err.data.detail || err.data.message) : 'No se pudo crear la condición general';
+            toaster.error(msg);
           })
           .finally(function(){
             md.saving = false;
           });
 
       } else {
-        // Editar metadata (sin cambiar PDF)
         CondicionesGeneralesService.update(md.form.id, {
           nombre: md.form.nombre,
           tipo: md.form.tipo,
           aseguradora: md.form.aseguradora,
+          provider: md.form.aseguradora,
           subramo: md.form.subramo
         }).then(function(){
-          toastr.success('Actualizado');
+          toaster.success('Condición general actualizada');
           $uibModalInstance.close(true);
-        }).catch(function(){
-          toastr.error('No se pudo actualizar');
+        }).catch(function(err){
+          var msg = (err && err.data && (err.data.detail || err.data.message)) ? (err.data.detail || err.data.message) : 'No se pudo actualizar la condición general';
+          toaster.error(msg);
         }).finally(function(){
           md.saving = false;
         });
       }
     };
 
-    md.cancel = function(){ $uibModalInstance.dismiss(); };
-};  
+    md.cancel = function(){
+      $uibModalInstance.dismiss();
+    };
+  }
 })();

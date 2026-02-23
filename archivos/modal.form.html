@@ -41,7 +41,7 @@
 
   <div class="form-group" ng-if="!md.item">
     <label>PDF</label>
-    <input type="file" class="form-control" file-model="md.file" accept="application/pdf">
+    <input type="file" class="form-control" accept="application/pdf" onchange="angular.element(this).scope().md.setFile(this.files)">
     <p class="text-muted small">Sube un PDF (hasta 25MB). Se guardará una sola vez.</p>
   </div>
 

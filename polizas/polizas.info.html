@@ -1583,6 +1583,24 @@
         <div class="col-xs-12 text-right form-group" ng-if="vm.permiso_administrar_adjuntos">
           <button class="btn btn-primary" ng-click="saveFiles(vm.insurance.id)">Guardar Archivos</button>
         </div>
+        <hr>
+        <div class="row">
+          <div class="col-xs-12">
+            <h4>Condiciones Generales</h4>
+            <p class="text-muted">Selecciona una o varias condiciones generales para anexarlas a la póliza.</p>
+            <ui-select multiple theme="bootstrap" ng-model="vm.cg.selectedDocs" on-select="vm.onGeneralConditionsChange()" on-remove="vm.onGeneralConditionsChange()" close-on-select="false">
+              <ui-select-match placeholder="Buscar condiciones generales...">{{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span></ui-select-match>
+              <ui-select-choices repeat="c in vm.cg.catalog | filter:$select.search track by c.id">
+                <div><strong>{{c.nombre}}</strong></div>
+                <small class="text-muted">{{c.tipo}}</small>
+              </ui-select-choices>
+            </ui-select>
+            <p class="text-muted m-t-sm" ng-if="vm.cg.saving">Guardando selección...</p>
+            <div class="alert alert-warning m-t-sm" ng-if="vm.cg.selectedDocs.length">
+              Las Condiciones Generales no se pueden eliminar desde la póliza, sólo desasociar o administrar desde el módulo centralizado.
+            </div>
+          </div>
+        </div>
         <table class="table table-bordered table">
           <h3 class="text-center">Archivos que estan actualmente en la base de datos</h3>
           <thead>
@@ -1601,7 +1619,7 @@
               <td>
                 <a class="btn btn-success" target="_blank" download href="{{file.arch}}">Descargar</a>
                 <a class="btn btn-primary" href="{{file.arch}}" target="_blank">Ver</a>
-                <button class="btn btn-danger btn-bm0" ng-click="vm.deleteFile(file,vm.files)" ng-if="vm.permiso_administrar_adjuntos">Borrar</button>
+                <button class="btn btn-danger btn-bm0" ng-click="vm.deleteFile(file,vm.files)" ng-if="vm.permiso_administrar_adjuntos && !vm.isGeneralConditionFile(file)">Borrar</button><span class="label label-info" ng-if="vm.isGeneralConditionFile(file)">Condición General</span>
                 <button class="btn btn-info btn-bm0" onclick="renombrarArchivoCargado(), saveInput = true" ng-if="vm.permiso_administrar_adjuntos">Renombrar</button>
 
                 <span class="btn btn-success display-none">
