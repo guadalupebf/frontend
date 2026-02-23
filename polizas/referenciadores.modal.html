@@ -1,0 +1,36 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Cambiar Referenciador: {{referenciador_a_cambiar.first_name}} {{referenciador_a_cambiar.last_name}}, Póliza {{poliza_especifica.poliza_number}}</h4>
+  </div>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content wizard">
+        <div class="wizard">
+            <div class="row">
+                <div class="form-group col-sm-6">
+                    <label for="selectType">Nuevo Referenciador:</label>
+                    <select class="form-control m-b" ng-model="refSelected" ng-options="item as item.name for item in referenciadores track by item.id">
+                    <option disabled="" value="">Selecciona una opción</option>
+                    </select>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="selectType">Comisión:</label>  
+                    <input class="form-control m-b col-xs-12 wb102" type="number" ng-min="0" placeholder="% Comisión" ng-model="comision_vendedor"
+                    ng-blur="validateComision()" ng-disabled="!refSelected"/>					    
+                </div>
+            </div>
+            <div class="alert alert-danger" ng-show="comisionError2">
+                {{ comisionError2 }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>
+<div class="modal-footer">
+  <button class="btn btn-white" ng-click="cancel()" type="button">Cerrar</button>
+  <button class="btn btn-success ladda-button" ng-disabled="!refSelected" ng-click="cambiar(refSelected,comision_vendedor)" type="button">Cambiar Referenciador</button>
+</div>

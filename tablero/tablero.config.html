@@ -1,0 +1,159 @@
+<toaster-container></toaster-container>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Tablero</h2>
+    <ol class="breadcrumb">
+      <li><a ui-sref="inicio.inicio">Inicio</a></li>
+      <li class="active"><a ui-sref="polizas.table">Tablero OT</a></li>
+    </ol>
+  </div>
+</div>
+
+<br>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content">
+        <div class="row">
+          <div class="container-fluid text-right">
+            <div class="col-xs-12 form-group" ng-if="cargando">
+              <div class="col-xs-12 form-group container-loader">
+                <img src="../../assets/images/loader/black_loader.gif">
+              </div>
+              <!-- <div class="sk-spinner sk-spinner-rotating-plane margin-top-45p"></div> -->
+            </div>
+            <div class="row">
+              <div class="col-xs-6 col-sm-3 form-group" ng-if="!cargando">
+                <button ng-click="filtrosSubramos()" class="btn btn-outline btn-default dim btn-block btn-sm">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="col-xs-6 col-sm-3 form-group" ng-if="!cargando">
+                <button class="btn btn-primary ladda-button2" ng-click="addContainer(principal)">
+                  Añadir estado <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+              </div>
+              <button ng-if="!cargando" class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="vm.getLog()">
+                <i class="fa fa-history"> Log</i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-xs-12" ng-if="newcontainer || editcontainer_b">
+            <div class="row">
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <label>Nombre del contenedor: <span class="color-red">*</span></label>
+                <input class="form-control" type="text" ng-model="container.tablero" required />
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <label>Color: <span class="color-red">*</span></label>
+                <select class="form-control" ng-options="color.value as color.name for color in colorArray1" 
+                        ng-change="vm.saveColor(colorSelected)" ng-model="colorSelected"></select>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group d-flex gap-2">
+                <button class="btn btn-success col-xs-6 m-t ladda-button2" 
+                        ng-click="newcontainer ? saveContainer(principal, container) : saveEditContainer(principal, container)">
+                  {{ newcontainer ? 'Guardar estado' : 'Guardar cambios' }}
+                </button>
+                <button class="btn btn-warning col-xs-6 m-t ladda-button2" 
+                        ng-click="cancelNewEdit(newcontainer,editcontainer_b)">Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xs-12 text-center"  ng-if="cargando">
+              <div class="alert alert-warning alert-dismissible">
+                <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>Información:</strong> Obteniendo datos a partir de la configuración establecida.
+              </div>
+            </div>
+            <div class="alert alert-info alert-dismissible" ng-if="mensajeTablero">
+              <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Información:</strong> Sin configuraciones existentes (Tablero vacío)
+            </div>
+            <div class="col-xs-12 table-tablero">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th ng-repeat="container in (filtrado ? resultsFilter : principal.contenedores) track by $index">
+                      <div class="col-xs-12 box-title" style="background-color: {{container.color}}">
+                        <a class="btn btn-white btn-sm pull-right" ng-click="vm.editContainer(container, $index)">
+                          <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn btn-white btn-sm pull-right"
+                          ng-if="(!container.details_polizas || container.details_polizas.length === 0) && 
+                                  (!container.details_endoso || container.details_endoso.length === 0)" 
+                          ng-click="vm.deleteContainer(container,principal, $index)">
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                        <label class="label-tablero">{{container.tablero}}</label>
+                        <span class="label-number">OT Póliza(s): {{container.details_polizas.length}} // OT Endoso(s): {{container.details_endoso.length}}</span>
+                      </div>
+                      <div class="caption">
+                        <div ng-repeat="dp in container.details_polizas track by $index" class="col-xs-12 box-content">
+                          <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right"
+                                  data-toggle="dropdown"><i class="fa fa-pencil"></i></button>
+                          <b>OT PÓLIZA: {{dp.internal_number}} - {{dp.contractor}}</b>
+                          <h6>{{dp.start_of_validity | date: 'dd/MM/yyyy'}} - {{dp.end_of_validity | date: 'dd/MM/yyyy'}}</h6>
+                          <h6><b>{{dp.ramo}}</b></h6>
+                          <h6><b>{{dp.subramo}}</b></h6>
+                          <h6 class="pull-right"><b>Hace {{dp.antiguedad}}d.</b></h6>
+                          <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(dp, container, $index, 1)">
+                              <i class="fa fa-info"></i> Ir</a></li>
+                            <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                              <a>Mover a</a>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="newcontainer in principal.contenedores track by $index"
+                                    ng-if="newcontainer.tablero != container.tablero">
+                                  <a ng-click="vm.moveOTState(dp, container, newcontainer, principal, 1)">
+                                    {{newcontainer.tablero}}
+                                  </a>
+                                </li>
+                              </ul>
+                            </li>
+                            <li><a ng-click="vm.getPDF(dp.id)">Ver PDF</a></li>
+                          </ul>
+                        </div>
+
+                        <div ng-repeat="de in container.details_endoso track by $index" class="col-xs-12 box-content">
+                          <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right"
+                                  data-toggle="dropdown"><i class="fa fa-pencil"></i></button>
+                          <b>OT ENDOSO: {{de.internal_number}} - {{de.policy.contractor}}</b>
+                          <h6>{{de.init_date | date: 'dd/MM/yyyy'}} - {{de.end_date | date: 'dd/MM/yyyy'}}</h6>
+                          <h6><b>{{de.policy.ramo}}</b></h6>
+                          <h6><b>{{de.policy.subramo}}</b></h6>
+                          <h6 class="pull-right"><b>Hace {{de.antiguedad}}d.</b></h6>
+                          <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(de, container, $index, 2)">
+                              <i class="fa fa-info"></i> Ir</a></li>
+                            <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                              <a>Mover a</a>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="newcontainer in principal.contenedores track by $index"
+                                    ng-if="newcontainer.tablero != container.tablero">
+                                  <a ng-click="vm.moveOTState(de, container, newcontainer, principal, 2)">
+                                    {{newcontainer.tablero}}
+                                  </a>
+                                </li>
+                              </ul>
+                            </li>
+                            <li><a ng-click="getPDFE(de)">Ver PDF</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>  
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

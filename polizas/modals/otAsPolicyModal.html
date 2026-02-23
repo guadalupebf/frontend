@@ -1,0 +1,34 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Convertir a Póliza</h4>
+  </div>
+
+  <div class="modal-body">
+    <div class="row">
+      <form class="quoteForm" name="otpolicy" novalidate>
+        <div class="form-group col-xs-6">
+          <label for="">Folio de Póliza </label>
+           <input class="form-control" ng-model="vmm.form.folio">
+        </div>
+        <div class="form-group col-xs-6" ng-hide="order.show.ot">
+          <label>Número de Póliza<span class="color-red">*</span></label>
+          <div ng-class="{ 'has-error': form.poliza.$invalid && !form.poliza.$pristine  }">
+          <input class="form-control" ng-blur="changeNoPoliza(vmm.form.poliza)" name="poliza" ng-model="vmm.form.poliza" type="text" ng-trim="false"  required />
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-xs-12 form-group" ng-hide="order.show.ot">
+            <!-- <calculate-receipts poliza="vmm.policyInfo" form="vmm.form" tosave="dataToSave" type="1"></calculate-receipts> -->
+            <receipts-individual form="vmm.form" tosave="dataToSave" type="1"></receipts-individual>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button class="btn btn-white" ng-click="vmm.options.cancel()" type="button">Cerrar</button>
+    <button class="btn btn-success ladda-button" ng-disabled="otpolicy.$invalid" ng-click="vmm.save()" type="button">Crear</button>
+  </div>
+</div>

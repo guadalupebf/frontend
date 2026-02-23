@@ -1,0 +1,168 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Renovaciones</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li >
+        <a ui-sref="renovaciones.renovaciones">Renovaciones</a>
+      </li>
+      <li>
+        <a ui-sref="polizas.info({polizaId: order.insuranceObject.id})">Póliza #{{order.insuranceObject.poliza_number}}
+        </a>
+      </li>
+      <li class="active">
+        <strong>Renovación póliza # {{poliza_data.poliza_number}}</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12" id="addContratantes">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content wizard">
+        <ng-include src="'app/ordenes/ordenes.generic.old.html'"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div ng-class="{
+        'alert alert-success alertpdf': serieAGuardar && serieDetectada === serieAGuardar,
+        'alert alert-danger alertpdf': serieAGuardar && serieDetectada !== serieAGuardar,
+        'alert alert-warning alertpdf': !serieAGuardar
+    }" style="padding: 12px 15px;" ng-if="order.form.subramo && order.form.subramo.subramo_code==9">
+    <span><h3>CAPTURA DE LA SERIE EN EL PDF</h3></span>
+    <img ng-if="imgSerieSrcR" ng-src="{{imgSerieSrcR}}" style="max-width:100%;" />
+    <div ng-if="order.subforms.auto.serial"
+        style="display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border:1px solid #cfe2ff; background:#f8fbff; border-radius:12px; margin:12px 0;">
+      <div style="width:34px; height:34px; border-radius:10px; background:#1976d2; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900;">
+        VIN
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:12px; font-weight:700; color:#1e3a8a;">
+          <h3>SERIE DETECTADA POR SAAM</h3>
+          A guardar
+          <div
+            style="font-size:22px; font-weight:800; margin-top:4px; word-break:break-all; display:flex; align-items:center; gap:8px;"
+            ng-class="{
+              'vin-ok': !hasInvalidVinLettersTest(order.subforms.auto.serial),
+              'vin-warning': hasInvalidVinLettersTest(order.subforms.auto.serial)
+            }">
+            {{ order.subforms.auto.serial || '—' }}
+            <!-- Badge discreto -->
+            <span
+              ng-if="hasInvalidVinLettersTest(order.subforms.auto.serial)"
+              style="
+                font-size:11px;
+                font-weight:800;
+                padding:4px 8px;
+                border-radius:999px;
+                background:#fff1f2;
+                color:#991b1b;
+                border:1px solid #fecdd3;
+                white-space:nowrap;
+              "  title="El VIN contiene letras no permitidas (O, I, Q)">
+              <i class="fa fa-exclamation-triangle" style="margin-right:4px;"></i>
+              Serie inválida
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-if="order.subforms.auto.serial"
+      style="display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border:1px solid #cfe2ff; background:#f8fbff; border-radius:12px; margin:12px 0;">
+
+      <div style="width:34px; height:34px; border-radius:10px; background:#1976d2; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900;" ng-if="serialBase && order.subforms.auto.serial && !sameVIN(serialBase, order.subforms.auto.serial)">
+        VIN
+      </div>
+      <div style="flex:1;" ng-if="serialBase && order.subforms.auto.serial && !sameVIN(serialBase, order.subforms.auto.serial)">
+        <!-- Encabezado + estado -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="font-size:12px; font-weight:800; color:#1e3a8a;">
+            Comparación de serie (VIN)
+          </div>
+          <!-- Etiqueta de estado: Igual / Cambió -->
+          <div
+            style="font-size:12px; font-weight:800; padding:6px 10px; border-radius:999px;"
+            ng-class="sameVIN(serialBase, order.subforms.auto.serial) ? 'badge-ok' : 'badge-neutral'">
+            <span ng-if="sameVIN(serialBase, order.subforms.auto.serial)">Coincide</span>
+            <span ng-if="!sameVIN(serialBase, order.subforms.auto.serial)">Cambio detectado</span>
+          </div>
+        </div>
+        <!-- Grid Base vs Renovación -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+          <!-- Serie Base -->
+          <div style="padding:10px 12px; border:1px solid #e5e7eb; background:#fff; border-radius:10px;">
+            <div style="font-size:12px; font-weight:800; color:#6b7280; margin-bottom:6px;">
+              SERIE DE LA PÓLIZA ANTERIOR
+            </div>
+            <div style="font-size:14px; font-weight:900; word-break:break-all; color:#111827;">
+              {{ serialBase || '—' }}
+            </div>
+          </div>
+
+          <!-- Serie Renovación (a guardar) -->
+          <div
+            style="padding:10px 12px; border-radius:10px; background:#fff;"
+            ng-class="hasInvalidVinLettersTestX(order.subforms.auto.serial) ? 'badge-warn' : 'badge-ok'">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+              <div style="font-size:12px; font-weight:800;">
+                SERIE DETECTADA EN ESTA RENOVACION (ACTUAL)
+              </div>
+
+              <!-- Alerta O/I/Q -->
+              <div ng-if="hasInvalidVinLettersTestX(order.subforms.auto.serial)"
+                  style="font-size:11px; font-weight:900;">
+                <i class="fa fa-exclamation-triangle" style="margin-right:6px;"></i>
+                Contiene O / I / Q
+              </div>
+            </div>
+
+            <div style="font-size:14px; font-weight:900; word-break:break-all;"
+                ng-class="hasInvalidVinLettersTestX(order.subforms.auto.serial) ? 'vin-warning' : 'vin-ok'">
+              {{ order.subforms.auto.serial || '—' }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Nota si cambió -->
+        <div ng-if="serialBase && !sameVIN(serialBase, order.subforms.auto.serial)"
+          style="margin-top:10px; font-size:12px; color:#6b7280;">
+          *Verifica que el cambio sea correcto antes de guardar.
+        </div>
+
+      </div>
+    </div>
+
+    <small style="display: block; margin-top: 6px; line-height: 1.5; font-size: 13px; color: #444;">
+      <span>
+        Por favor <strong>revise cuidadosamente</strong> que la <strong>SERIE</strong> detectada coincida exactamente con la que aparece en su documento original.
+      </span>
+    </small>
+  </div>
+  <!-- <img ng-if="imgSerieSrcRR" ng-src="{{imgSerieSrcRR}}" style="max-width:100%;" /> -->
+  <div class="col-xs-12 m-b">
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="order.acceso_adm_pol">
+      <button class="col-xs-12 btn btn-primary ladda-butto" ng-click="validatePolicy('poliza', 2)" ng-disable="!order.user.permiso.crear" type="button">No es renovación</button>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="order.acceso_adm_pol">
+      <button class="col-xs-12 btn btn-primary ladda-button" ng-click="validatePolicy('poliza', 1)" ng-disable="!order.user.permiso.crear" type="button" data-style="expand-right"><span class="ladda-label">Renovar</span></button>
+    </div>
+    
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="order.acceso_adm_ot">
+      <button class="col-xs-12 btn btn-success ladda-buttonOT" ng-disabled="!order.user.permiso.crear || order.form.poliza" ng-click="order.save.saveChangesInOt()" type="button">Guardar como OT</button>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+      <button class="col-xs-12 btn btn-danger" ng-click="order.save.cancel()" type="button">Cancelar</button>
+    </div>
+  </div>
+</div>

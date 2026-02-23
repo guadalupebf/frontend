@@ -1,0 +1,300 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Coberturas</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="paquetes.paquetes">Paquetes</a>
+      </li>
+      <li class="active">
+        <strong>Paquete {{vm.package.package_name}}</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <!-- <div class="row"> -->
+    <!-- <div class="col-sm-12"> -->
+      <!-- <div class="ibox float-e-margins collapsed"> -->
+        <!-- <div class="ibox-title" ng-if="vm.user.permiso.crear"> -->
+          <!-- <h5>Agregar coberturas</h5> -->
+          <!-- <div ibox-tools></div> -->
+        <!-- </div> -->
+        <!-- <div class="ibox-content"> -->
+          <!-- <div class="row"> -->
+            <!-- <div class="col-sm-12"> class="col-sm-6"> -->
+              <!-- <form role="form"> -->
+                <!-- <div class="row"> -->
+                  <!-- <div class="form-group col-sm-12"> -->
+                    <!-- <label for="name"> -->
+                      <!-- Cobertura -->
+                    <!-- </label> -->
+                    <!-- <input class="form-control" id="name" ng-model="vm.form.coverage_name" type="text" required> -->
+                  <!-- </div> -->
+                <!-- </div> -->
+                <!-- <div class="row"> -->
+                  <!-- <div class="form-group"> -->
+                    <!-- <label for "suma" class="col-sm-12"> -->
+                      <!-- Agregar suma asegurada -->
+                    <!-- </label> -->
+                    <!-- <div id="suma"> -->
+                      <!-- <div class="col-sm-8"> -->
+                        <!-- <input class="form-control" ng-keyup="$event.keyCode == 13 && vm.addSum(vm.form.suma_name)" ng-model="vm.form.suma_name" type="text"> -->
+                      <!-- </div> -->
+                      <!-- <div class="col-sm-4"> -->
+                        <!-- <button type="button" class="btn btn-info btn-block" ng-click="vm.addSum(vm.form.suma_name)"> -->
+                          <!-- Agregar suma -->
+                        <!-- </button> -->
+                      <!-- </div> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-12"> -->
+                      <!-- <div class="table-responsive"> -->
+                        <!-- <table class="table"> -->
+                          <!-- <thead> -->
+                            <!-- <tr> -->
+                              <!-- <th style="width : 70%;">Suma asegurada</th> -->
+                              <!-- <th style="width : 30%;">Acción</th> -->
+                            <!-- </tr> -->
+                          <!-- </thead> -->
+                          <!-- <tbody> -->
+                            <!-- <tr ng-repeat="sum in vm.form.coverage_sums track by $index"> -->
+                              <!-- <td>{{sum.sum_insured}}</td> -->
+                              <!-- <td> -->
+                                <!-- <button type="button" class="btn btn-warning btn-block" ng-click="vm.removeSum($index)" ng-if="vm.user.permiso.eliminar"> -->
+                                  <!-- Eliminar -->
+                                <!-- </button> -->
+                              <!-- </td> -->
+                            <!-- </tr> -->
+                          <!-- </tbody> -->
+                        <!-- </table> -->
+                      <!-- </div> -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                <!-- </div> -->
+                <!-- <div class="row"> -->
+                  <!-- <div class="form-group"> -->
+                    <!-- <label for "deducible" class="col-sm-12"> -->
+                      <!-- Agregar deducible -->
+                    <!-- </label> -->
+                    <!-- <div id="deducible"> -->
+                      <!-- <div class="col-sm-8"> -->
+                        <!-- <input class="form-control" ng-keyup="$event.keyCode == 13 && vm.addDeductible(vm.form.deducible_name)" ng-model="vm.form.deducible_name" type="text"> -->
+                      <!-- </div> -->
+                      <!-- <div class="col-sm-4"> -->
+                        <!-- <button type="button" class="btn btn-info btn-block" ng-click="vm.addDeductible(vm.form.deducible_name)"> -->
+                          <!-- Agregar deducible -->
+                        <!-- </button> -->
+                      <!-- </div> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-12"> -->
+                      <!-- <div class="table-responsive"> -->
+                        <!-- <table class="table"> -->
+                          <!-- <thead> -->
+                            <!-- <tr> -->
+                              <!-- <th style="width : 70%;">Deducible</th> -->
+                              <!-- <th style="width : 30%;">Acción</th> -->
+                            <!-- </tr> -->
+                          <!-- </thead> -->
+                          <!-- <tbody> -->
+                            <!-- <tr ng-repeat="deductible in vm.form.coverage_deductibles track by $index"> -->
+                              <!-- <td>{{deductible.deductible}}</td> -->
+                              <!-- <td> -->
+                                <!-- <button type="button" class="btn btn-warning btn-block" ng-click="vm.removeDeductible($index)" ng-if="vm.user.permiso.eliminar"> -->
+                                  <!-- Eliminar -->
+                                <!-- </button> -->
+                              <!-- </td> -->
+                            <!-- </tr> -->
+                          <!-- </tbody> -->
+                        <!-- </table> -->
+                      <!-- </div> -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                <!-- </div> -->
+                <!-- <div class="col-sm-12"> -->
+                  <!-- <button class="btn btn-info" ng-click="vm.submit()" type="button">Guardar</button> -->
+                <!-- </div> -->
+              <!-- </form> -->
+            <!-- </div> -->
+            <!--
+            <div class="col-sm-6">
+              <button class="btn btn-primary" >Editar cobertura</button>
+            </div>-->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+  <!-- </div> -->
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Proveedor: {{vm.provider.compania}}- Paquete: {{vm.package.package_name}}</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div>
+            <label class="control-label">Nombre del paquete</label>
+            <input class="form-control" ng-model="vm.package.package_name" type="text">
+          </div>
+          <br>
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover dataTables-example" datatable="ng">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <!-- <th>Deducibles</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                  <!-- TODO Traer nombre y no el ID -->
+                <tr
+                  ng-repeat="coverage in vm.package.coverage_package  | orderBy: 'priority' track by coverage.url">
+                  <td
+                    ng-click="vm.editCoverageModal(coverage)">
+                    <a>{{ coverage.coverage_name }}</a>
+                  </td>
+                  <!-- <td>
+                    <select class="form-control m-b" ng-model="vm.coverage.coverage_sum"
+                        ng-options="sum.sum_insured for sum in coverage.sums_coverage track by sum.url">
+                    </select>
+                  </td> -->
+                  <!-- <td>
+                    <select class="form-control m-b" ng-model="vm.coverage.deductible_coverage"
+                        data-ng-options="deductible.deductible for deductible in coverage.deductible_coverage track by deductible.url">
+                    </select>
+                  </td> -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Actualizacion de interfaz, borrar lo siguiente -->
+  <div ng-show="false" class="row">
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Agregar coberturas</h5>
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="panel-body">
+                <div class="alert alert-danger" ng-show="vm.error">{{vm.error}}</div>
+                <form class="form-horizontal" method="post" name="form" ng-submit="vm.submit(form.$valid)" novalidate role="form">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Cobertura*</label>
+                    <div class="col-sm-10">
+                      <input class="form-control" name="name" ng-model="vm.form.coverage_name" required type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-2">
+                      <!-- <button class="btn btn-white" type="button" ng-click="vm.cancel()">Borrar datos</button> -->
+                      <button class="btn btn-primary" ng-disabled="form.$invalid" type="submit">Guardar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Agregar sumas aseguradas</h5>
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="panel-body">
+                <div class="alert alert-danger" ng-show="vm.error">{{vm.error}}</div>
+                <form class="form-horizontal" method="post" name="form2" ng-submit="vm.submitSum(form2.$valid)" novalidate role="form">
+                  <div class="form-group" ng-class="{ 'has-error': form2.sum_insured.$invalid && !form2.sum_insured.$pristine  }">
+                    <label class="col-sm-2 control-label">Suma asegurada*</label>
+                    <div class="col-sm-10">
+                      <input class="form-control" name="sum_insured" ng-model="vm.form2.sum_insured" required type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Cobertura*</label>
+                    <div class="col-sm-10">
+                      <select class="form-control m-b" ng-model="vm.form2.coverage_sum"
+                          data-ng-options="coverage.coverage_name for coverage in vm.package.coverage_package track by coverage.url"
+                          required>
+                          <option value="">Selecciona una cobertura</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-2">
+                      <!-- <button class="btn btn-white" type="button" ng-click="vm.cancel()">Borrar datos</button> -->
+                      <button class="btn btn-primary" ng-disabled="form2.$invalid" type="submit">Guardar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Agregar deducibles</h5>
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="panel-body">
+                <div class="alert alert-danger" ng-show="vm.error">{{vm.error}}</div>
+                <form class="form-horizontal" method="post" name="form3" ng-submit="vm.submitDeductible(form3.$valid)" novalidate role="form">
+                  <div class="form-group" ng-class="{ 'has-error': form3.deductible.$invalid && !form3.deductible.$pristine  }">
+                    <label class="col-sm-2 control-label">Deducible*</label>
+                    <div class="col-sm-10">
+                      <input class="form-control" name="deductible" ng-model="vm.form3.deductible" required type="text">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Cobertura*</label>
+                    <div class="col-sm-10">
+                      <select class="form-control m-b" ng-model="vm.form3.coverage_deductible"
+                          data-ng-options="coverage.coverage_name for coverage in vm.package.coverage_package track by coverage.url"
+                          required>
+                          <option value="">Selecciona una cobertura</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-2">
+                      <!-- <button class="btn btn-white" type="button" ng-click="vm.cancel()">Borrar datos</button> -->
+                      <button class="btn btn-primary" ng-disabled="form3.$invalid" type="submit" >Guardar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="row">
+      <div class="form-group col-xs-12">
+        <div class="col-xs-12 col-sm-6 col-md-3 pull-right">
+          <button class="col-xs-12 btn btn-primary" type="button" ng-click="vm.savePack(vm.package)">Actualizar paquete</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 pull-right">
+          <button class="col-xs-12 btn btn-white" ui-sref="paquetes.paquetes" type="button" >Cancelar</button>
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,0 +1,1035 @@
+<div ng-show="order.show.firstTab == true" >
+	<div class="col-xs-12 form-group">
+		<fieldset>
+			<legend ng-if="order.show.ot" class="legend-title" align="center">Información General de la OT</legend>
+			<legend ng-if="!order.show.ot" class="legend-title" align="center">Información General de la Póliza</legend>
+			<form name="form" novalidate onkeypress="return event.keyCode != 13;">
+				<div>
+					<div class="row" ng-hide="order.show.ot">
+						<div class="col-xs-12 form-group" ng-if="!loaderPdf">
+							<label class="form-label">Selecciona un archivo PDF:</label>
+							<div class="alert alert-info" role="alert">
+							  <strong>Autos:</strong> Chubb, Quálitas, GNP, AXA, HDI, Primero Seguros, ANA, Momento, Afirme, Zurich.<br>
+							  <!-- <strong>Gastos Médicos (Beta):</strong> GNP, Mapfre, Seguros Monterrey New York Life. -->
+							  <strong>Gastos Médicos (Beta):</strong> GNP, Mapfre, Plan Seguro, BX+, MetLife, Axa.<br>
+							  <strong>Vida (Beta):</strong> Atlas, Mapfre, Seguros Monterrey, GNP.<br>
+							</div>
+							<input  accept="application/pdf" class="form-control" type="file" id="file-selector"name="file" onchange="angular.element(this).scope().fileNameChanged(this); angular.element(this).scope().showFile(this)"
+							>
+						</div>
+					  </div>
+					<div class="row" ng-hide="order.show.ot">
+				    </div>
+				    <div class="row pull-right" ng-hide="order.show.ot">
+						<div class="col-xs-12 col-sm-4 form-group" ng-if="!loaderPdf">
+							<button class="btn btn-success" ng-click="capturarPoliza(1)">Leer Datos para la Póliza</button>
+						</div>
+			  		</div>
+					<!-- <div ng-if="serieDetectada">
+						<p><b>Serie detectada:</b> {{serieDetectada}}</p>
+						<img src="{{serieImagenBase64}}" alt="Serie VIN recortada" />
+					</div> -->
+			  		<div class="row"> 
+						<div class="col-xs-12 form-group container-loader" ng-if="loaderPdf">
+							<img src="../../assets/images/loader/blue_loader.gif">
+						</div>
+					</div>
+				</div>
+		  		<div class="row">
+					<div class="col-xs-12 col-sm-6 form-group">
+						<label for="folio-intenero">Folio Interno</label>
+						<input class="form-control" name="folio-intenero" ng-model="order.form.internal_number" disabled type="text" />
+				  	</div>
+					<div class="col-xs-12 col-sm-6 form-group">
+				      <label>Identificador</label>
+				      <input class="form-control" type="text" ng-model="order.form.identifier" ng-change="changeIdentifier(order.form.identifier)"/>
+					</div>
+					<div class="col-xs-12 col-sm-6 form-group" ng-hide="order.show.ot">
+						<label>Folio</label>
+						<input class="form-control" name="folio" ng-model="order.form.folio" type="text" ng-change="changeFolio()">
+				  	</div>
+					<div class="col-xs-12 col-sm-6 form-group" ng-hide="order.show.ot">
+						<label>Número de Póliza <span class="color-red">*</span></label>
+						<div ng-class="{ 'has-error': form.poliza.$invalid && !form.poliza.$pristine  }">
+						<input class="form-control" ng-blur="checkNumPolicy()" name="poliza" ng-model="order.form.poliza" type="text" ng-trim="false" ng-change="changeNoPoliza()" required />
+						</div>
+					</div>
+		  		</div>
+		  		<div class="row">
+					<div class="col-xs-12 col-sm-6 form-group">
+			    		<label>Contratante {{contrac.selected}} <span class="color-red">*</span></label>
+	                    <!-- <div class="input-group "> -->    
+	                    <div class="form-group " ng-if="!order.acceso_adm_cont">	            
+				    		<autocomplete datasource="contractors_data" id="contractors" model="order.form.contratante" change="matchesContractors(order.form.contratante.val)"></autocomplete>
+	                        <span class="input-group-btn" ng-if="order.acceso_adm_cont">
+	                            <button class="btn btn-success btn-add-contractor" ng-click="order.contratanteCreatorModalEvent(); show_contractor = true">
+	                                <i class="glyphicon glyphicon-plus"></i>
+	                            </button>
+	                        </span>
+		      			</div>
+	                    <div class="input-group" ng-if="order.acceso_adm_cont">	                    
+				    		<autocomplete datasource="contractors_data" id="contractors" model="order.form.contratante" change="matchesContractors(order.form.contratante.val)"></autocomplete>
+	                        <span class="input-group-btn" ng-if="order.acceso_adm_cont">
+	                            <button class="btn btn-success btn-add-contractor" ng-click="order.contratanteCreatorModalEvent(); show_contractor = true">
+	                                <i class="glyphicon glyphicon-plus"></i>
+	                            </button>
+	                        </span>
+		      			</div>
+			  		</div>
+			  		<div class="col-xs-12 col-sm-6 form-group">
+			      		<label>Dirección <span class="color-red">*</span></label>
+			      		<div  ng-class="{ 'has-error': form.address.$invalid && !form.address.$pristine  }">
+			      		<select class="form-control" data-ng-options="address.tipo + ' - ' + address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in order.defaults.address track by address.url" ng-change="order.options.changeAddress(order.form.address)" name="address" ng-model="order.form.address" ng-disabled="!order.form.contratante" required>
+			        		<option value="" disabled>Selecciona una dirección</option>
+			      		</select>
+			      		</div>
+			    	</div>
+		  		</div>
+		  		<div class="row">
+			   		<div class="col-xs-12 col-sm-6 form-group">
+			      		<label>Correo electrónico <span class="color-red">*</span></label>
+			      		<input class="form-control" name="correo" ng-blur="validarEmail(order.form.contratante.email)" ng-model="order.form.contratante.email" type="email" ng-disabled="!order.form.contratante || emailStatus"/>
+			    	</div>
+		  			<div class="col-xs-12 col-sm-6 form-group">
+			      		<label>Teléfono <span class="color-red">*</span></label>
+			      		<phonenumber-directive model="order.form.contratante.phone_number" class="ng-isolate-scope">
+			      			<input ng-model="inputValue" type="tel" class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" maxlength="25" placeholder="" title="Phonenumber (Format: (999) 9999-9999)" aria-invalid="false" style="" >
+						</phonenumber-directive>
+
+			    	</div>
+		  		</div>
+		  		<div class="row">
+		  			<div class="col-xs-12 col-sm-4 form-group">
+		     			<label>Vigencia <span class="color-red">*</span></label>
+		     			<div class="datepicker-me input-group date" data-provide="datepicker">
+							<input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="order.form.startDate" ng-disabled="!order.form.contratante" ng-change="order.options.checkDate()" ng-paste="order.options.checkDate('',$event)" data-date-format="mm/dd/yyyy" ng-init="order.options.checkDate('initial')" >
+		     				<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+						</div>
+			   		</div>
+			   		<div class="col-xs-12 col-sm-4 form-group">
+		     			<label>al <span class="color-red">*</span></label>
+		     			<div class="datepicker-me input-group date" data-provide="datepicker">
+							<input type="text" name="endingDate" class="width-100 text-align-center form-control" ng-model="order.form.endingDate" ng-disabled="!order.form.contratante" data-date-format="mm/dd/yyyy" ng-change="checkEndDate();checkDateValues(order.form.endingDate)" ng-paste="checkEndDate($event);checkDateValues(order.form.endingDate,$event)">
+		     				<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+						</div>
+			   		</div>
+			   		<div class="col-xs-12 col-sm-4 col-md-4 form-group">
+			      		<label>Renovable <span class="color-red">*</span></label>
+			      		<div  ng-class="{ 'has-error': form.renewal.$invalid && !form.renewal.$pristine  }">
+				      		<select class="form-control" ng-options="renewal.value as renewal.label for renewal in order.renewal.options" ng-change="renewalSelection()" name="renewal" ng-model="order.renewal.selected" ng-disabled="!order.form.contratante" required>
+				      		</select>
+			      		</div>
+			    	</div>
+			    	<div class="col-sm-4 form-group" ng-class="{ 'has-error': form.aseguradora.$invalid && !form.aseguradora.$pristine  }">
+			    	  <label>Aseguradora <span class="color-red">*</span></label>
+			    	  <div class="input-group">			    	    
+			      		<select class="form-control" ng-options="aseguradora.alias for aseguradora in order.defaults.providers | orderBy: 'alias' track by aseguradora.url" ng-change="aseguradoraSelection()" name="aseguradora" ng-model="order.form.aseguradora" ng-disabled="!order.form.contratante" required>
+			        		<option value="">Selecciona un proveedor</option>
+			      		</select>
+			    	    <span class="input-group-btn" ng-disabled="!order.form.subramo">
+							<button class="btn btn-success" ng-click="order.refreshProvider()">
+                                <i class="glyphicon glyphicon-refresh"></i>
+                            </button>
+						</span>
+			    	  </div>
+			    	</div>
+			    	<div class="col-xs-12 col-sm-6 col-md-4 form-group">
+			      		<label>Clave de agente <span class="color-red">*</span></label>
+			      		<div ng-if="!order.defaults.claves.length">
+			      			<input type="text" placeholder="No hay ninguna clave para esta aseguradora" class="form-control" disabled />
+			      			<!-- <span>No hay ninguna clave para esta aseguradora</span> -->
+			      		</div>
+			      		<div ng-if="order.defaults.claves.length == 1" ng-init="order.form.clave = order.defaults.claves[0]">
+			      			<input type="text" name="clave_agente" placeholder="Elige una aseguradora aseguradora" class="form-control" value="{{order.defaults.claves[0].clave +' - '+ order.defaults.claves[0].name}}" disabled />
+						</div>
+						<div ng-class="{ 'has-error': form.clave.$invalid && !form.clave.$pristine  }">
+							<select ng-if="order.defaults.claves.length > 1" class="form-control" data-ng-options="clave as clave.clave +' - '+ clave.name for clave in order.defaults.claves | orderBy: 'clave' track by clave.url" ng-change="order.options.changeClave(order.form.clave);changeClave()" name="clave" ng-model="order.form.clave" ng-disabled="!order.form.aseguradora" required>
+								<option value="" disabled>Selecciona una clave de agente</option>
+							</select>
+						</div>
+			    	</div>
+			    	<div class="col-xs-12 col-sm-6 col-md-4 form-group">
+			      		<label>Ramo <span class="color-red">*</span></label>
+			      		<div ng-class="{ 'has-error': form.ramo.$invalid && !form.ramo.$pristine  }">
+				      		<select class="form-control"
+				      			ng-options="ramo.ramo_name for ramo in order.defaults.ramos | orderBy:'ramo_name' track by ramo.url" ng-change="changeRamo();identifier('ramo')" name="ramo" ng-model="order.form.ramo" ng-disabled="!order.form.aseguradora && !order.form.clave" required>
+				        		<option value="">Selecciona un ramo</option>
+				      		</select>
+				      	</div>
+			    	</div>
+			    	<div class="col-xs-12 col-sm-6 col-md-4 form-group">
+			      		<label>Subramos <span class="color-red">*</span></label>
+			      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+				      		<select class="form-control"
+				      			ng-options="subramo.subramo_name for subramo in order.defaults.subramos | orderBy:'subramo_name' track by subramo.url" ng-change="changeSubramo();identifier('paquete')" name="subramo" ng-model="order.form.subramo" ng-disabled="!order.form.ramo" required>
+				        		<option value="">Selecciona un subramo</option>
+				      		</select>
+				      	</div>
+			    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 9">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.auto.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 3">
+                    	<label >Nivel Hospitalario:</label>
+                        <input type="text" class="form-control" ng-model="order.form.hospital_level"/>
+                    </div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 3">
+                    	<label >Tabulador:</label>
+                        <input type="text" class="form-control" ng-model="order.form.tabulator"/>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 1">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_life | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.life.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 2">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_ap | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.disease.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 3 || order.defaults.formInfo.code == 4">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_gm | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.disease.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 9">
+	    	      		<label>Procedencia</label>
+    		      		<select class="form-control"
+    		      			ng-options="proc.name for proc in order.procedimiento | orderBy:'name' track by proc.id" ng-change="changeProc()" ng-model="order.subforms.auto.procedencia" ng-disabled="!order.form.ramo">
+    		        		<option value="" disabled="">Selecciona una procedencia</option>
+    		      		</select>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 7">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_incendio | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 6">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_myt | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 8">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_ayc | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 10">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_credito | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 11">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_vivienda | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 13">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_diversos | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 12">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_garantia | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 5">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_rc | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 14">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_tyorc | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="order.defaults.formInfo.code == 31">
+	    	      		<label>Tipo <span class="color-red">*</span></label>
+	    	      		<div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+	    		      		<select class="form-control"
+	    		      			ng-options="type.name for type in order.types_lf | orderBy:'type_name' track by type.id" name="type" ng-model="order.subforms.damage.policy_type" ng-disabled="!order.form.ramo" required>
+	    		        		<option value="" disabled="">Selecciona un tipo</option>
+	    		      		</select>
+	    		      	</div>
+	    	    	</div>
+	    	    	<div class="col-xs-12 col-sm-6 col-md-4 form-group">
+	                    <label for="SelectCurrency">Moneda <span class="color-red">*</span></label>
+					    <select id="SelectCurrency" class="form-control" ng-options="f_currency.value as f_currency.label for f_currency in order.f_currency.options" ng-model="order.f_currency.f_currency_selected" ng-change="changeCurrency()">
+					    </select>
+	                </div>
+
+			    	<div ng-if="users" class="col-sm-4 form-group" ng-class="{ 'has-error': form.responsable.$invalid && !form.responsable.$pristine }">
+			    	  <label for="responsable">Responsable</label>
+			    	  <div>
+			    	    <select class="form-control" name="responsable" ng-model="order.form.responsable" ng-change="changeResponsable(order.form.vendor)" ng-options="responsable.id as responsable.first_name + ' ' + responsable.last_name for responsable in users" >
+			    	        <option value="">Seleccione un responsable</option>
+			    	    </select>
+			    	  </div>
+			    	</div>
+			    	<div ng-if="ejecutivo_cobranza" class="col-xs-12 col-sm-6 col-md-4 form-group" ng-class="{ 'has-error': form.ejecutivo_cobranza.$invalid && !form.ejecutivo_cobranza.$pristine }">
+			    	  <label for="ejecutivo_cobranza">Ejecutivo de cobranza</label>
+			    	  <div>
+			    	    <select class="form-control" name="ejecutivo_cobranza" ng-model="order.form.ejecutivo_cobranza" ng-options="ejecutivo_cobranza.id as ejecutivo_cobranza.first_name + ' ' + ejecutivo_cobranza.last_name for ejecutivo_cobranza in users" >
+			    	        <option value="">Seleccione un Ejecutivo</option>
+			    	    </select>
+			    	  </div>
+			    	</div>
+					<div class="col-xs-12 col-sm-6 col-md-4 form-group">
+						<label>Paquetes <span class="color-red">*</span></label>
+
+						<div class="input-group" ng-class="{ 'has-error': form.paquete.$invalid && !form.paquete.$pristine  }"
+							style="position: relative;">
+
+							<select class="form-control"
+									data-ng-options="package.package_name for package in order.defaults.packages | orderBy:'package_name' track by package.url" ng-change="changePackage(order.form.paquete);identifier('paquete')"
+									name="paquete"
+									ng-model="order.form.paquete"
+									ng-disabled="!order.form.subramo"
+									required>
+							<option value="">Selecciona un paquete</option>
+							</select>
+
+							<!-- Spinner sutil dentro del input -->
+							<span class="input-group-addon"
+								ng-if="cargandoPaquetes"
+								style="background: transparent; border: none; cursor: default;">
+								<i class="fa fa-spinner fa-spin fa-lg"></i>
+							</span>
+
+							<span class="input-group-btn">
+							<button class="btn btn-success"
+									ng-click="addNewPackage()"
+									ng-disabled="!order.form.subramo">
+								<i class="glyphicon glyphicon-plus"></i>
+							</button>
+							</span>
+						</div>
+
+						<span ng-if="!order.defaults.packages.length && order.form.subramo">
+							No hay paquetes en este subramo
+						</span>
+					</div>
+
+					<!-- <div class="col-xs-12">
+						<label>
+						  <input type="checkbox" ng-model="extraFields"> Asignar Línea de Negocio, Célula, Agrupación
+						</label>      
+						<div ng-show="extraFields"> -->
+						<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_lineanegocio">
+								<label>Línea de Negocio</label>
+								<select class="form-control"
+									ng-options="businessline.name for businessline in order.businessline | orderBy:'id' track by businessline.id" name="business" ng-model="order.form.business_line">
+								<option value="" disabled="">Seleccione una línea</option>
+								</select>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_celula">
+							<label>{{moduleName}}</label>
+							<select class="form-control" ng-options="celula.celula_name for celula in celulas | orderBy:'id' track by celula.id" ng-model="order.form.celula">
+								<option value="" disabled="">Seleccione {{moduleName}}</option>
+							</select>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+								<label>Agrupación</label>
+								<select class="form-control" ng-options="item.description for item in agrupaciones | orderBy:'id' track by item.id" ng-change="changeAgrupacion(order.form.grouping_level)" ng-model="order.form.grouping_level">
+								<option value="" disabled="">Seleccione una agrupación</option>
+								</select>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+								<label>Subagrupación</label>
+								<select class="form-control" ng-options="item.description for item in sub_asignaciones | orderBy:'id' track by item.id" ng-change="changeSubagrupacion(order.form.subgrouping)" ng-model="order.form.subgrouping" ng-disabled="!order.form.grouping_level">
+								<option value="" disabled="">Seleccione una subagrupación</option>
+								</select>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+								<label>Subsubagrupación</label>
+								<select class="form-control" ng-options="item.description for item in sub_subasignaciones | orderBy:'id' track by item.id" ng-model="order.form.subsubgrouping" ng-disabled="!order.form.subgrouping">
+								<option value="" disabled="">Seleccione una subsubagrupación</option>
+								</select>
+						</div>
+						<!-- </div>
+	    	    	</div> -->
+	    	    	
+	                <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+	                    <label for="SelectConducto">Conducto de pago <span class="color-red">*</span></label>
+					    <select id="SelectConducto" class="form-control" ng-options="conducto_de_pago.value as conducto_de_pago.label for conducto_de_pago in order.conducto_de_pago.options" ng-model="order.conducto_de_pago.conducto_de_pago_selected" ng-change="changeConducto()">
+					    </select>
+	                </div>                
+
+	                <div class="col-xs-12 form-group legend-gray" ng-if="show_new_sub" style="padding: 20px;">
+	                	<legend class="legend-title" align="center">Referenciadores</legend>
+						<ul class="list-group">
+						 	<li class="list-group-item" ng-repeat="item in referenciador track by $index" ng-init="isSeller[$index] = false; main_index = $index" class="pull-right" style="padding: 20px;">
+
+								<legend class="legend-title hidden-xs hidden-sm" ng-if="item.user_info.is_vendedor" ng-click="isSeller[$index] ? isSeller[$index] = false : isSeller[$index] = true ;checkSelected(isSeller[$index], referenciador[$index])">
+									{{ item.first_name}} {{ item.last_name }}
+									<span class="color-blue pull-right">Vendedor</span>
+								</legend>
+								<legend class="legend-title hidden-xs hidden-sm" ng-if="!item.user_info.is_vendedor" ng-click="isSeller[$index] ? isSeller[$index] = false : isSeller[$index] = true ;checkSelected(isSeller[$index], referenciador[$index])">
+									{{ item.first_name}} {{ item.last_name }}
+									<span class="color-blue pull-right">Usuario</span>
+								</legend>
+								<h2 class="legend-title visible-xs-block visible-sm-block" ng-if="item.user_info.is_vendedor" ng-click="isSeller[$index] ? isSeller[$index] = false : isSeller[$index] = true ;checkSelected(isSeller[$index], referenciador[$index])">
+									{{ item.first_name}} {{ item.last_name }}
+									<div>
+										<h4 class="color-blue">Vendedor</h4>
+									</div>
+								</h2>
+								<h2 class="legend-title visible-xs-block visible-sm-block" ng-if="!item.user_info.is_vendedor" ng-click="isSeller[$index] ? isSeller[$index] = false : isSeller[$index] = true ;checkSelected(isSeller[$index], referenciador[$index])">
+									{{ item.first_name}} {{ item.last_name }}
+									<div>
+										<h4 class="color-blue">Usuario</h4>
+									</div>
+								</h2>
+
+						    	<div class="row" ng-if="isSeller[$index]">
+						    		<form name="form">
+						        		<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+						          			<label>Fecha de Ingreso:<span class="color-red">*</span></label>
+						          			<div class="datepicker-me input-group date" data-provide="datepicker">
+						            			<input type="text" name="" class="form-control width-100 text-align-center" ng-model="referenciador[$index].hired_date" data-date-format="mm/dd/yyyy" required />
+						            			<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+						          			</div>
+						        		</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Banco:<span class="color-red">*</span></label>
+											<select class="form-control" ng-model="referenciador[$index].bank" ng-options="bank.alias for bank in banks | orderBy: 'alias' track by bank.url" required>
+												<option value="" disabled>Seleccione un banco</option>
+											</select>
+										</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Número de Referencia:<span class="color-red">*</span></label>
+											<input class="form-control" type="text" name="" ng-model="referenciador[$index].reference_number" ng-disabled="referenciador[$index].pay_way.key == 4" required />
+										</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Forma de Pago:<span class="color-red">*</span></label>
+											<select class="form-control" ng-model="referenciador[$index].pay_way" ng-options="pay_way.val for pay_way in pay_ways | orderBy: 'id' track by pay_way.key" required>
+												<option value="" disabled>Seleccione una forma de pago</option>
+											</select>
+										</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Gastos de Operación:<span class="color-red">*</span></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fa fa-usd"></i></span>
+												<input class="form-control" type="text" name="" ng-model="referenciador[$index].gastos_operacion" required />
+											</div>
+										</div>
+
+										<!-- <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Frecuencia de Cobro:<span class="color-red">*</span></label>
+											<select class="form-control" ng-model="referenciador[$index].frequencia_de_cobro" ng-options="fc.val for fc in fcs | orderBy: 'id' track by fc.key" required>
+												<option value="" disabled>Seleccione una frecuecia de cobro</option>
+											</select>
+										</div> -->
+
+										<div class="col-xs-12 col-md-8 col-lg-6 form-group">
+											<label>Dirección:<span class="color-red">*</span></label>
+											<input class="form-control" type="text" name="" ng-model="referenciador[$index].address" required />
+										</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Correo electrónico:<span class="color-red">*</span></label>
+											<input class="form-control" type="email" name="" ng-model="referenciador[$index].email" required />
+										</div>
+
+										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+											<label>Teléfono:<span class="color-red">*</span></label>
+											<div class="input-group form-group">
+												<phonenumber-directive placeholder="myPrompt" model="referenciador[$index].phone"></phonenumber-directive>
+												<span class="input-group-btn">
+													<button class="btn btn-success btn-add-contractor" ng-click="addPhone($index)">
+														<i class="fa fa-plus" aria-hidden="true"></i>
+													</button>
+												</span>
+											</div>
+											<div class="input-group form-group" ng-repeat="item in referenciador[main_index].phones track by $index" ng-init="child_index = $index">
+												<phonenumber-directive placeholder="myPrompt" model="referenciador[main_index].phones[child_index]"></phonenumber-directive>
+												<span class="input-group-btn">
+													<button class="btn btn-danger btn-add-contractor" ng-click="deletePhone(main_index, child_index, referenciador[main_index].phones[child_index])">
+														<i class="fa fa-minus" aria-hidden="true"></i>
+													</button>
+												</span>
+											</div>
+										</div>
+
+										<div class="col-xs-12">
+											<div class="col-xs-12 legend-gray" ng-if="item.subramos.length == 0">
+												<legend class="legend-title legend-flex" align="center">
+													<button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-disabled="item.subramos.length == 0">
+														Quitar Subramo
+													</button>
+													<button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-disabled="item.subramos.length == 0">
+														<i class="glyphicon glyphicon-minus"></i>
+													</button>
+													<span>
+														Subramos
+													</span>
+													<button class="btn btn-success pull-right hidden-xs" ng-click="addSubramo(main_index)" type="button">
+														Agregar Subramo
+													</button>
+													<button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addSubramo(main_index)" type="button">
+														<i class="glyphicon glyphicon-plus"></i>
+													</button>
+												</legend>
+											</div>
+										</div>
+
+										<div class="col-xs-12 address-container" ng-repeat="sub_ramo in item.subramos track by $index" ng-init="main_subramos_index = $index; assignAgain()">
+											<div class="col-xs-12 legend-gray">
+												<legend class="legend-title legend-flex" align="center">
+													<button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="deleteSubramo(main_index, main_subramos_index, item)">
+														Quitar Subramo
+													</button>
+													<button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="vm.deleteContacts($index, 1)">
+														<i class="glyphicon glyphicon-minus"></i>
+													</button>
+													<span>
+														Subramo #{{$index + 1}}
+													</span>
+													<button class="btn btn-success pull-right hidden-xs" ng-click="addSubramo(main_index)" type="button">
+														Agregar Subramo
+													</button>
+													<button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addSubramo(main_index)" type="button">
+														<i class="glyphicon glyphicon-plus"></i>
+													</button>
+												</legend>
+											</div>
+
+											<div class="col-xs-12 address_components">
+												<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+													<label>Aseguradora</label>
+													<select class="form-control" ng-model="sub_ramo.provider" ng-options="provider.compania for provider in aseguradoras | orderBy: 'compania' track by provider.url" ng-change="changeProvider(sub_ramo, sub_ramo.provider)">
+														<option value="">Todas</option>
+													</select>
+												</div>
+
+												<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+													<label>Ramo</label>
+													<select class="form-control" ng-model="sub_ramo.ramo" ng-options="ramo.ramo_name for ramo in sub_ramo.ramos | orderBy: 'ramo_name' track by ramo.id" ng-change="changeRamoVendedor(sub_ramo)">
+														<option value="">Todos</option>
+													</select>
+												</div>
+
+												<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+													<label>Subramo</label>
+													<select class="form-control" ng-model="sub_ramo.subramo" ng-options="subramo.subramo_name for subramo in sub_ramo.sub_ramos | orderBy: 'subramo_name' track by subramo.id">
+														<option value="">Todos</option>
+													</select>
+												</div>
+
+												<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+													<label>Porcentaje de Comisión %</label>
+													<input class="form-control" type="text" name="" minlength="1" maxlength="10" ng-model="sub_ramo.comision_percentage" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-xs-12 form-group">
+											<button class="btn btn-success btn-mt pull-right" ng-if="item.user_info.info_vendedor.length == 0" ng-disabled="" ng-click="saveSeller(main_index)">Guardar como Vendedor</button>
+											<button class="btn btn-success btn-mt pull-right" ng-if="item.user_info.info_vendedor.length > 0" ng-disabled="" ng-click="isSeller[$index] = false; saveSeller(main_index)">Guardar Cambios</button>
+										</div>
+									</form>
+								</div>
+							</li>
+						</ul>
+
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group btn-mt pull-right">
+							<button class="col-xs-12 btn btn-danger" ng-click="cancelNewSubramo()">Cancelar</button>
+						</div>
+					</div>
+
+					<div ng-if="show_new_pack">
+			    		<form name="packForm" novalidate>
+							<div class="col-xs-12 col-sm-6 form-group"
+								ng-class="{'has-error': packForm.package_name.$touched && packForm.package_name.$invalid}">
+								<label>Nombre del Paquete: <span class="color-red">*</span></label>
+								<input class="form-control"
+									type="text"
+									name="package_name"
+									ng-model="newPackageCoverage.package_name"
+									required
+									ng-trim="true">
+
+								<small class="help-block"
+									ng-show="packForm.package_name.$touched && packForm.package_name.$error.required">
+								El nombre del paquete es obligatorio.
+								</small>
+							</div>
+
+							<div class="col-xs-12 form-group">
+								<label>Observaciones: </label>
+								<textarea type="text" class="form-control" ng-model="newPackageCoverage.description"></textarea>
+							</div>
+
+							<div class="address-container" ng-repeat="item in newPackageCoverage.coverage_package track by $index">
+								<div class="col-xs-12 legend-gray">
+								<legend class="legend-title legend-flex" align="center">
+									<button type="button" class="btn btn-danger pull-left hidden-xs"
+											ng-click="deleteNewPackageCoverage($index)"
+											ng-disabled="newPackageCoverage.coverage_package.length <= 1">
+									<i class="fa fa-minus-circle" aria-hidden="true"></i> Quitar Cobertura
+									</button>
+
+									<button type="button" class="btn btn-danger pull-left visible-xs-inline-block"
+											ng-click="deleteNewPackageCoverage($index)"
+											ng-disabled="newPackageCoverage.coverage_package.length <= 1">
+									<i class="fa fa-minus-circle" aria-hidden="true"></i>
+									</button>
+
+									<span class="hidden-xs">Cobertura #{{$index + 1}}</span>
+
+									<button class="btn btn-success pull-right hidden-xs" ng-click="addNewPackageCoverage()" type="button">
+									<i class="fa fa-plus-circle" aria-hidden="true"></i> Agregar Cobertura
+									</button>
+
+									<button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addNewPackageCoverage()" type="button">
+									<i class="fa fa-plus-circle" aria-hidden="true"></i>
+									</button>
+								</legend>
+								</div>
+
+								<div class="col-xs-12 address_components">
+								<div class="col-xs-12 col-sm-6 form-group"
+									ng-class="{'has-error': packForm['coverage_name_' + $index].$touched && packForm['coverage_name_' + $index].$invalid}">
+									<label>Nombre de la Cobertura: <span class="color-red">*</span></label>
+
+									<input class="form-control"
+										type="text"
+										ng-model="item.coverage_name"
+										ng-attr-name="coverage_name_{{$index}}"
+										required
+										ng-trim="true">
+
+									<small class="help-block"
+										ng-show="packForm['coverage_name_' + $index].$touched && packForm['coverage_name_' + $index].$error.required">
+									El nombre de la cobertura es obligatorio.
+									</small>
+								</div>
+
+								<div class="col-xs-12 col-sm-3 form-group">
+									<label>Suma Asegurada:</label>
+									<input class="form-control" type="text" ng-model="item.sums_coverage">
+								</div>
+
+								<div class="col-xs-12 col-sm-3 form-group">
+									<label>Deducible:</label>
+									<input class="form-control" type="text" ng-model="item.deductible">
+								</div>
+								</div>
+							</div>
+
+							<div class="col-xs-12 col-sm-3 form-group pull-right m-t">
+								<button class="btn btn-secondary" type="button" ng-click="cancelNewPackage()">
+								<i class="fa fa-times" aria-hidden="true"></i> Cancelar
+								</button>
+							</div>
+
+							<div class="col-xs-12 col-sm-3 form-group pull-right m-t">
+								<button class="btn btn-primary"	type="button" ng-click="saveNewPackage()" ng-disabled="paqueteGuardado || packForm.$invalid || !newPackageCoverage.package_name || !newPackageCoverage.coverage_package.length">
+									<i class="fa fa-save" aria-hidden="true"></i> Guardar Paquete
+								</button>
+								<!-- <button class="btn btn-primary"
+										type="button"
+										ng-click="saveNewPackage()"
+										ng-disabled="paqueteGuardado || packForm.$invalid">
+								<i class="fa fa-save" aria-hidden="true"></i> Guardar Paquete
+								</button> -->
+							</div>
+						</form>	
+			    	</div>
+
+					<!-- <div class="col-md-12 col-sm-12 animate legend-gray" ng-if="show_new_pack">
+						<form>
+							<legend class="legend-title" align="center">Agregar Paquete</legend>
+							<div class="col-xs-12" ng-if="create_pack">
+								<div class="row">
+									<div class="col-xs-12 col-sm-6">
+										<label>Nombre<span class="color-red">*</span></label>
+										<input class="form-control" ng-model="package.package_name" type="text">
+									</div>
+									<div class="col-xs-12 col-sm-6">
+										<label>Observaciones<span class="color-red">*</span></label>
+										<textarea class="form-control" ng-model="package.description"></textarea>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group btn-mt pull-right">
+										<button class="col-xs-12 btn btn-success" ng-disabled="!package.package_name" ng-click="savePackage(package)">
+											Siguiente
+										</button>
+									</div>
+									<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group btn-mt pull-right">
+										<button class="col-xs-12 btn btn-danger" ng-click="cancelNewPackage()">
+											Cancelar
+										</button>
+									</div>
+								</div>
+				            </div>
+							<div class="col-xs-12" ng-if="add_coverages">
+								<div class="row">
+									<div class="col-xs-12 col-md-6">
+										<label>Nombre de Cobertura<span class="color-red">*</span></label>
+										<input class="form-control" ng-model="coverageName" type="text">
+									</div>
+									<div class="col-xs-12 col-md-3">
+										<label>Suma asegurada</label>
+										<input class="form-control" ng-model="sum_insured" type="text">
+									</div>
+									<div class="col-xs-12 col-md-3">
+										<label>Deducible</label>
+										<input class="form-control" ng-model="deductible" type="text">
+									</div>
+								</div>
+								<br>
+								<div class="row">
+									<div class="col-xs-12">
+										<button class="btn btn-success" ng-click="saveCoverage(coverageName, sum_insured, deductible); coverageName = ''">Agregar</button>
+										<button class="btn btn-info" ng-click="finishCoverages()" ng-disabled="!coverages.length">Finalizar</button>
+									</div>
+								</div>
+								<br>
+								<div class="row">
+									<div class="col-xs-12">
+										
+										<label class="text-center">COBERTURAS DEL PAQUETE {{ package.package_name }}</label>
+										<ul class="list-group">
+											<li class="list-group-item" ng-repeat="coverage in coverages">{{ coverage.coverage_name }}</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+				            <hr class="col-xs-12">
+						</form>
+					</div> -->
+					<div ng-if="sucursalList" class="col-xs-12 col-sm-6 col-md-4 form-group" >
+			    	  <label for="sucursal">Sucursal</label>
+                    <!--<div>-->
+			    	    <select class="form-control" name="sucursal" ng-model="order.form.sucursal" ng-options="sucursal.id as sucursal.sucursal_name for sucursal in sucursalList" >
+			    	        <option value="">Seleccione una sucursal</option>
+			    	    </select>
+                    <!--</div>-->
+			    	</div>
+			    	<!-- Variso referenciadores -->
+			    	<div class="col-xs-12 col-sm-6 col-md-6 nopadding form-group">
+						<label>Referenciadores <span ng-if="!order.acc_referenciador_obligatorio" class="color-red">*</span></label>
+						<div class="hidden-xs hidden-sm nopadding form-group" ng-repeat="item in referenciadores">
+							<div class="col-xs-12 input-group form-group">
+							  	<div class="input-group-btn">
+							    	<button type="button" class="btn btn-danger" name="button" ng-click="deleteReferenciador($index, 1)" ng-disabled="referenciadores.length <= 1">
+							      		<i class="glyphicon glyphicon-minus"></i>
+							    	</button>
+							  	</div>								  
+							  	<select class="form-control m-b col-xs-12" name="referenciador_policy" ng-model="item.referenciador" ng-change="changeReferenciador(item)" ng-options="referenciador_policy.url as referenciador_policy.first_name + ' ' + referenciador_policy.last_name for referenciador_policy in referenciador " ng-disabled="!order.acceso_chng_ref">
+							    	<option value="" selected>Seleccione el referenciador</option>
+								</select>
+							  	<div class="input-group-btn wb102" ng-init="referenciadores[$index].resp_type = 0">
+							  		<input class="form-control m-b col-xs-12 wb102" type="text" name="" placeholder="% Comisión" ng-model="item.comision_vendedor" ng-disabled="referenciadores.length <= 1" ng-change="changeComRef(item)" required/>					    
+							    	<button class="btn btn-success" ng-click="addReferenciador(1)" type="button" ng-disabled="!order.acceso_chng_ref">
+							      	<i class="glyphicon glyphicon-plus"></i>
+							    	</button>
+							    	<a ng-disabled="!item.referenciador" ng-show="item.selectedRef && referenciadores.length > 1 && order.poliza.primaTotal" class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); calculateComision(item, $index)"><i class="fa fa-calculator" aria-hidden="true"></i></a>
+							  	</div>
+							  	
+							</div>
+						</div>
+						<div class="alert alert-danger" ng-show="comisionError">
+							{{ comisionError }}
+						</div>
+					</div> 
+					<!-- Referenciadores -->
+	                <div class="col-xs-12 form-group">
+	                    <!-- <label>Frecuencia de pago<span class="color-red">*</span></label> -->
+		                   <!--  <select class="form-control" name="payment" ng-model="order.form.payment" ng-disabled="frec_disabled" ng-change="isReceiptAvailable(order.form.payment);identifier(order.form.ramo)" ng-options="payform as payform.label for payform in order.defaults.payform track by payform.value">
+		                        <option value="">Selecciona forma de pago</option>
+		                    </select> -->
+		                <legend class="legend-title" align="center">Frecuencia de Pago <span class="color-red">*</span></legend>
+					    <!-- <label>Frecuencia de pago<span class="color-red">*</span></label> -->
+		                <div class="row form-group">
+					        <!-- <h4 class="text-center">Frecuencia de pago</h4> -->
+					        <!-- <hr> -->
+					        <div class="col-xs-12 col-sm-4 col-md-2">
+
+						        <div class="checkbox margin-top-5">
+						            <label>
+					                	<input ng-model="order.form.payment" type="radio" value="1" />
+					                	MENSUAL
+					              	</label>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						          	<label>
+						            	<input type="radio" ng-model="order.form.payment" value="2" >
+						            	BIMESTRAL
+						          	</label>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						          	<label>
+						            	<input type="radio" ng-model="order.form.payment" value="3" >
+						            	TRIMESTRAL
+						          	</label>
+						        </div>
+					        </div>
+					        <div class="col-xs-12 col-sm-4 col-md-2">
+								<div class="checkbox margin-top-5">
+									<label>
+										<input ng-model="order.form.payment" type="radio" value="4" />
+										CUATRIMESTRAL
+									</label>
+								</div>
+							</div>
+					        <div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						          	<label>
+						            	<input type="radio" ng-model="order.form.payment" value="6" >
+						            	SEMESTRAL
+						          	</label>
+								</div>
+							</div>
+					        <!-- <div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						          	<label>
+						            	<input type="radio" ng-model="order.form.payment" value="15" >
+						            	QUINCENAL
+						          	</label>
+								</div>
+							</div> -->
+							<div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						          	<label>
+						            	<input type="radio" ng-model="order.form.payment" value="12" >
+						            	ANUAL
+						          	</label>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-2">
+						        <div class="checkbox margin-top-5">
+						            <label>
+					                	<input ng-model="order.form.payment" type="radio" value="5" />
+					                	CONTADO
+					              	</label>
+						        </div>
+					        </div>
+					    </div>
+	                </div>
+
+			    </div>			    
+		    </form>
+	 	</fieldset>
+	</div>
+
+    <div class="col-md-12 col-sm-12 form-group">
+      <div ng-if="order.show.showForms" ng-include="'templates/forms.html'"></div>
+    </div>
+
+	<div class="col-xs-12 form-group" ng-if="order.form.paquete">
+    	<div ng-include="'app/coberturas/coberturas.table.html'"></div>
+    	<div ng-if="addNewCoverages">
+            <div class="col-xs-12 col-sm-3 form-group">
+              <label>Nombre de Cobertura<span class="color-red">*</span></label>
+              <input class="form-control" type="text" ng-model="coverageName" />
+            </div>
+            <!-- <div class="col-xs-12 col-md-6 col-sm-4 col-lg-4 form-group">
+              <label>Prioridad / Orden<span class="color-red">*</span></label>
+              <input class="form-control" type="text" ng-model="priority" />
+            </div> -->
+			<br>
+            <div class="col-xs-12 col-sm-3">
+              <button class="col-xs-12 btn btn-white pull-right margin-top-5" ng-click="finishNewCoverages()" >Cancelar</button>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+              <button class="col-xs-12 btn btn-info pull-right margin-top-5" ng-click="finishNewCoverages()" ng-disabled="!coverages.length">Finalizar</button>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+              <button class="col-xs-12 btn btn-success pull-right margin-top-5" ng-click="saveNewCoverage(coverageName,priority,order.form.paquete)">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+	<div class="col-xs-12 form-group">
+		<fieldset>
+			<legend class="legend-title" align="center">Observaciones</legend>
+			<form name="form1">
+			<div class="row">
+				<div class="col-xs-12 form-group" ng-class="{ 'has-error': form1.observations.$invalid && !form1.observations.$pristine  }">
+                    <textarea type ="text" class="form-control" name="observations" ng-model="dataToSave.observations" ></textarea>
+				</div>
+			</div>
+			</form>
+		</fieldset>
+	</div>
+    <div class="col-xs-12 form-group" ng-if="order.permiso_administrar_adjuntos">
+    	<div class="row">
+    		<div ng-include="'templates/upload.html'"></div>
+    	</div>
+    	<div class="row">
+    		<div ng-include="'templates/show-files.html'"></div>
+    	</div>
+    </div>
+    <button id="createCont" ng-click="order.contratanteCreatorModalEvent()" class="display-none"></button>
+
+    <div class="col-xs-12 form-group" ng-hide="order.show.ot">
+
+		<!-- ALERTA -->
+		<div class="alert alert-warning"
+			ng-if="imgPrimasSrc"
+			style="margin-top: 15px;">
+
+			<h4 style="margin-top:0;">
+			<i class="fa fa-exclamation-triangle"></i>
+			Verificación obligatoria de primas
+			</h4>
+
+			<p style="margin-bottom:0;">
+			A continuación se muestra la captura de las primas obtenidas del PDF de la aseguradora
+			y las primas leídas automáticamente por SAAM.
+			<br>
+			<strong>Revise cuidadosamente que los montos coincidan exactamente.</strong><br>
+			<strong>Se recomienda ampliar la imagen (zoom) para asegurar la correcta validación de los montos.</strong>
+			</p>
+			<!-- BOTÓN TOGGLE -->
+			<button
+				type="button"
+				class="btn btn-danger pull-right"
+				ng-if="imgPrimasSrc"
+				ng-click="order.ui = order.ui || {}; order.ui.showImgPrimas = !order.ui.showImgPrimas">
+				<i class="fa"
+				ng-class="{
+					'fa-chevron-down': !(order.ui && order.ui.showImgPrimas),
+					'fa-chevron-up': (order.ui && order.ui.showImgPrimas)
+				}"></i>
+				{{ (order.ui && order.ui.showImgPrimas)
+					? 'Ocultar captura de primas'
+					: 'Ver captura de primas' }}				
+  				<i class="fa fa-search-plus" ng-class="{'fa-search-plus': (order.ui && order.ui.showImgPrimas),'fa-search': !(order.ui && order.ui.showImgPrimas)}" 
+					aria-hidden="true" style="margin-right:6px;"></i>
+			</button>
+		</div>
+		<!-- COLLAPSE -->
+		<style>
+			.img-wrap {
+				overflow: auto;
+				max-height: 70vh;      /* para que no se salga de la pantalla */
+				border-radius: 4px;
+			}
+
+			.img-zoom {
+				display: block;
+				width: 100%;
+				height: auto;
+				max-width: none;       /* clave: permitir crecer */
+				transition: transform .2s ease;
+				transform-origin: top left;   /* clave: no se “pierde” al centro */
+				cursor: zoom-in;
+			}
+
+			.img-zoom.is-zoomed {
+				transform: scale(2.8);
+				cursor: zoom-out;
+			}
+		</style>
+		<div class="collapse"
+		ng-class="{ in: (order.ui && order.ui.showImgPrimas) }"
+		ng-if="imgPrimasSrc"
+		style="margin-top: 10px;">
+			<div class="well well-sm" style="margin-bottom:0; overflow:auto;">
+				<img ng-src="{{imgPrimasSrc}}"
+				class="img-responsive img-thumbnail img-zoom"
+				ng-class="{'is-zoomed': order.ui.zoomPrimas}"
+				ng-click="order.ui.zoomPrimas = !order.ui.zoomPrimas"
+				style="
+					width:50%;
+					max-width:50%;
+					height:260px;
+					object-fit:contain;
+					object-position:center;
+					margin:0 auto;
+					display:block;
+				" />
+			</div>
+		</div>
+
+
+
+		<receipts-individual
+			form="order.form"
+			tosave="dataToSave"
+			type="1">
+		</receipts-individual>
+	</div>
+
+</div>
+<script type="text/javascript">
+	$('#select_srefer').select2({
+        dropdownParent: $('#select_refer')
+    });
+	const fileSelector = document.getElementById('file-selector');
+	fileSelector.addEventListener('change', (event) => {
+	const fileList = event.target.files;
+	console.log('file-----***',fileList);
+	});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>

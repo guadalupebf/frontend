@@ -1,0 +1,248 @@
+<div class="inmodal">
+  <div class="modal-header">
+    <h4 class="modal-title">Renovación - Crear OT</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-content wizard">
+            <!-- <div class="steps clearfix">
+              <ul>
+                <li>
+                  <button class="btn btn-w-m btn-success" ng-click="hide(1)"
+                    ng-class="showOne ? 'btn btn-w-m btn-w-m btn-success' : 'btn btn-w- btn-w-m btn-default'">OT</button>
+                </li>
+                <li ng-hide="show.ot">
+                  <button class="btn btn-w-m btn-default" ng-click="hide(2)" ng-disabled="renewal.payment === '' || renewal.poliza === '' "
+                    ng-class="showOne ? 'btn btn-w-m btn-w-m btn-default' : 'btn btn-w- btn-w-m btn-success'" >Recibos</button>
+                </li>
+              </ul>
+            </div> -->
+            <div class="wizard">
+                <form name="signupForm" ng-submit="processForm()">
+                  <div class="" ng-show="showOne == true">
+                      <form class="">
+                        <div class="form-group col-sm-6">
+                          <label>Contratantes</label>
+                          <!-- <span>{{renewal.natural}}{{renewal.juridical}}</span> -->
+                          <input class="form-control" value="{{renewal.natural}}{{renewal.juridical}}" type="text" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Número de Póliza</label>
+                          <input class="form-control" name="poliza" ng-model="renewal.poliza_number" type="text">
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Aseguradora<span class="color-red">*</span></label>
+                          <select ng-model="renewal.aseguradora" class="form-control" ng-options="a.compania for a in combos.providers track by a.id"
+                             ng-change="changeProvider(renewal.aseguradora)" required>
+                          </select>
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Ramo<span class="color-red">*</span></label>
+                          <select ng-model="renewal.ramo" class="form-control" ng-options="r.ramo_name for r in combos.ramos track by r.id"
+                            ng-change="changeRamo(renewal.ramo)" required>
+                          </select>
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Subramos<span class="color-red">*</span></label>
+                          <select ng-model="renewal.subramo" class="form-control" ng-options="s.subramo_name for s in combos.subramos track by s.id"
+                          ng-change="changeSubramo(renewal.subramo)" required>
+                          </select>
+                        </div>
+                        <div class="form-group col-sm-12">
+                          <div ng-if="showForms" ng-include="'templates/forms.html'"></div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Paquetes<span class="color-red">*</span></label>
+                          <select ng-model="renewal.paquete" class="form-control" ng-options="p.package_name for p in combos.packages track by p.id"
+                          ng-change="changePackage(renewal.paquete)" required>
+                          </select>
+                        </div>
+                        <!-- TODO arreglar coberturas -->
+                        <!-- <div ng-if="showCoverages" ng-include="'app/coberturas/coberturas.table.html'"></div> -->
+                        <div class="form-group col-sm-6">
+                          <label>Fecha de Inicio</label>
+                          <div class="input-group date">
+                            <span class="input-group-addon">
+                              <i class="fa fa-calendar"></i>
+                            </span>
+                            <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date" name="startDate" ng-model="renewal.start_of_validity" view="year">
+                          </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Fecha de Fin</label>
+                          <div class="input-group date">
+                            <span class="input-group-addon">
+                              <i class="fa fa-calendar"></i>
+                            </span>
+                            <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date" name="endingDate" ng-model="renewal.end_of_validity" view="year">
+                          </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                          <label>Forma de pago<span class="color-red">*</span></label>
+                          <select ng-model="renewal.payment" class="form-control" ng-options="p.label for p in combos.payform track by p.value"
+                            required>
+                          </select>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <!-- <div ng-include="'templates/upload.html'"></div> -->
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                          <!-- TODO revisar que botones quedan por default-->
+                          <div class="col-sm-12">
+                            <button class="btn btn-success pull-right margin-right-10" ng-click="hideOT()" ng-disabled="renewal.contratante.length === 0"
+                                ng-show="show.ot" type="button">Crear OT</button>
+                            <button class="btn btn-success pull-right margin-right-10" type="button" ng-disabled="renewal.$invalid"
+                                ng-hide="show.ot" ng-click="saveChangesInOt()">Guardar OT</button>
+                            <button class="btn btn-success pull-right margin-right-10" ng-click="saveInsurance()" ng-disabled="showPoliceCreator()"
+                                ng-show="!show.ot" type="button">Crear póliza</button>
+                          </div>
+                        </div>
+                      </form>
+                  </div>
+                  <!-- /First tab -->
+                  <!-- Second tab -->
+                  <div class="" ng-show="showOne == false">
+                    <div class="modal-body">
+                      <form class="form-group">
+                        <div class="form-group">
+                          <label class="control-label">Prima neta: $
+                          </label>
+                          <input class="form-control" id="prima-neta" ng-model="poliza.primaNeta" min="0.00" step="any" max="9999999999" type="number" value="" format-as-currency>
+                        </div>
+                        <div class="form-group">
+                          <label class="control-label" for="rpf">RPF: $
+                          </label>
+                          <input class="form-control" id="rpf" ng-model="poliza.rpf" min="0.00" step="any" max="9999999999" type="number" value="" format-as-currency>
+                        </div>
+                        <div class="form-group">
+                          <label for="derecho">Derecho de Póliza: $
+                          </label>
+                          <input class="form-control" id="derecho" ng-model="poliza.derecho" min="0.00" step="any" max="9999999999" type="number" value="" format-as-currency>
+                        </div>
+                        <div class="form-group">
+                          <label for="iva">IVA:
+                          </label>
+                          <input class="form-control" id="iva" ng-model="poliza.iva" min="0.00" step="any" max="9999999999" type="text" value="">
+                        </div>
+                        <div class="form-group">
+                          <label for="sub-total">Sub-Total: $
+                          </label>
+                          <input class="form-control" id="sub-total" ng-model="poliza.subTotal" min="0.00" step="any" max="9999999999" type="number" value="" disabled="">
+                        </div>
+                        <div class="form-group">
+                          <label for="prima-total">Prima Total: $
+                          </label>
+                          <input class="form-control" id="prima-total" ng-model="poliza.primaTotal" min="0.00" step="any" max="9999999999" type="number" value="" disabled="">
+                        </div>
+                      </form>
+                      <button class="btn btn-success" id="calculate" name="button" ng-click="calculate()" type="button">Calcular y generar recibos</button>
+                      <div id="personalizado">
+                        <div class="checkbox" id="divConfigDerecho">
+                          <label><input id="configDerecho" ng-model="configDerecho" type="checkbox">Derecho - Cargos sólo al primer recibo</label>
+                        </div>
+                        <div class="checkbox" id="divConfigRPF">
+                          <label><input id="configRPF" ng-model="configRPF" type="checkbox">RPF - Cargos sólo al primer recibo</label>
+                        </div>
+                      </div>
+                      <div class="form-horizontal" ng-if="showReceipts">
+                        <div class="form-group">
+                          <label class="col-sm-6 h4" for="">Cantidad de recibos:
+                            {{amountReceipts}}</label>
+                        </div>
+                      </div>
+                      <div ng-if="showReceipts">
+                        <h5>
+                          <strong>Recibo inicial</strong>
+                        </h5>
+                        <form method="post">
+                          <div class="row">
+                            <div class="col-sm-6 col-xs-12" ng-repeat="receipt in receipts track by $index">
+                              <div class="panel panel-default">
+                                <div class="panel-heading">Recibo #
+                                  {{$index + 1}}</div>
+                                <div class="panel-body">
+                                  <div class="form-horizontal">
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Prima neta: $</label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" ng-model="receipt.prima" step="any" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">RPF: $</label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" ng-model="receipt.rpf" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Derecho: $</label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" ng-model="receipt.derecho" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">IVA(%):
+                                      </label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" disabled ng-model="receipt.iva" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Sub Total: $</label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" ng-model="receipt.subTotal" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Prima Total: $</label>
+                                      <div class="col-sm-8">
+                                        <input class="form-control" ng-model="receipt.total" type="number">
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Fecha de inicio</label>
+                                      <div class="col-sm-8">
+                                        <div class="input-group date">
+                                          <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                          </span>
+                                          <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date" ng-model="receipt.startDate" view="year">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label class="col-sm-4 control-label">Fecha de fin</label>
+                                      <div class="col-sm-8">
+                                        <div class="input-group date">
+                                          <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                          </span>
+                                          <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date" ng-model="receipt.endingDate" view="year">
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- /Second tab -->
+                </form>
+              <!-- </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <!-- <button class="btn btn-info" ng-click="ok()" type="button">Guardar</button> -->
+    <button class="btn btn-white" ng-click="cancel()" type="button">Cerrar</button>
+  </div>
+</div>

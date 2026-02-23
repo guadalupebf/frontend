@@ -1,0 +1,84 @@
+<div class="inmodal" id="modal_email">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Enviar a correo electrónico</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="row">
+          <div class="row">
+            <div class="col-xs-12 legend-gray">
+              <legend class="legend-title" align="center">Recordatorio de renovación por correo electrónico</legend>
+              <div class="form-group col-xs-12">
+                <label for="selectType">Elija una opción:</label>
+                <br>
+                <select class="form-control m-b" ng-model="optionSent" ng-options="item as item.label for item in optionsSent track by item.value" ng-change="showAddEmails(optionSent)">
+                  <option disabled="" value="">Selecciona una opción</option>
+                </select>
+              </div>
+              <legend class="legend-title legend-flex" align="center" ng-if="showAddEmail">
+                <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-disabled="form.emails_reminder.length == 0">
+                  <i class="glyphicon glyphicon-minus"></i>
+                </button>
+                <span>
+                  Correos electrónicos
+                </span>
+                <button class="btn btn-success pull-right hidden-xs" ng-click="addEmails(1)" type="button">
+                  <i class="glyphicon glyphicon-plus"></i>
+                  <!-- Agregar Correo electrónico -->
+                </button>
+                <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addEmails(1)" type="button">
+                  <i class="glyphicon glyphicon-plus"></i>
+                </button>
+              </legend>
+            </div>
+          </div>
+        </div>
+        <div class="row" ng-if="form.emails_reminder.length != 0">
+          <div class="row email-container" ng-repeat="contact in form.emails_reminder track by $index">
+            <div class="col-xs-12 legend-gray">
+              <legend class="legend-title legend-flex" align="center" ng-if="showAddEmail">
+                <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="deleteEmails($index, 1)">
+                <i class="glyphicon glyphicon-minus"></i>
+                  <!-- Quitar Correo electrónico -->
+                </button>
+                <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="deleteEmails($index, 1)">
+                  <i class="glyphicon glyphicon-minus"></i>
+                </button>
+                <span>
+                  Correo electrónico #{{$index + 1}}
+                </span>
+                <button class="btn btn-success pull-right hidden-xs" ng-click="addEmails(1)" type="button"><i class="glyphicon glyphicon-plus"></i>
+                  <!-- Agregar Correo electrónico -->
+                </button>
+                <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addEmails(1)" type="button">
+                  <i class="glyphicon glyphicon-plus"></i>
+                </button>
+              </legend>
+            </div>
+            <div class="col-xs-12 col-sm-12 form-group" align="center">
+              <label>Correo electrónico</label>
+              <input class="form-control" type="search" lowercase ng-model="contact.email">
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+    <button type="button" class="btn btn-success ladda-button" ng-click="sendReminder(form.emails_reminder,10)">Enviar recordatorio</button>
+  </div>
+</div>
+<script type="text/javascript">
+  // $('#modal_email').modal({backdrop: 'static', keyboard: false})
+  // $(document).ready(function(){
+  //   $('#modal_email').modal('hide');
+  //     if ($('.modal-backdrop').is(':visible')) {
+  //       $('body').removeClass('modal-open'); 
+  //       $('.modal-backdrop').remove(); 
+  //     };
+  //   });
+// });
+</script>

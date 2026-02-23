@@ -1,0 +1,1652 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading page-heading--modern">
+  <div class="col-lg-12">
+    <div class="page-heading__top">
+      <h2 class="page-heading__title" ng-if="vm.show.isPolicy && !vm.insurance.folio_endorsement">
+        Pólizas
+        <span class="page-heading__badge" ng-if="vm.insurance.poliza_number">
+          #{{vm.insurance.poliza_number}}
+        </span>
+      </h2>
+
+      <h2 class="page-heading__title" ng-if="!vm.show.isPolicy && !vm.insurance.folio_endorsement">
+        OT
+      </h2>
+
+      <h2 class="page-heading__title" ng-if="vm.insurance.folio_endorsement">
+        Endosos
+      </h2>
+    </div>
+
+    <ol class="breadcrumb page-heading__breadcrumb">
+      <li><a ui-sref="inicio.inicio">Inicio</a></li>
+      <li><a ui-sref="polizas.table">Listado de Pólizas</a></li>
+      <li class="active" aria-current="page">
+        <strong ng-if="vm.show.isPolicy && !vm.insurance.folio_endorsement">Póliza</strong>
+        <strong ng-if="!vm.show.isPolicy && !vm.insurance.folio_endorsement">Orden</strong>
+        <strong ng-if="vm.insurance.folio_endorsement">Endoso</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="btn-group pull-right m-b option_button">
+  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="fa fa-bolt"></span> Opciones
+  </button>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li ng-if="vm.acceso_ver_cont"><a ng-click="vm.viewContractor('Información contratante','contratantes.info')">Ver información del cliente</a></li>
+    <li ><a ng-click="vm.saveAsInsurance(vm.insurance)" ng-if="vm.insurance.status < 10 && vm.insurance.status != 4 && vm.acceso_adm_pol">Convertir a póliza</a></li>
+    <li ng-if="vm.acceso_adm_ot &&  vm.acceso_adm_pol"><a ui-sref="polizas.editar({polizaId: vm.polizaId})">Editar</a></li>
+    <li><a ng-click="vm.openRenovateModal('Renovación', 'renovaciones.polizas')" ng-if="vm.insurance.status != 12  && vm.insurance.status != 15 && vm.insurance.is_renewable == 1 && (vm.acceso_adm_pol && (vm.insurance.status != 1 && vm.insurance.status !=2))">Renovar</a></li>
+    <li><a ng-click="vm.cancelRenovate(vm.insurance)" ng-if="vm.insurance.status != 12  && vm.insurance.status != 15 && vm.insurance.is_renewable == 1 && (vm.acceso_adm_pol && vm.insurance.status !=1 && vm.insurance.status != 2)">No renovar</a></li>
+    <li ng-if="vm.acceso_adm_ot" ><a ng-click="ShowContextMenu('Endoso','endorsement.endorsement')" ng-if="vm.insurance.status >= 10">Crear endoso</a></li>
+    <li ng-if="vm.acceso_adm_sin && vm.insurance.subramo == 'Vida'" ng-click="createSiniestro(contractorModal)"><a>Crear siniestro</a></li>
+    <li class="dropdown-submenu">
+      <a ng-if="vm.acceso_adm_sin && vm.insurance.ramo == 'Accidentes y Enfermedades'">Crear siniestro</a>
+      <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+        <li><a ng-click="goToSiniester('', 1,'Siniestros', 'siniestros.accidentes')">Por Titular</a></li>
+        <li class="dropdown-submenu">
+          <a>Por Dependiente</a>
+          <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+            <li ng-repeat="relationship in vm.insurance.accidents_policy[0].relationship_accident">
+              <a ng-click="goToSiniester(relationship, 2,'Siniestros', 'siniestros.accidentes')">
+                {{relationship.first_name}} {{relationship.last_name}}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li ng-if="vm.acceso_adm_rehabilitar && (vm.insurance.status == 2 || vm.insurance.status == 11)">
+      <a ng-click="vm.reActivatePolicy(vm.insurance.id, vm.insurance.poliza_number)">
+        Rehabilitar Póliza/OT
+      </a>
+    </li>
+    <li ng-if="vm.acceso_adm_rehabilitar && (vm.insurance.status == 15)">
+      <a ng-click="renovarPolizaRehabilitate(vm.insurance.id, vm.insurance.poliza_number)">
+        Rehabilitar Póliza/OT para Renovar
+      </a>
+    </li>
+    <li ng-if="vm.acceso_adm_sin && vm.insurance.subramo == 'Automóviles'" ng-click="createSiniester('Siniestros','siniestros.create_autos')" ><a>Crear siniestro</a></li>
+    <li ng-if="vm.acceso_adm_sin"><a ng-if="vm.insurance.subramo != 'Automóviles' && vm.insurance.ramo == 'Daños'" ng-click="createSiniestroDanios(contractorModal)">Crear siniestro</a></li>
+    <li ng-if="vm.acceso_cor && vm.acceso_adm_pol" ><a ng-click="vm.assignPolicy(vm.insurance.id)" ng-if="vm.insurance.status > 9 && assign_policy">Compartir</a></li>
+    <li><a ng-click="vm.getPDF(vm.insurance.id)">Ver PDF</a></li>
+    <li><a ng-click="vm.sendProvider(vm.insurance)" ng-hide="vm.insurance.status == 11" ng-if="(vm.insurance.status<9 && vm.insurance.status != 4)">Enviar PDF a la compañia</a></li>
+    <li ng-if="vm.acceso_adm_ot && (vm.insurance.status ==1 || vm.insurance.status == 2)"><a ng-click="vm.reactivePolicy()" ng-hide="vm.insurance.status != 4" ng-if="vm.insurance.status == 4" >Reactivar Póliza/OT </a></li>
+    <li ng-if="vm.acceso_adm_pol && (vm.insurance.status !=1 && vm.insurance.status != 2)"><a ng-click="vm.reactivePolicy(vm.insurance.id)" ng-hide="vm.insurance.status != 4" ng-if="vm.insurance.status == 4" >Reactivar Póliza/OT </a></li>
+    <li ng-if="vm.acceso_mns && vm.acceso_adm_pol"><a ng-click="vm.delivery(vm.insurance)">Programar mensajería</a></li>
+    <li ng-if="vm.acceso_mns && vm.acceso_adm_pol"><a ng-click="getAllCertificates(vm.insurance)">Todos los certificados</a></li>
+    <!-- <li><tasks click="addtask()" type="vm.insurance.poliza_number ? 4 : 1" model="vm.insurance.poliza_number ? vm.insurance.poliza_number : vm.insurance.internal_number"></tasks></li> -->
+    <li><a ng-click="vm.cancelPolicy(vm.insurance.id)" ng-if="(vm.insurance.status > 9 || vm.insurance.status == 4) && vm.insurance.status != 11 && vm.acceso_canc_pol">Cancelar póliza</a></li>
+    <li><a ng-click="vm.cancelPolicy()" ng-hide="vm.insurance.status == 11" ng-if="vm.acceso_canc_ot && (vm.insurance.status<9 && vm.insurance.status != 4) && vm.acceso_canc_pol">Cancelar OT</a></li>
+    <li ng-if="vm.acceso_elim_pol && (vm.insurance.status > 9 || vm.insurance.status == 4)"><a ng-click="vm.deletePolicy(vm.insurance.id)">Eliminar</a></li>
+    <li ng-if="vm.acceso_elim_ot && (vm.insurance.status == 1 || vm.insurance.status == 2)" ><a ng-click="vm.deletePolicy(vm.insurance.id)">Eliminar</a></li>
+    <li class="dropdown-submenu" ng-if="files.length">
+      <a>Ver adjuntos</a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li class="disabled" ng-if="!files">
+          <a class="disabled"> No hay archivos adjuntos </a>
+        </li>
+        <li class="disabled" ng-if="files">
+          <a class="disabled"> Archivos adjuntos </a>
+        </li>
+        <li ng-if="files" ng-repeat="file in files track by $index">
+          <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu" ng-if="vm.cartas.length">
+      <a>Ver carta</a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li ng-if="vm.cartas" ng-repeat="carta in vm.cartas track by $index">
+          <a ng-click="vm.viewCarta(vm.insurance.id, carta)"> {{carta.name}} </a>
+        </li>
+        <!-- <li><a ng-click="vm.getPDF(vm.insurance.id)">RESÚMEN EN PDF</a></li> -->
+      </ul>
+    </li>
+    </ul>
+</div>
+<div class="row" ng-if="vm.infoFlag">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5 ng-if="vm.show.isPolicy || vm.insurance.folio_endorsement">Información de la póliza</h5>
+        <h5 ng-if="!vm.show.isPolicy && !vm.insurance.folio_endorsement">Información de la OT</h5>
+      
+
+        <button class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="vm.getLog()">
+          <i class="fa fa-history"> Log</i>
+        </button>
+        <button class="btn btn-default pull-right btn-tab10" style="margin-top: -7px; color: grey" title="Crear Recordatorio" ng-click="vm.createRecordatorio(vm.insurance,1)">
+          <i class="fa fa-clock-o"></i>
+        </button>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="col-xs-12 col-sm-4">
+            <legend class="legend-title" align="center">Contratante</legend>
+            <div class="col-xs-12 form-group">
+              <span class="blue-color"><b>Nombre</b>:</span>
+              <div>
+                <span>{{ contratante.full_name }} {{ contratante.j_name }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 form-group">
+              <span class="blue-color">RFC:</span>
+              <div>
+                <span>{{ contratante.rfc }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group" >
+              <span class="blue-color">Grupo:</span>
+              <div>{{ contratante.group }}</div>
+            </div>
+            <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.subgrupo">
+              <span class="blue-color">SubGrupo:</span>
+              <div>{{ contratante.subgrupo }}</div>
+            </div>
+            <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.subsubgrupo">
+              <span class="blue-color">SubsubGrupo:</span>
+              <div>{{ contratante.subsubgrupo }}</div>
+            </div>
+            <!-- --nivel -->
+              <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.grouping_level && campo_agrupacion">
+                <span class="blue-color">Nivel de Agrupación:</span>
+                <div>{{ contratante.grouping_level }}</div>
+              </div>
+              <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.subgrouping && campo_agrupacion">
+                <span class="blue-color">SubAgrupación:</span>
+                <div>{{ contratante.subgrouping }}</div>
+              </div>
+              <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.subsubgrouping && campo_agrupacion">
+                <span class="blue-color">Subsub Agrupación:</span>
+                <div>{{ contratante.subsubgrouping }}</div>
+              </div>
+              <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.celula && campo_celula">
+                <span class="blue-color">{{moduleName}}:</span>
+                <div>{{ contratante.celula }}</div>
+              </div>
+            
+            <div class="col-xs-12 col-md-6 form-group" ng-if="contratante.classification">
+              <span class="blue-color">Clasificación:</span>
+              <div>{{ contratante.classification }}</div>
+            </div>
+
+            <div class="col-xs-12 form-group" ng-if="vm.insurance.address">
+              <span class="blue-color">Dirección:</span>
+              <div>
+                <span ng-if="vm.insurance.address.route">{{ vm.insurance.address.route }}</span>
+                <span ng-if="vm.insurance.address.street_number && !vm.insurance.address.street_number_int">{{ vm.insurance.address.street_number }},</span>
+                <span ng-if="vm.insurance.address.street_number && vm.insurance.address.street_number_int">{{ vm.insurance.address.street_number }}</span>
+                <span ng-if="vm.insurance.address.street_number_int"> Int.{{ vm.insurance.address.street_number_int }},</span>
+                <span ng-if="vm.insurance.address.sublocality">{{ vm.insurance.address.sublocality }}</span>
+                <div>
+                  <span ng-if="vm.insurance.address.administrative_area_level_2">{{ vm.insurance.address.administrative_area_level_2 }}</span>
+                  <span ng-if="vm.insurance.address.administrative_area_level_1">, {{ vm.insurance.address.administrative_area_level_1 }}</span>
+                  <span ng-if="vm.insurance.address.postal_code">C.P.: {{ vm.insurance.address.postal_code }}</span>
+                  <span ng-if="!vm.insurance.address.postal_code">, C.P.: N/A</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xs-12 form-group">
+            <span class="blue-color">Teléfono:</span>
+            <div class="row">
+
+              <div class="col-xs-12" ng-if="contratante.phone_number">
+                <span class="fa fa-home" aria-hidden="true"></span>
+                <span>{{contratante.phone_number | phonenumber}}</span>
+              </div>
+
+              <!-- <div class="col-xs-12" ng-repeat="phone_number in contratante.phone_natural"> -->
+              <div class="col-xs-12" ng-repeat="phone_number in contratante.phone_contractor">
+                <span ng-if="phone_number.phone_type == 1" class="fa fa-home" aria-hidden="true"></span>
+                <span ng-if="phone_number.phone_type == 2" class="fa fa-building" aria-hidden="true"></span>
+                <span ng-if="phone_number.phone_type == 3" class="fa fa-mobile" aria-hidden="true"></span>
+                <span> {{phone_number.phone | phonenumber}} </span>
+              </div>
+              <div class="col-xs-12" ng-if="contratante.phone_mensajeria">
+                <br><span class="blue-color">WhatsApp/SMS</span><br>
+                <span class="fa fa-whatsapp" aria-hidden="true"></span>
+                <span>{{contratante.phone_mensajeria}}</span>
+              </div>
+            </div>
+          </div>
+        
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Correo electrónico:</span>
+            <div class="row">
+              <div class="col-xs-12" ng-if="contratante.email">
+                <span class="fa fa-envelope" aria-hidden="true"></span>
+                <span ng-if="email">{{ email }}</span>
+                <span class="red-color" ng-if="!email">{{ no_email }}</span>
+              </div>
+
+              <div class="col-xs-12" ng-repeat="correo in contratante.email_contractor">
+                <span class="fa fa-envelope" aria-hidden="true"></span>
+                <span> {{correo.correo}} </span>
+              </div>
+
+
+            </div>
+            <!-- <div class="col-xs-12">
+              <span ng-if="email">{{ email }}</span>
+              <span class="red-color" ng-if="!email">{{ no_email }}</span>
+            </div>
+            <div class="col-xs-12" ng-repeat="emails in contratante.email_juridical">
+              <span> {{emails.correo}} </span>
+            </div> -->
+          </div>
+
+          <div class="col-xs-12 form-group" ng-if="contratante.contact_contractor.length">
+            <span class="blue-color">Contactos</span>
+            <div ng-repeat="contact in contratante.contact_contractor">
+              <span>{{ contact.name }}</span><br>
+              <span>{{ contact.email }}</span><br>
+              <span>{{ contact.phone_number }}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 form-group" ng-if="contratante.vip">
+            <span class="blue-color">VIP</span>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.description">
+            <span class="blue-color">Observaciones:</span>
+            <div class="row">
+              <div class="col-xs-12" ng-if="contratante.description">
+                <span>{{ contratante.description }}</span>
+              </div>
+            </div>
+          </div>
+
+          <br>
+          <div class="col-xs-12 col-lg-10 col-md-10 form-group" ng-if="vm.insurance.status == 13 && !vm.insurance.renewed && vm.acceso_cor">
+            <br>
+            <button class="btn btn-white btn-sm" ng-click="addEmailsConfirm(insurance, 10)"><i class="fa fa-envelope"></i> Enviar recordatorio de renovación</button>
+          </div>
+
+          <div class="col-xs-12">
+            <hr>
+          </div>
+
+          <div class="col-xs-12 form-group" ng-if="vm.acceso_adm_sin">
+            <button type="button" class="btn btn-info m-r-sm" ng-click="vm.showSinisters(vm.insurance)" ng-disabled="vm.conteos.siniestros == 0 || !view_siniestros">{{vm.conteos.siniestros}}</button><span class="blue-color">Siniestros</span>
+          </div>
+
+          <div class="col-xs-12 form-group" ng-if="vm.acceso_ver_ot">
+            <button type="button" class="btn btn-primary m-r-sm" ng-click="vm.showEndorsements(vm.insurance)" ng-disabled="vm.conteos.endosos == 0">{{vm.conteos.endosos}}</button><span class="blue-color">Endosos</span>
+          </div>
+
+          <div class="col-xs-12 form-group" ng-if="vm.acceso_ver_cob">
+            <button type="button" class="btn btn-warning m-r-sm" ng-click="vm.showNotas()">{{vm.notas.length}}</button><span class="blue-color">Notas de Crédito</span>
+          </div>
+          <div class="col-xs-12 form-group">
+            <button type="button" class="btn btn-secondary m-r-sm" ng-click="vm.showRecordatorios()">{{vm.insurance.recordatorios.length}}</button><span class="blue-color">Recordatorios</span>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-8 border-left">
+          <legend class="legend-title" align="center">Información</legend>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.poliza_number">
+            <span class="blue-color"><b>Número de Póliza</b>:</span>
+            <div>
+              <span>{{ vm.insurance.poliza_number }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.internal_number">
+            <span class="blue-color">Folio Interno:</span>
+            <div>
+              <span>{{ vm.insurance.internal_number }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.folio">
+            <span class="blue-color">Folio:</span>
+            <div>
+                <span>{{ vm.insurance.folio }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" style="word-wrap: break-word;">
+            <span class="blue-color">Identificador:</span>
+            <div>
+              <span>{{ vm.insurance.identifier }}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Aseguradora - Clave Agente:</span>
+            <div>
+              <span>{{ vm.insurance.aseguradora.alias }} - <span ng-if="vm.insurance.clave.name"> {{vm.insurance.clave.name}}</span> {{vm.insurance.clave.clave}} <span>
+            </div>
+          </div>
+          <!-- <pre>{{ vm.insurance.personal_life_policy | json }}</pre> -->
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Ramo:</span>
+            <div>
+              <span>{{ vm.insurance.ramo }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Subramo:</span>
+            <div>
+              <span>{{ vm.insurance.subramo }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.hospital_level && vm.insurance.subramo == 'Gastos Médicos'">
+            <span class="blue-color">Nivel Hospitalario:</span>
+            <div>
+              <span>{{ vm.insurance.hospital_level }}<span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.tabulator && vm.insurance.subramo == 'Gastos Médicos'">
+            <span class="blue-color">Tabulador:</span>
+            <div>
+              <span>{{ vm.insurance.tabulator }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Vigencia:</span>
+            <div>
+              <span>{{ vm.insurance.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{ vm.insurance.end_of_validity | date: 'dd/MM/yyyy' : 'UTC'}}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Frecuencia de Pago:</span>
+            <div>
+              <span>{{ forma_pago(vm.insurance.forma_de_pago)}}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color"><b>Estatus</b>:</span>
+            <div>
+              <!-- <span ng-if="vm.insurance.status != 4">{{ status(vm.insurance.status) }} <span ng-if="vm.insurance.renewed_status == 2"> - <strong>En proceso de renovación</strong></span></span>
+              <span ng-if="vm.insurance.status == 4"><strong>{{ status(vm.insurance.status) }} <span ng-if="vm.insurance.renewed_status == 2"> - En proceso de renovación</strong></span></span> -->
+              
+              <div class="label" ng-class="{'label-success': vm.insurance.status == 1 || vm.insurance.status == 12, 'label-info' : vm.insurance.status == 10,'label-primary' : vm.insurance.status == 14, 'label-warning' : vm.insurance.status == 2 || vm.insurance.status == 4 || vm.insurance.status == 11}" style="margin-right: 10px"> {{ status(vm.insurance.status) }} <span ng-if="vm.insurance.renewed_status == 2 && vm.policy_history.length > 0 && orgName !='ancora'"> - En proceso de renovación</strong></span><span ng-if="orgName =='ancora' && vm.insurance.renewed_status ==2 && vm.insurance.is_renewable==1">- En Proceso de Renovación</span>
+            </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.reason_ren">
+            <span class="blue-color">Motivo de no Renovación:</span>
+            <div>
+              <span>{{ vm.insurance.reason_ren }}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.reason_cancel && (vm.insurance.status == 4 || vm.insurance.status == 11)">
+            <span class="blue-color">Motivo de Cancelación:</span>
+            <div>
+              <span>{{ vm.insurance.reason_cancel }}<span>
+            </div>
+            <span class="blue-color">Fecha de Cancelación:</span>
+            <div>
+              <span>{{ vm.insurance.date_cancel | date: 'dd/MM/yyyy' : 'UTC'}}<span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Tipo Renovable:</span>
+            <div>
+              <span ng-if="vm.insurance.is_renewable == 1">Renovable</span>
+              <span ng-if="vm.insurance.is_renewable == 2">No Renovable</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Moneda:</span>
+            <div>
+              <span ng-if="vm.insurance.f_currency == 1">PESOS</span>
+              <span ng-if="vm.insurance.f_currency == 2">DÓLARES</span>
+              <span ng-if="vm.insurance.f_currency == 3">UDI</span>
+              <span ng-if="vm.insurance.f_currency == 4">EURO</span>
+              <span ng-if="vm.insurance.f_currency == 5">DOLAR CANADIENSE</span>
+              <span ng-if="vm.insurance.f_currency == 6">LIBRA ESTERLINA</span>
+              <span ng-if="vm.insurance.f_currency == 7">YEN</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Paquete:</span>
+            <div>
+              <span>{{ vm.insurance.paquete }}<span>
+            </div>
+          </div>
+
+          <!-- <div class="col-xs-12">
+            <label>
+                <input type="checkbox" ng-model="extraFields"> Ver Línea de Negocio, Célula, Agrupación
+            </label>      
+            <div ng-show="extraFields"> -->
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_lineanegocio">
+              <span class="blue-color">Línea de Negocio:</span>
+              <div>
+                <span>{{businessLine}}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_celula">
+              <span class="blue-color">{{moduleName}}:</span>
+              <div>
+                <span>{{celula}}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.grouping_level && campo_agrupacion">
+              <span class="blue-color">Agrupación:</span>
+              <div>
+                <span>{{vm.insurance.grouping_level.description}}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.subgrouping_level && campo_agrupacion">
+              <span class="blue-color">Subagrupación:</span>
+              <div>
+                <span>{{vm.insurance.subgrouping_level.description}}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.insurance.subsubgrouping_level && campo_agrupacion">
+              <span class="blue-color">Subsubagrupación:</span>
+              <div>
+                <span>{{vm.insurance.subsubgrouping_level.description}}</span>
+              </div>
+            </div>
+            <!-- </div>
+          </div> -->
+
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group">
+            <span class="blue-color">Creado por:</span>
+            <div>{{ vm.insurance.owner }}</div>
+          </div>
+
+          <div class="col-xs-6 col-lg-4 form-group" ng-if="vm.insurance.reason_rehabilitate">
+            <span class="blue-color">Motivo de rehabilitación:</span>
+            <div>
+              <span>{{ vm.insurance.reason_rehabilitate }}</span>
+            </div>
+          </div>
+
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.responsable">
+            <span class="blue-color"><i class="fa fa-star yellow"></i> Responsable:</span>
+            <div>{{ vm.insurance.responsable.first_name | uppercase}} {{ vm.insurance.responsable.last_name | uppercase}}</div>
+          </div>
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.cotizacion_asociada">
+            <span class="blue-color">Cotización:</span>
+            <div>{{ vm.insurance.cotizacion_asociada }}</div>
+          </div>
+
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group">
+            <span class="blue-color">Sucursal:</span>
+            <div>{{ vm.insurance.sucursal.sucursal_name }}</div>
+          </div>
+          <div ng-if="vm.acceso_ver_ref">
+            <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.vendor && vm.insurance.ref_policy.length == 0">
+              <span class="blue-color">Referenciador:</span>
+              <div>{{ vm.insurance.vendor.first_name | uppercase}} {{ vm.insurance.vendor.last_name | uppercase}}</div>
+            </div>
+            <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.ref_policy.length >0">
+              <span class="blue-color">Referenciador (es):</span>
+              <div ng-repeat="refs in vm.insurance.ref_policy">
+                  <span>{{refs.data.first_name | uppercase}} {{ refs.data.last_name | uppercase}} // {{ refs.comision_vendedor }} %</span>
+                  <a ng-if="vm.insurance.ref_policy && vm.insurance.ref_policy.length >0" class="btn btn-sm btn-white" ng-click="cambiarReferenciador(refs,vm.insurance)" title="Cambiar Referenciador"><i class="fa fa-rotate-right" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.collection_executive">
+            <span class="blue-color"><i class="fa fa-calculator yellow"></i> Ejecutivo de Cobranza:</span>
+            <div>{{ vm.insurance.collection_executive.first_name | uppercase}} {{ vm.insurance.collection_executive.last_name | uppercase}}</div>
+          </div>
+
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.contratante_subgroup || vm.insurance.group">
+            <span class="blue-color"><i class="fa fa-group yellow"></i> Grupo:</span>
+            <div>{{ vm.insurance.group }}</div>
+          </div>
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.contratante_subgroup || vm.insurance.subgroup">
+            <span class="blue-color"><i class="fa fa-group yellow"></i> SubGrupo:</span>
+            <div>{{ vm.insurance.subgrupo }}</div>
+          </div>
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.contratante_subgroup || vm.insurance.subsubgroup">
+            <span class="blue-color"><i class="fa fa-group yellow"></i> SubsubGrupo:</span>
+            <div>{{ vm.insurance.subsubgrupo }}</div>
+          </div>            
+          <div class="col-xs-6 form-group pull-right" align="center" ng-if="vm.insurance.seguimiento && vm.acceso_tab && decrptedtoken.org =='pruebas'">
+            <span class="blue-color">Tablero OT</span>
+            <div>
+              <span >{{ vm.insurance.seguimiento }}</span>
+              <div class="btn-group pull-right m-b">
+                <button style="border: 0px; " type="button" class="btn btn-white btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                    <a>Mover a</a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li class="disabled" ng-if="principal.contenedores">
+                        <a class="disabled">Estados</a>
+                      </li>
+                      <li ng-if="principal.contenedores" ng-repeat="newcontainer in principal.contenedores track by $index" >
+                        <a ng-click="vm.moveOTState(newcontainer,principal,vm.insurance.seguimiento)" ng-if="newcontainer.tablero != vm.insurance.seguimiento"> {{newcontainer.tablero}} </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>    
+          <div class="col-xs-6 form-group pull-right" ng-if="vm.insurance.task_associated">
+            <button type="button" class="btn btn-white btn-sm btn-secondary" ng-click="openModal(vm.insurance.task_associated_info)">
+              {{ vm.isCollapsed ? 'Ocultar' : 'Ver' }} Tarea Origen
+            </button>
+            <div ng-show="vm.isCollapsed">
+              <span class="blue-color">Tarea Origen</span>
+              <div>
+                <span>{{ vm.insurance.task_associated_info.title }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12">
+            <hr>
+          </div>
+          <div ng-if="vm.insurance.status != 1">
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+              <span class="blue-color">Prima Neta:</span>
+              <div>{{ prima_neta() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+              <span class="blue-color">Descuento: &nbsp;</span>
+              <div>{{ descuento() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-6 form-group">
+              <span class="blue-color">Recargo por Pago Fraccionado:</span>
+              <div>{{ recargo() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+              <span class="blue-color">Derecho:</span>
+              <div>{{ derecho() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+              <span class="blue-color">Iva:</span>
+              <div>{{ iva() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+              <span class="blue-color">Prima Total:</span>
+              <div>{{ prima_total() | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group" ng-if="vm.permiso_comisiones">
+              <span class="blue-color">Comisión Total:</span>
+              <div>{{ vm.insurance.comision | currency}}</div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group" ng-if="vm.permiso_comisiones">
+              <span class="blue-color">% Comisión <span ng-if="vm.insurance.comision_derecho_percent!='0.00' || vm.insurance.comision_rpf_percent!='0.00'">Prima Neta</span>:</span>
+              <div>{{ vm.insurance.comision_percent }}%</div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group" ng-if="vm.permiso_comisiones && vm.insurance.comision_derecho_percent!='0.00'">
+              <span class="blue-color">% Comisión Derecho:</span>
+              <div>{{ vm.insurance.comision_derecho_percent }}%</div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-3 form-group" ng-if="vm.permiso_comisiones && vm.insurance.comision_rpf_percent!='0.00'">
+              <span class="blue-color">% Comisión RPF:</span>
+              <div>{{ vm.insurance.comision_rpf_percent }}%</div>
+            </div>
+              
+              <div class=" col-xs-12 col-md-6 col-md-4 form-group" ng-if="vm.insurance.recibos_poliza">
+              <i class="fa fa-credit-card" aria-hidden="true"></i><span class="blue-color"><i class="fa fa-card "></i> Conducto de Pago:</span>
+              <div>
+                <span>{{ vm.insurance.conducto_de_pago }}</span>
+                  <a ui-sref="polizas.editar({polizaId: vm.polizaId})"><button type="button" ng-if="vm.acceso_adm_ot &&  vm.acceso_adm_pol" class="btn btn-white btn-sm"><i class="fa fa-edit" aria-hidden="true"></li></i></button></a>
+              </div>
+            </div>
+      
+            </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ibox float-e-margins animate m-t" ng-if="vm.sinistersFlag">
+  <div class="ibox-title">
+    <h5>Siniestros</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <a class="btn btn-info m-b" ng-click="vm.returnToInfo()"><span class="fa fa-arrow-left"></span> Regresar</a>
+    <table class="table table-hover table-bordered">
+      <thead>
+        <th>Folio</th>
+        <th>Número de Siniestro</th>
+        <th>Fecha de Creación</th>
+        <th>Fecha de Emisión</th>
+        <th>Estatus</th>
+        <th>Tipo de pago</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="sinister in vm.sinisters track by $index" ng-click="infoSinister('Información Siniestro', sinister,vm.insurance)">
+          <td>{{ sinister.folio_compania }} </td>
+          <td>{{ sinister.numero_siniestro }} </td>
+          <td>{{ sinister.fecha_siniestro | date: 'dd/MM/yyyy'  : 'UTC'}} </td>
+          <td>{{ sinister.fecha_ingreso | date: 'dd/MM/yyyy'  : 'UTC'}} </td>
+          <td ng-if="sinister.status == 1"> Pendiente </td>
+          <td ng-if="sinister.status == 2"> En trámite </td>
+          <td ng-if="sinister.status == 3"> Completado </td>
+          <td ng-if="sinister.status == 4"> Cancelado </td>
+          <td ng-if="sinister.status == 5"> Rechazado </td>
+          <td> {{ tipo_pago(sinister.accidente_sinister[0].tipo_pago)}} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="ibox float-e-margins animate m-t" ng-if="vm.endoFlag">
+  <div class="ibox-title">
+    <h5>Endosos</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <a class="btn btn-info m-b" ng-click="vm.returnToInfo()"><span class="fa fa-reply"></span> Regresar</a>
+    <table class="table table-hover table-bordered">
+      <thead>
+        <th>Tipo</th>
+        <th>Número de endoso</th>
+        <th>Concepto</th>
+        <th>Descripción</th>
+        <th>Vigencia</th>
+        <th>Estatus</th>
+        <th>Historial</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="endorsement in vm.endorsements track by $index" ng-click="goToEndorsement('Información Endoso', 'endorsement.info', endorsement)">
+          <td>{{ endorsement.endorsement_type }}</td>
+          <td ng-if="endorsement.number_endorsement">{{ endorsement.number_endorsement }}</td>
+          <td ng-if="!endorsement.number_endorsement">Sin número asigando</td>
+          <td >{{ concept(endorsement.concept) }}<span ng-if="concept(endorsement.concept) == 'OTRO'">: {{endorsement.other_desc}}</span></td>
+          <td>{{ endorsement.observations}}</td>
+          <td>{{ endorsement.init_date | date: 'dd/MM/yyyy'  : 'UTC'}} - {{ endorsement.end_date | date: 'dd/MM/yyyy'  : 'UTC'}}</td>
+          <td ng-if="endorsement.status == 1"> Pendiente </td>
+          <td ng-if="endorsement.status == 2"> Registrado </td>
+          <td ng-if="endorsement.status == 3"> Rechazado </td>
+          <td ng-if="endorsement.status == 5"> En trámite </td>
+          <td ng-if="endorsement.status == 4"> Cancelado </td>
+          <td ng-if="endorsement.migrated"> Sin historial </td>
+          <td ng-if="endorsement.status != 2"> </td>
+          <td ng-if="!endorsement.migrated && endorsement.status == 2">
+            <button class="btn btn-default" style="color: grey" ng-click="$event.stopPropagation(); vm.showChange(endorsement)">
+              <i class="fa fa-retweet"> Ver cambios</i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="ibox float-e-margins animate m-t" ng-if="vm.notasFlag">
+  <div class="ibox-title">
+    <h5>Notas de crédito</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <button class="btn btn-info m-b" ng-click="vm.notasFlag = false; vm.infoFlag = true"><span class="fa fa-reply"></span> Regresar</button>
+    <table class="table table-hover table-bordered">
+      <thead>
+        <th>Folio</th>
+        <th>Número de Póliza/Fianza</th>
+        <th>Número de Endoso</th>
+        <th>Fecha de Inicio</th>
+        <th>Prima Total</th>
+        <th>Estatus</th>
+      </thead>
+      <!-- <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.NotasModal(nota,vm.insurance)"> -->
+      <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.changeStatusModal(nota, nota.poliza ? nota.poliza: nota.fianza, nota.poliza ? nota.poliza : nota.fianza)">
+        <td>{{ nota.folio }}</td>
+        <td >{{ nota.poliza.poliza_number }}{{nota.fianza.fianza_number}}</td>
+        <td ng-if="nota.endorsement">{{ nota.endorsement.number_endorsement }} </td>
+        <td ng-if="!nota.endorsement">Nota de crédito libre </td>
+        <td>{{ nota.fecha_inicio | date: 'dd/MM/yyyy h:mm:ss a'  : 'UTC'}}</td>
+        <td>{{ nota.prima_total | currency }}</td>
+        <td><span>{{ nota.status }}</span></td>
+      </tr>
+    </table>
+    <button class="btn btn-primary pull-right" ng-click="vm.createNotes(vm.insurance)">Crear nota de crédito</button>
+   </div>
+</div>
+<div class="ibox float-e-margins animate m-t" ng-if="vm.recordatoriosFlag">
+  <div class="ibox-title">
+    <h5>Recordatorios</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <button class="btn btn-info m-b" ng-click="vm.recordatoriosFlag = false; vm.infoFlag = true"><span class="fa fa-reply"></span> Regresar</button>
+    <table class="table table-hover table-bordered">
+      <thead>
+        <th>Recordatorio ID</th>
+        <th>Resumen</th>
+        <th>Descripción</th>
+        <th>Fecha programada</th>
+        <th>Hora programada</th>
+        <th>Vista</th>
+      </thead>
+      <!-- <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.NotasModal(nota,vm.insurance)"> -->
+      <tr ng-repeat="reco in vm.insurance.recordatorios track by $index" ng-click="goToRecordatorio(reco, $index)">
+        <td>{{ reco.recordatorio.id }}</td>
+        <td >{{ reco.recordatorio.nombre}}</td>
+        <td>{{ reco.recordatorio.descr }} </td>
+        <td>{{ reco.recordatorio.fecha_programada | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+        <td>{{ reco.recordatorio.hora_programada | date: 'h:mm:ss a'  : 'UTC'}}</td>
+        <td ng-class="{'label-info' : reco.seen }" ng-if="reco.seen"><i class="fa fa-eye" aria-hidden="true"></i> Visto</td>
+        <td ng-class="{'label-success' : !reco.seen }" ng-if="!reco.seen">No visto</td>
+      </tr>
+    </table>
+   </div>
+</div>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Detalles</h5>
+      </div>
+      <div class="ibox-content ">
+
+        <div ng-if="vm.insurance.automobiles_policy.length">
+          <div class="col-xs-12 col-sm-6 form-group">
+            <h4>Datos del Automóvil</h4>
+            <span class="blue-color"><b>Tipo de vehículo:&nbsp;</b></span>
+            <span>{{ policy_type(vm.insurance.automobiles_policy[0].policy_type) }}<span><br>
+
+            <span class="blue-color">Procedencia:&nbsp;</span>
+            <span>{{ type_procedencia(vm.insurance.automobiles_policy[0].procedencia) }}<span><br>
+
+            <span class="blue-color">Estado de circulación:&nbsp;</span>
+            <span>{{ vm.insurance.state_circulation }}<span><br>
+
+            <span class="blue-color">Conductor:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].driver }}<span><br>
+
+            <span class="blue-color">Marca:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].brand }}<span><br>
+
+            <span class="blue-color">Modelo:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].model }}<span><br>
+
+            <span class="blue-color">Año:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].year }}<span><br>
+
+            <span class="blue-color">Versión:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].version }}<span><br>
+
+            <span class="blue-color">Color:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].color }}<span><br>
+
+            <span class="blue-color">Motor:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].engine }}<span><br>
+
+            <span class="blue-color">Número de serie:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].serial }}<span><br>
+
+            <span class="blue-color">Matrícula:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].license_plates }}<span><br>
+
+            <span class="blue-color">Servicio:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].service }}</span><br>
+
+            <span class="blue-color">Uso:&nbsp;</span>
+            <span>{{ getUsage(vm.insurance.automobiles_policy[0].usage) }}</span>
+            <br>
+            <span class="blue-color" ng-if="vm.insurance.automobiles_policy[0].usage == 2">Tipo de Carga:&nbsp;</span>
+            <span ng-if="vm.insurance.automobiles_policy[0].usage == 2">{{ getCarga(vm.insurance.automobiles_policy[0].charge_type) }}</span>
+
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <h4>Adaptación</h4>
+            <span class="blue-color">Monto de Adaptación:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].mont_adjustment | currency }}</span><br>
+
+            <span class="blue-color">Adaptaciones:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].adjustment }}</span><br><br>
+
+            <span class="blue-color">Monto de Equipamiento:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].mont_special_team | currency }}</span><br>
+
+            <span class="blue-color">Equipo Especial:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].special_team }}</span><br>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <h4>Beneficiario Preferente</h4>
+            <span class="blue-color">Nombre:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].beneficiary_name }}</span><br>
+
+            <span class="blue-color">Dirección:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].beneficiary_address }}</span><br>
+
+            <span class="blue-color">RFC:&nbsp;</span>
+            <span>{{ vm.insurance.automobiles_policy[0].beneficiary_rfc }}</span><br>
+          </div>
+        </div>
+
+        <div ng-if="vm.insurance.accidents_policy.length">
+          <div ng-init="p_info = vm.insurance.accidents_policy[0].personal">
+            <div class="col-xs-12 col-sm-6 form-group" ng-if="p_info.full_name">
+              <h4>Titular</h4>
+              <span class="blue-color"><b>Tipo:&nbsp;</b></span>
+              <span>{{ policy_type_fire(p_info.policy_type)}}<span><br>
+
+              <span class="blue-color">Nombre:&nbsp;</span>
+              <span>{{p_info.first_name}} {{p_info.last_name}} {{p_info.second_last_name}}</span><br>
+
+              <span class="blue-color">Fecha de nacimiento:&nbsp;</span>
+              <span>{{p_info.birthdate | date: 'dd/MM/yyyy' : 'UTC'}}</span><br>
+
+              <span class="blue-color">Sexo:&nbsp;</span>
+              <span ng-if="p_info.sex == 'M'">MASCULINO</span>
+              <span ng-if="p_info.sex == 'F'">FEMENINO</span><br>
+
+              <span class="blue-color">Fecha de Antigüedad:&nbsp;</span>
+              <span>{{p_info.antiguedad | date: 'dd/MM/yyyy' : 'UTC'}}</span><br>
+              <!-- <div class="row">
+                <div class="col-xs-12 col-sm-6 form-group">
+                  <span class="blue-color">Baja</span>
+                  <input type="checkbox" name="" ng-change="changeBaja('',p_info.baja,'')" ng-model="p_info.baja">
+                </div>
+                <div class="col-xs-12 col-sm-6 form-group" ng-if="p_info.baja">
+                  <div> 
+                    <span class="blue-color">Motivo de Baja:</span>
+                    <input type="text" class="form-control" name="" ng-model="p_info.motivo_baja" ng-disabled="!saveBaja">
+                  </div>
+                  <div ng-click="$event.stopPropagation();" class="pull-right" ng-if="saveBaja">
+                    <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation();changeBaja(p_info.url, p_info.baja, p_info.motivo_baja)">
+                      <i class="fa fa-save" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </div> -->
+            </div>
+
+            <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.insurance.accidents_policy[0].relationship_accident.length">
+              <h4>Dependientes</h4>
+              <div ng-repeat="relationship in vm.insurance.accidents_policy[0].relationship_accident">
+                <span class="blue-color">Nombre:&nbsp;</span>
+                <span>{{relationship.first_name}} {{relationship.last_name}} {{relationship.second_last_name}}</span><br>
+
+                <span class="blue-color">Fecha de Nacimiento:&nbsp;</span>
+                <span>{{relationship.birthdate | date: 'dd/MM/yyyy' : 'UTC'}}</span><br>
+
+                <span class="blue-color">Sexo:&nbsp;</span>
+                <span ng-if="relationship.sex == 'F'">FEMENINO</span>
+                <span ng-if="relationship.sex == 'M'">MASCULINO</span><br>
+
+                <span class="blue-color">Parentesco:&nbsp;</span>
+                <span ng-if="relationship.relationship == 1">TITULAR</span>
+                <span ng-if="relationship.relationship == 2">CONYUGE</span>
+                <span ng-if="relationship.relationship == 3">HIJO</span>
+                <span ng-if="relationship.relationship == 4">OTRO</span><br>
+
+                <span class="blue-color">Fecha de Antigüedad:&nbsp;</span>
+                <span>{{relationship.antiguedad | date: 'dd/MM/yyyy' : 'UTC'}}</span><br>
+                <br>
+                <!-- <div class="row box-edit">
+                  <div class="col-xs-12 col-md-6 col-sm-6 form-group">
+                    <span class="blue-color">Baja</span>
+                    <input type="checkbox" name="" ng-change="changeBaja('',relationship.baja,'')" ng-model="relationship.baja">
+                  </div>
+                  <div class="col-xs-12 col-md-6 col-sm-6 form-group">
+                    <div> 
+                      <span class="blue-color">Motivo de Baja:</span>
+                      <input type="text" class="form-control" name="" ng-model="relationship.motivo_baja" ng-disabled="!saveBaja">
+                    </div>
+                    <div ng-click="$event.stopPropagation();" class="pull-right" ng-if="saveBaja">
+                      <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation();changeBaja(relationship.url, relationship.baja, relationship.motivo_baja)">
+                        <i class="fa fa-save" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div ng-if="vm.insurance.damages_policy.length" ng-init="damages = vm.insurance.damages_policy[0]">
+          <div class="col-xs-12">
+            <span class="blue-color" ng-if="vm.insurance.damages_policy"><b>Tipo:&nbsp;</b></span>
+            <span>{{ policy_type_fire_ok(damages.damage_type)}}<span><br>
+
+            <span class="blue-color">Bien Asegurado:&nbsp;</span>
+            <span>{{ damages.insured_item }}</span><br>
+
+            <span class="blue-color">Dirección:&nbsp;</span>
+            <span>{{ damages.item_address }}</span><br>
+
+            <span class="blue-color">Detalles:&nbsp;</span>
+            <span>{{ damages.item_details }}</span><br>
+          </div>
+        </div>
+
+        <div >
+          <div class="col-xs-12">
+            <div>
+              <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.insurance.personal_life_policy.length > 0 ">
+                  <h4>Asegurado (s)</h4>
+                  <div ng-repeat="pers_life in vm.insurance.personal_life_policy">
+                    <span class="blue-color"><b>Tipo:&nbsp;</b></span>
+                    <span>{{ policy_type_fire(pers_life.policy_type)}}<span><br>
+
+                    <span class="blue-color">Nombre:&nbsp;</span>
+                    <span>{{ pers_life.j_name }}{{ pers_life.first_name }} {{ pers_life.last_name }} {{ pers_life.second_last_name }}</span><br>
+
+                    <span class="blue-color" ng-if="!pers_life.j_name">Fecha de Nacimiento:&nbsp;</span>
+                    <span>{{ pers_life.birthdate | date: 'dd/MM/yyyy'  : 'UTC'}}</span><br>
+
+                    <span class="blue-color" ng-if="!pers_life.j_name">Sexo:&nbsp;</span>
+                    <span ng-if="pers_life.sex == 'F'">FEMENINO</span>
+                    <span ng-if="pers_life.sex == 'M'">MASCULINO</span><br>
+
+                    <span class="blue-color" >Fumador:&nbsp;</span>
+                    <span ng-if="pers_life.smoker == true">SI</span>
+                    <span ng-if="pers_life.smoker == false">NO</span><br>
+
+                    <span class="blue-color" ng-if="!pers_life.j_name">Fecha de Antigüedad:&nbsp;</span>
+                    <span>{{ pers_life.antiguedad | date: 'dd/MM/yyyy'  : 'UTC'}}</span><br>
+                    <hr>
+                  </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.insurance.personal_life_policy.length == 0 && vm.insurance.life_policy[0]">
+                  <span class="blue-color"><b>Tipo:&nbsp;</b></span>
+                  <span>{{ policy_type_fire(vm.insurance.life_policy[0].personal.policy_type)}}<span><br>
+                    
+                  <span class="blue-color">Nombre:&nbsp;</span>
+                  <span>{{ vm.insurance.life_policy[0].personal.full_name }} </span><br>
+
+                  <span class="blue-color">Fecha de nacimiento:&nbsp;</span>
+                  <span>{{ vm.insurance.life_policy[0].personal.birthdate | date: 'dd/MM/yyyy' : 'UTC' }}</span><br>
+
+                  <span class="blue-color">Sexo:&nbsp;</span>
+                  <span ng-if="vm.insurance.life_policy[0].personal.sex == 'M'">MASCULINO</span>
+                  <span ng-if="vm.insurance.life_policy[0].personal.sex == 'F'">FEMENINO</span><br>
+
+                  <span class="blue-color">Fumador:&nbsp;</span>
+                  <span ng-if="vm.insurance.life_policy[0].personal.smoker == true">SI</span>
+                  <span ng-if="vm.insurance.life_policy[0].personal.smoker == false">NO</span><br>
+
+                  <span class="blue-color">Fecha de Antigüedad:&nbsp;</span>
+                  <span>{{ vm.insurance.life_policy[0].personal.antiguedad | date: 'dd/MM/yyyy' : 'UTC' }}</span><br>
+                  <!-- <div class="row box-edit">
+                    <div class="col-xs-12 col-md-6 col-sm-6 form-group">
+                      <span class="blue-color">Baja</span>
+                      <input type="checkbox" name="" ng-change="changeBaja('',vm.insurance.life_policy[0].personal.baja,'')" ng-model="vm.insurance.life_policy[0].personal.baja">
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-sm-6 form-group">
+                      <div> 
+                        <span class="blue-color">Motivo de Baja:</span>
+                        <input type="text" class="form-control" name="" ng-model="vm.insurance.life_policy[0].personal.motivo_baja" ng-disabled="!saveBaja">
+                      </div>
+                      <div ng-click="$event.stopPropagation();" class="pull-right" ng-if="saveBaja">
+                        <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation();changeBaja(vm.insurance.life_policy[0].personal.url, vm.insurance.life_policy[0].personal.baja, vm.insurance.life_policy[0].personal.motivo_baja)">
+                          <i class="fa fa-save" aria-hidden="true"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div> -->
+                </div>
+
+
+              <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.insurance.personal_life_policy.length == 0 && vm.insurance.life_policy[0].personal.length > 0">
+                <h4>Asegurado (s)</h4>
+                <div ng-repeat="pers_life in vm.insurance.life_policy[0].personal">
+                  <span class="blue-color"><b>Tipo:&nbsp;</b></span>
+                  <span>{{ policy_type_fire(pers_life.policy_type)}}<span><br>
+
+                  <span class="blue-color">Nombre:&nbsp;</span>
+                  <span>{{ pers_life.j_name }}{{ pers_life.first_name }} {{ pers_life.last_name }} {{ pers_life.second_last_name }}</span><br>
+
+                  <span class="blue-color" ng-if="!pers_life.j_name">Fecha de Nacimiento:&nbsp;</span>
+                  <span>{{ pers_life.birthdate | date: 'dd/MM/yyyy'  : 'UTC'}}</span><br>
+
+                  <span class="blue-color" ng-if="!pers_life.j_name">Sexo:&nbsp;</span>
+                  <span ng-if="pers_life.sex == 'F'">FEMENINO</span>
+                  <span ng-if="pers_life.sex == 'M'">MASCULINO</span><br>
+
+                  <span class="blue-color" >Fumador:&nbsp;</span>
+                  <span ng-if="vm.insurance.life_policy[0].smoker == true">SI</span>
+                  <span ng-if="vm.insurance.life_policy[0].smoker == false">NO</span><br>
+
+                  <span class="blue-color" ng-if="!pers_life.j_name">Fecha de Antigüedad:&nbsp;</span>
+                  <span>{{ pers_life.antiguedad | date: 'dd/MM/yyyy'  : 'UTC'}}</span><br>
+                  <hr>
+                </div>
+              </div>
+
+              <!-- <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.insurance.life_policy[0].beneficiaries_life">
+                <h4>Beneficiarios</h4>
+                <div ng-repeat="relationship in vm.insurance.life_policy[0].beneficiaries_life" ng-if="relationship.j_name || relationship.first_name || relationship.last_name || relationship.second_last_name">
+                  <span class="blue-color">Nombre:</span>
+                  <span ng-if="relationship.first_name">{{ relationship.first_name }} {{ relationship.last_name }} {{ relationship.second_last_name }}</span><br>
+                  <span ng-if="!relationship.first_name">{{ relationship.j_name }}</span>
+                  <span class="blue-color" ng-if="!relationship.first_name">RFC:</span>
+                  <span ng-if="!relationship.first_name">{{ relationship.rfc }}</span><br>
+
+                  <span class="blue-color" ng-if="relationship.optional_relationship">Parentesco:</span>
+                  <span>{{ relationship.optional_relationship }}</span><br>
+
+                  <span class="blue-color" ng-if="relationship.first_name">Fecha de Nacimiento:</span>
+                  <span ng-if="relationship.first_name">{{ relationship.birthdate | date: 'dd/MM/yyyy' }}</span><br>
+
+                  <span class="blue-color" ng-if="!relationship.first_name">Sexo:</span>
+                  <span ng-if="relationship.sex == 'F' && !relationship.first_name">FEMENINO</span><br>
+                  <span ng-if="relationship.sex == 'M' && !relationship.first_name">MASCULINO</span><br>
+
+                  <span class="blue-color" ng-if="relationship.percentage">Porcentaje:</span>
+                  <span ng-if="relationship.percentage">{{ relationship.percentage }}%</span><br>
+
+                  <span class="blue-color" ng-if="relationship.antiguedad">Fecha de Antigüedad:</span>
+                  <span ng-if="relationship.antiguedad">{{ relationship.antiguedad | date: 'dd/MM/yyyy'  : 'UTC'}}</span><br>
+                </div>
+              </div> -->
+              <!-- Sección Beneficiarios -->
+              <div class="col-xs-12 col-sm-6 form-group beneficiaries-section"
+                  ng-if="vm.insurance.life_policy[0].beneficiaries_life && vm.insurance.life_policy[0].beneficiaries_life.length">
+
+                <h4 class="section-title text-uppercase text-muted m-b-10">Beneficiarios</h4>
+
+                <!-- Tarjeta por beneficiario -->
+                <div class="benef-card card m-b-10"
+                    ng-repeat="b in vm.insurance.life_policy[0].beneficiaries_life track by $index"
+                    ng-if="b.j_name || b.first_name || b.last_name || b.second_last_name">
+                  <!-- Header: Nombre + Porcentaje -->
+                  <div class="benef-card__header card-header d-flex align-items-center justify-content-between">
+                    <div class="benef-card__title">
+                      <!-- Si tienes filtro fullName: {{ b | fullName }} -->
+                      <span class="benef-name h5">
+                        <span ng-if="b.first_name">{{ b.first_name }} {{ b.last_name }} {{ b.second_last_name }}</span>
+                        <span ng-if="!b.first_name">{{ b.j_name }}</span>
+                      </span>
+                    </div>
+                    <span class="benef-badge badge badge-pill badge-primary"
+                      ng-if="b.percentage">Porcentaje: {{ (b.percentage || '') + (b.percentage ? '%' : '') }}</span>
+                  </div>
+                  <!-- Body: Datos -->
+                  <div class="benef-card__body card-body">
+                    <dl class="benef-meta row">
+                      <div class="col-xs-12 col-sm-6">
+                        <dt class="benef-label">Parentesco</dt>
+                        <dd class="benef-value" ng-bind="b.optional_relationship || '—'"></dd>
+                        <dt class="benef-label" ng-if="b.first_name && b.birthdate">Nacimiento</dt>
+                        <dd class="benef-value" ng-if="b.first_name && b.birthdate"
+                            ng-bind="b.birthdate | date:'dd/MM/yyyy'"></dd>
+                        <dt class="benef-label" ng-if="b.sex">Sexo</dt>
+                        <dd class="benef-value" ng-if="b.sex == 'F'">FEMENINO</dd>
+                        <dd class="benef-value" ng-if="b.sex == 'M'">MASCULINO</dd>
+                      </div>
+                      <div class="col-xs-12 col-sm-6">
+                        <dt class="benef-label" ng-if="!b.first_name && b.rfc">RFC</dt>
+                        <dd class="benef-value" ng-if="!b.first_name && b.rfc" ng-bind="b.rfc"></dd>
+                        <dt class="benef-label" ng-if="b.antiguedad">Antigüedad</dt>
+                        <dd class="benef-value" ng-if="b.antiguedad"
+                          ng-bind="b.antiguedad | date:'dd/MM/yyyy':'UTC'"></dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-12 hidden-xs hidden-sm">
+          <legend class="legend-title" align="center">Coberturas</legend>
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th ng-model="vm.tablec.headers[0]">{{ vm.tablec.headers[0] }}</th>
+                <th ng-model="vm.tablec.headers[1]">{{ vm.tablec.headers[1] }}</th>
+                <th ng-model="vm.tablec.headers[2]">{{ vm.tablec.headers[2] }}</th>
+                <th ng-if="vm.insurance.accidents_policy.length" ng-model="vm.tablec.headers[3]">{{ vm.tablec.headers[3] }}</th>
+                <th ng-if="vm.insurance.accidents_policy.length" >Tope Coaseguro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="coverage in vm.insurance.coverageInPolicy_policy | orderBy: 'priority' track by coverage.url" ng-if="coverage.package; coverage.coverage_name && (coverage.sum_insured || coverage.deductible || coverage.coinsurance)">
+                <td>{{ coverage.coverage_name }}</td>
+                <td>{{ formatCoverage(coverage.sum_insured) }}</td>
+                <td>{{ formatCoverage(coverage.deductible) }}</td>
+                <!-- <td ng-if="vm.insurance.accidents_policy.length">{{ formatCoverage(coverage.coinsurance) }}</td> -->
+                <td ng-if="vm.insurance.accidents_policy.length">{{coverage.coinsurance}}</td>
+                <td ng-if="vm.insurance.accidents_policy.length">{{coverage.topecoinsurance}}</td>
+              </tr>
+              <!-- <pre>{{vm.insurance.coverageInPolicy_policy | json }}</pre> -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block"  ng-repeat="coverage in vm.insurance.coverageInPolicy_policy" ng-if="coverage.package; coverage.sum_insured">
+          <div class="ibox-title">
+            <h5> {{ vm.tablec.headers[0] }}:{{ coverage.coverage_name }} </h5>
+            <div ibox-tools></div>
+          </div>
+          <div class="ibox-content" style="display: none">
+            <table class="table-flex">
+              <tr class="table-row" >
+                <div class="table-cell col-xs-12 col-sm-6">
+                  <label> {{ vm.tablec.headers[0] }} </label>
+                  <p>{{ coverage.coverage_name }}</p>
+                </div>
+                <div class="table-cell col-xs-12 col-sm-6">
+                  <label> {{ vm.tablec.headers[1] }} </label>
+                    <p>{{ formatCoverage(coverage.sum_insured) }} </p>
+                </div>
+                <div class="table-cell col-xs-12 col-sm-6">
+                  <label> {{ vm.tablec.headers[2] }} </label>
+                  <p >{{ formatCoverage(coverage.deductible) }}</p>
+                </div>
+                <div class="table-cell col-xs-12 col-sm-6">
+                  <label> {{ vm.tablec.headers[3] }} </label>
+                  <p >{{coverage.coinsurance }}</p>
+                </div>
+                <div class="table-cell col-xs-12 col-sm-6">
+                  <label>Tope coaseguro </label>
+                  <p >{{coverage.topecoinsurance }}</p>
+                </div>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" ng-if="vm.receipts.length > 0">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title receipt-title">
+        <h5>Recibos de Póliza</h5>
+        <button class="btn btn-success" ng-click="renewReceipts()" ng-if="poliza_multianual" >Renovar recibos</button>
+      </div>
+      <div class="ibox-content">
+        <div class="row animate" ng-if="calculate_receipts">
+          <!-- Comision -->
+          <div ng-if="vm.permiso_comisiones">
+           <span>Comisi&oacute;n</span>
+           <div>
+             <input type="text" name="" class="form-control" ng-model="vm.insurance.comision_percent">
+           </div>
+          </div>
+          <calculate-receipts poliza="poliza_renew_rec" form="vm.insurance" tosave="dataToSave" type="1"></calculate-receipts>
+          <button class="btn btn-success" ng-click="saveNewReceipts()">Guardar</button>
+        </div>
+        <div class="row animate" ng-if="!calculate_receipts">
+          <div class="col-xs-12" ng-if="!vm.show_binnacle_receipt">
+            <div class="col-xs-12 col-sm-6 col-md-3" ng-if="poliza_multianual && vm.insurance.forma_de_pago !=5">
+              <label>Año:</label>
+              <select class="form-control" ng-model="anioPoliza" data-ng-options="anio for anio in aniosPoliza" ng-change="showReceiptsYear(anioPoliza)">
+              </select>
+              <br>
+            </div>
+            <!-- <div class="col-xs-12 col-sm-6 col-md-3 m-t" ng-if="poliza_multianual">
+              <button class="btn btn-success" ng-click="changeFrecuencyMultianual()">Cambiar Frecuencia</button>
+              <br>
+            </div> -->
+            <table class="table table-bordered table-hover table hidden-xs hidden-sm">
+              <thead>
+                <tr>
+                  <th ng-model="vm.table.headers[0]"> {{vm.table.headers[0]}} </th>
+                  <th ng-model="vm.table.headers[1]"> {{vm.table.headers[1]}} </th>
+                  <th ng-model="vm.table.headers[2]"> {{vm.table.headers[2]}} </th>
+                  <th ng-model="vm.table.headers[3]"> {{vm.table.headers[3]}} </th>
+                  <th ng-model="vm.table.headers[4]"> {{vm.table.headers[4]}} </th>
+                  <th ng-model="vm.table.headers[5]"> {{vm.table.headers[5]}} </th>
+                  <th ng-if="vm.permiso_comisiones">Comisión </th>
+                  <th width="5%" ng-if="vm.permiso_comisiones">Comisión Conciliada</th>
+                  <th ng-model="vm.table.headers[8]"> {{vm.table.headers[8]}} </th>
+                  <th ng-model="vm.table.headers[9]"> {{vm.table.headers[9]}} </th>
+                  <th ng-model="vm.table.headers[6]"> {{vm.table.headers[6]}} </th>
+                  <th width="3%"> Entregado</th>
+                  <th ng-model="vm.table.headers[7]"> {{vm.table.headers[7]}} </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-click="vm.changeStatusModal(receipt, contratante,vm.insurance)" ng-repeat="receipt in vm.policy_receipts_show track by $index | orderBy: 'fecha_inicio'" ng-if="receipt.receipt_type == 1 && receipt.status != 0">
+                  <td ng-if="!receipt.serie_manual">{{ receipt.recibo_numero }} / {{vm.policy_receipts_show.length - vm.receipts_manual}}</td>
+                  <td ng-if="receipt.serie_manual">{{ receipt.recibo_numero }} / {{receipt.serie_manual}}</td>
+                  <td>{{ receipt.prima_neta | currency }}</td>
+                  <td>{{ receipt.derecho  | currency }}</td>
+                  <td>{{ receipt.rpf | currency }}</td>
+                  <td>{{ receipt.iva | currency }}</td>
+                  <td>{{ receipt.prima_total | currency }}</td>
+                  <td ng-if="vm.permiso_comisiones">{{ receipt.comision | currency }}</td>
+                  <td width="5%" ng-if="vm.permiso_comisiones"><span>{{receipt.comision_conciliada | currency }}</span></td>
+                  <td>{{receipt.fecha_inicio | date: 'dd/MM/yyyy' : 'UTC'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+                  <td>{{receipt.vencimiento | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+                  <td>
+                    <div class="label" ng-class="{'label-success': receipt.status == 4, 'label-info' : receipt.status == 5 || receipt.status == 6, 'label-primary' : receipt.status == 1 || receipt.status == 3, 'label-warning' : receipt.status == 2 || receipt.status == 8}"> {{ vm.checkStatusReceipts(receipt) }}
+                    </div>
+                  </td>
+                  <td align="center" ng-click="$event.stopPropagation(); vm.deliveredReceipt(receipt)"><span ng-if="receipt.delivered"><i class="fa fa-check"></i></span><span ng-if="!receipt.delivered"><i class="fa fa-times"></i></span></td>
+                  <td>
+                    <span title="{{ vm.whatsappWebEnabled ? 'Recordatorio por WhatsApp Web' : 'Recordatorio por SMS' }}" ng-if="vm.acceso_adm_pol">
+                      <button class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); addPhoneWhatsapp(receipt, contratante)" ng-disabled="!(receipt.status == 4)"
+                        title="{{ vm.whatsappWebEnabled ? 'Recordatorio por WhatsApp Web' : 'Recordatorio por SMS' }}">
+                        <img ng-if="!vm.whatsappWebEnabled" style="height: 15px;" class="icon-menu" src="../../assets/comment-sms-solid.svg">
+                        <i ng-if="vm.whatsappWebEnabled" class="fa fa-whatsapp"></i>
+                      </button>
+                    </span>
+                    <button ng-if="vm.acceso_cor && vm.acceso_adm_pol" class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); addEmailsConfirmPolicy(receipt, contratante)" ng-disabled="!(receipt.status == 4)">
+                      <i class="fa fa-envelope"></i></button>
+                    <div ng-if="receipt.track_email" class="identificador-dash-email"></div>
+                    <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacleReceipt(receipt)">
+                      <i class="fa fa-comments" aria-hidden="true"></i>
+                    </a>
+                    <div ng-if="receipt.track_bitacora" class="identificador-dash-binnacle"></div>
+                    <a class="btn btn-warning btn-sm" ng-click="$event.stopPropagation();applyEx()" ng-if="receipt.excedente > 0" style="background-color: white;border-color: #f8ac59;color: black;">
+                      <i class="fa fa-hand-holding-usd" aria-hidden="true" title="Recibo con excedente sin aplicar"></i>
+                    </a>
+                    <a ng-if="vm.insurance.conducto_de_pago != 'No domiciliada'" ng-click="$event.stopPropagation()" class="btn btn-white btn-sm" title="{{vm.insurance.conducto_de_pago}}">
+                      <i ng-if="vm.insurance.conducto_de_pago == 'Agente'" class="fa fa-user" aria-hidden="true"></i>
+                      <i ng-if="vm.insurance.conducto_de_pago == 'CAC'" class="fa fa-user" aria-hidden="true"></i>
+                      <i ng-if="vm.insurance.conducto_de_pago == 'CAT/Domiciliado'" class="fa fa-credit-card-alt" aria-hidden="true"></i>
+                      <i ng-if="vm.insurance.conducto_de_pago == 'Nómina'" class="fa fa-money" aria-hidden="true"></i>
+                      <i ng-if="vm.insurance.conducto_de_pago == 'CUT'" class="fa fa-credit-card" aria-hidden="true"></i>
+                      <!-- <i class="fa fa-credit-card"></i> -->
+                    </a>
+                    <a ng-if="(receipt.status == 4 || vm.acceso_pl_cob == false) && vm.acceso_adm_pol" ng-click="$event.stopPropagation(); vm.editRecibos($index,receipt.id,receipt)" class="btn btn-white btn-sm" title="Editar recibo">
+                      <i class="fa fa-edit" aria-hidden="true"></i>
+                    </a>
+                    <!-- <a ng-if="receipt.status == 4 && vm.acceso_del_cob && vm.policy_receipts_show.length > 1" ng-click="$event.stopPropagation(); deleteReceipts(receipt,$index)" class="btn btn-white btn-sm" title="Eliminar recibo"> -->
+                    <a ng-if="receipt.status == 4 && vm.acceso_del_cob && vm.acceso_adm_pol" ng-click="$event.stopPropagation(); deleteReceipts(receipt,$index)" class="btn btn-white btn-sm" title="Eliminar recibo">
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </a> 
+                    <a class="btn btn-default sm" style="color: red" ng-click="$event.stopPropagation()" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE" ng-if="receipt.endosotramite">
+                      <i class="fa fa-exclamation-circle" aria-hidden="true" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE"></i>
+                    </a>                  
+                    <!--   <a class="btn btn-info btn-sm" title="Crear Recordatorio" ng-click=" $event.stopPropagation();vm.createRecordatorio(receipt,4)"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                    </a>  -->
+                    <tasks click="addtask()" type="3" model="receipt.recibo_numero + ' de la póliza ' + vm.insurance.poliza_number" associated="vm.insurance.id" receipt="receipt.id">
+                  </td>
+                </tr>
+                <tr ng-if="vm.insurance.poliza_number">
+                  <td><b>Totales</b></td>
+                  <td><b>{{data_sums.p_neta | currency}}</b></td>
+                  <td><b>{{data_sums.derecho | currency}}</b></td>
+                  <td><b>{{data_sums.rpf | currency}}</b></td>
+                  <td><b>{{data_sums.iva | currency}}</b></td>
+                  <td><b>{{data_sums.p_total | currency}}</b></td>
+                  <td ng-if="permiso_comisiones"><b>{{data_sums.comision | currency}}</b></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="col-xs-12">
+              <div class="identificador-dash-email" style="width: 30px;"></div><span class="margin-right-34"> Se envio un correo.</span>
+              <div class="identificador-dash-binnacle" style="width: 30px;"></div><span class="margin-right-34"> Hay comentarios en la bitácora.</span>
+              <button class="btn btn-primary pull-right" ng-if="vm.acceso_adm_pol" ng-click="vm.createReceipts(vm.insurance)">Crear Recibos</button>
+
+            </div>
+          </div>
+          <div class="row animate" ng-if="vm.show_binnacle_receipt">
+            <div class="col-md-12">
+              <div>
+                <label>Bitácora de recibos</label>
+                <a class="btn btn-info pull-right" ng-click="vm.returnToReceipts()"><span class="fa fa-arrow-left"></span> Regresar</a>
+              </div>
+              <div class="col-md-12 margin-top-24"></div>
+              <div class="col-md-12">
+                <!-- <comments datasource="test" typemodel="4" idmodel="receipt_id"></comments> -->
+                <comments datasource="vm.comments_data_receipt" typemodel="4" config="vm.comments_config" idmodel="vm.receipt_id" receiptmodel = "receiptmodel" exportable="true"></comments>
+              </div>
+            </div>
+          </div>
+          <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="receipt in vm.policy_receipts_show track by $index" ng-if="receipt.receipt_type == 1">
+            <div class="ibox-title">
+              <h5> {{ vm.table.headers[0] }}:{{ receipt.recibo_numero }} / {{vm.policy_receipts_show.length}} </h5>
+              <div ibox-tools></div>
+            </div>
+            <div class="ibox-content" style="display: none" ng-click="vm.changeStatusModal(receipt)">
+              <table class="table-flex">
+                <tr class="table-row" >
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[0] }} </label>
+                    <p>{{ receipt.recibo_numero }} / {{vm.policy_receipts_show.length}}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[1] }} </label>
+                      <p>{{ receipt.prima_neta | currency }} </p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[2] }} </label>
+                    <p >{{ receipt.derecho  | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[3] }} </label>
+                    <p>{{ receipt.rpf | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[4] }} </label>
+                    <p>{{ receipt.iva | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[5] }} </label>
+                    <p>{{ receipt.prima_total | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[8] }} </label>
+                    <p>{{receipt.fecha_inicio | date: 'dd/MM/yyyy' : 'UTC'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy' : 'UTC'}}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[6] }} </label>
+                    <p>
+                      <div class="label" ng-class="{'label-success': receipt.status == 4, 'label-info' : receipt.status == 5 || receipt.status == 6, 'label-primary' : receipt.status == 1 || receipt.status == 3, 'label-warning' : receipt.status == 2 || receipt.status == 8}"> 
+                        {{ statusReceipts(receipt.status) }}
+                      </div>
+                    </p> 
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[7] }} </label>
+                    <p><a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacleReceipt(receipt)">
+                    <i class="fa fa-comment" aria-hidden="true"></i>
+                  </a> </p>
+                 
+                      <button ng-if="vm.acceso_cor && vm.acceso_adm_pol" class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); addEmailsConfirmPolicy(receipt, contratante)" ng-disabled="!(receipt.status == 4)">
+                      <i class="fa fa-envelope"></i></button>
+                   </div>
+                  
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" ng-if="vm.endorsement_receipts_show.length > 0">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Recibos de Endosos</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="col-xs-12" ng-if="!vm.show_binnacle_receiptE">
+            <div class="row col-sm-6">
+              <select class="form-control" ng-model="vm.form.endoso" data-ng-options="endoso for endoso in vm.endosos_options track by endoso" ng-change="vm.changeEndorsement(vm.form.endoso)">
+                <option value="">Todos los endosos</option>
+              </select>
+              <br>
+            </div>
+            <table class="table table-bordered table-hover table hidden-xs hidden-sm">
+
+              <thead>
+                <tr>
+                  <th ng-model="vm.table.headers[0]"> {{vm.table.headers[0]}} </th>
+                  <th ng-model="vm.table.headers[1]"> {{vm.table.headers[1]}} </th>
+                  <th ng-model="vm.table.headers[2]"> {{vm.table.headers[2]}} </th>
+                  <th ng-model="vm.table.headers[3]"> {{vm.table.headers[3]}} </th>
+                  <th ng-model="vm.table.headers[4]"> {{vm.table.headers[4]}} </th>
+                  <th ng-model="vm.table.headers[5]"> {{vm.table.headers[5]}} </th>
+                  <th ng-if="vm.permiso_comisiones"> Comisión </th>
+                  <th width="5%" ng-if="vm.permiso_comisiones"> Comisión Conciliada</th>
+                  <th ng-model="vm.table.headers[8]"> {{vm.table.headers[8]}} </th>
+                  <th ng-model="vm.table.headers[6]"> {{vm.table.headers[6]}} </th>
+                  <th width="3%"> Entregado</th>
+                  <th ng-model="vm.table.headers[7]"> {{vm.table.headers[7]}} </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-click="vm.changeStatusModal(receipt, contratante, vm.insurance)" ng-repeat="receipt in vm.endorsement_receipts_show track by $index" ng-if="(receipt.receipt_type == 2 || receipt.receipt_type == 3) && receipt.stataus != 0">
+                  <td>{{ receipt.recibo_numero }} / {{vm.endorsement_receipts_show.length }}</td>
+                  <td>{{ receipt.prima_neta | currency }}</td>
+                  <td>{{ receipt.derecho  | currency }}</td>
+                  <td>{{ receipt.rpf | currency }}</td>
+                  <td>{{ receipt.iva | currency }}</td>
+                  <td>{{ receipt.prima_total | currency }}</td>
+                  <td ng-if="vm.permiso_comisiones">{{ receipt.comision | currency }}</td>
+                  <td ng-if="vm.permiso_comisiones">{{ receipt.comision_conciliada | currency }}</td>
+                  <td>{{ receipt.fecha_inicio | date: 'dd/MM/yyyy' : 'UTC'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy'  : 'UTC'}}</td>
+                  <td>
+                    <div class="label" ng-class="{'label-success': receipt.status == 4, 'label-info' : receipt.status == 5 || receipt.status == 6, 'label-primary' : receipt.status == 1 || receipt.status == 3, 'label-warning' : receipt.status == 2 || receipt.status == 8}"> {{ vm.checkStatusReceipts(receipt) }}
+                    </div>
+                  </td>
+                  <td align="center" ng-click="$event.stopPropagation(); vm.deliveredReceipt(receipt)"><span ng-if="receipt.delivered"><i class="fa fa-check"></i></span><span ng-if="!receipt.delivered"><i class="fa fa-times"></i></span></td>
+                  <td>
+                    <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacleReceiptE(receipt)">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                     <a class="btn btn-primary btn-sm"  ng-click="$event.stopPropagation(); addEmailsConfirmPolicy(receipt, contratante)" ng-if="receipt.status == 4">
+                      <i class="fa fa-envelope" aria-hidden="true"></i>
+                    </a>
+                    <div ng-if="receipt.track_bitacora" class="identificador-dash-binnacle"></div>
+                    <a class="btn btn-warning btn-sm" ng-click="$event.stopPropagation();applyEx()" ng-if="receipt.excedente > 0" style="background-color: white;border-color: #f8ac59;color: black;">
+                      <i class="fa fa-plus" aria-hidden="true" title="Recibo con excedente sin aplicar"></i>
+                    </a>
+                    <!-- <a class="btn btn-info btn-sm" title="Crear Recordatorio" ng-click="$event.stopPropagation();vm.createRecordatorio(receipt,4)"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                    </a>  -->
+                    <tasks click="addtask()" type="3" model="receipt.recibo_numero + ' del endoso de la póliza ' + vm.insurance.poliza_number" associated="vm.insurance.id">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+             <div class="col-xs-12">
+              <div class="identificador-dash-binnacle" style="width: 30px;"></div><span class="margin-right-34"> Hay comentarios en la bitácora.</span>
+            </div>
+          </div>
+          </div>
+          <div class="row animate" ng-if="vm.show_binnacle_receiptE">
+            <div class="col-md-12">
+              <div>
+                <label>Bitácora de recibos de Endosos</label>
+                <a class="btn btn-info pull-right" ng-click="vm.returnToReceiptsE()"><span class="fa fa-arrow-left"></span> Regresar</a>
+              </div>
+              <div class="col-md-12 margin-top-24"></div>
+              <div class="col-md-12">
+                <!-- <comments datasource="test" typemodel="4" idmodel="receipt_id"></comments> -->
+                <comments datasource="vm.comments_data_receipt" typemodel="4" config="vm.comments_config" idmodel="vm.receipt_id" receiptmodel="receiptmodel" exportable="true"></comments>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="receipt in vm.endorsement_receipts_show track by $index" ng-if="receipt.receipt_type == 2">
+            <div class="ibox-title">
+              <h5> {{ vm.table.headers[0] }}:{{ receipt.recibo_numero }} / {{vm.endorsement_receipts_show.length }} </h5>
+              <div ibox-tools></div>
+            </div>
+            <div class="ibox-content" style="display: none" ng-click="vm.changeStatusModal(receipt)">
+              <table class="table-flex">
+                <tr class="table-row" >
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[0] }} </label>
+                    <p>{{ receipt.recibo_numero }} / {{vm.endorsement_receipts_show.length }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[1] }} </label>
+                      <p>{{ receipt.prima_neta | currency }} </p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[2] }} </label>
+                    <p >{{ receipt.derecho  | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[3] }} </label>
+                    <p>{{ receipt.rpf | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[4] }} </label>
+                    <p>{{ receipt.iva | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[5] }} </label>
+                    <p>{{ receipt.prima_total | currency }}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[8] }} </label>
+                    <p>{{receipt.fecha_inicio | date: 'dd/MM/yyyy' : 'UTC'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy' : 'UTC'}}</p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[6] }} </label>
+                    <p><span>{{ statusReceipts(receipt.status) }}</span></p>
+                  </div>
+                  <div class="table-cell col-xs-12 col-sm-6">
+                    <label> {{ vm.table.headers[7] }} </label>
+                    <p><a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacleReceipt(receipt)">
+                    <i class="fa fa-comment" aria-hidden="true"></i>
+                  </a> </p>
+                  </div>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Historico de renovaciones-->
+<div class="row">
+  <div class="col-xs-12" ng-if="vm.showHistoric">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Histórico renovaciones y cancelaciones</h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <div  ng-if="!vm.show_binnacle_receipt">
+          <table class="table table-bordered table-hover table hidden-xs hidden-sm">
+            <thead>
+              <tr>
+                <th>Número de Póliza</th>
+                <th>Vigencia</th>
+                <th>Estatus</th>
+                <th>Fecha de Renovación</th>
+                <th>Renovado Por:</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="policy in vm.policy_history track by $index" ng-click="goToPolicy(policy)">
+                <td ng-if="policy.poliza_number">{{policy.poliza_number}}</td>
+                <td ng-if="!policy.poliza_number">Sin número asignado</td>
+                <td>{{ policy.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{ policy.end_of_validity | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+                <td>{{status(policy.status)}}</td>
+                <td>{{policy.created_at | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+                <td>{{policy.owner}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+
+<div class="col-xs-12 form-group" style="margin-bottom: 40px;">
+  <h4>Observaciones:</h4>
+  <textarea disabled type="text" class="form-control" ng-model="vm.observations"></textarea>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Archivos</h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content" >
+        <div class="row" ng-if="vm.permiso_administrar_adjuntos">
+          <div ng-include="'templates/upload.html'"></div>
+        </div>
+        <div class="col-xs-12 text-right form-group" ng-if="vm.permiso_administrar_adjuntos">
+          <button class="btn btn-primary" ng-click="saveFiles(vm.insurance.id)">Guardar Archivos</button>
+        </div>
+        <table class="table table-bordered table">
+          <h3 class="text-center">Archivos que estan actualmente en la base de datos</h3>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th width="400px">Opciones</th>
+              <th  ng-if="vm.permiso_archivos && vm.permiso_administrar_adjuntos" width="200px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="file in vm.files track by $index">
+              <td>
+                <strong ng-bind="file.nombre" disabled></strong>
+                <input name='text_input' class="form-control display-none" ng-model="file.nombre" onblur="blurArchivoCargado()" ng-blur="saveFile(file)" ng-if="vm.permiso_administrar_adjuntos">
+              </td>
+              <td>
+                <a class="btn btn-success" target="_blank" download href="{{file.arch}}">Descargar</a>
+                <a class="btn btn-primary" href="{{file.arch}}" target="_blank">Ver</a>
+                <button class="btn btn-danger btn-bm0" ng-click="vm.deleteFile(file,vm.files)" ng-if="vm.permiso_administrar_adjuntos">Borrar</button>
+                <button class="btn btn-info btn-bm0" onclick="renombrarArchivoCargado(), saveInput = true" ng-if="vm.permiso_administrar_adjuntos">Renombrar</button>
+
+                <span class="btn btn-success display-none">
+                Guardar
+                </span>
+              </td>
+              <td ng-if="vm.permiso_archivos && vm.permiso_administrar_adjuntos"><input type="checkbox" ng-change="saveFile(file)" ng-model="file.sensible"> * Archivo sensible</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Bitácora</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="col-xs-12">
+            <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="1" idmodel="vm.polizaId" exportable="true"></comments>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function renombrarArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target).parent().parent().find("[name='text_input']");
+
+      inputTag.removeClass('display-none');
+      strongTag.addClass('display-none');
+      inputTag.focus();
+   }
+   function blurArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target).parent().parent().find("[name='text_input']");
+
+      inputTag.addClass('display-none');
+      strongTag.removeClass('display-none');
+    }
+  </script>
+</div>

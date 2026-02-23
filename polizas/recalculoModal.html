@@ -1,0 +1,22 @@
+<div class="inmodal" id="modal_email">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Recalcular Recibos</h4>
+  </div>
+  <div class="modal-body">
+  	<div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+        <label>Frecuencia de Pago:</label>
+        <select class="form-control" ng-model="datareceipt.payment" ng-options="payment.name for payment in payments" ng-change="changePayment(datareceipt.payment)">
+          <option value="">Selecciona una frecuencia</option>
+        </select>   
+      </div>
+      <div class="col-xs-12 form-group">
+        <receipts-individual form="order.form" tosave="order" type="1"></receipts-individual>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+    <button type="button" class="btn btn-success ladda-button" ng-click="saveNewReceipts()">Guardar Cambios</button>
+  </div>
+</div>

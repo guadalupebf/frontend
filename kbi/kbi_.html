@@ -1,0 +1,876 @@
+<toaster-container></toaster-container>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>KBI</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a>KBI</a>
+      </li>
+      <li class="active">
+        <strong>KBI</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-3 pull-right">
+      <button class="btn btn-primary col-xs-12" ng-click="exportDataExcel()"><i class="fa fa-download" aria-hidden="true"></i> Generar Reporte</button>
+      <br>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 form-group">
+      <label>Año: </label>
+      <select class="form-control" name="payment" ng-model="year_kbi" ng-options="year as year for year in charts_kbi.anios" ng-change="vm.getFilter(1, year_kbi, startDate_production, endDate_production)">
+        <option value="" disabled>Selecciona un año</option>
+      </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 form-group">
+      <label>Moneda: </label>
+      <select class="form-control" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)">
+        <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-3 form-group">
+      <button class="btn btn-primary col-xs-12" ng-click="show_tab_kbi(1)">Financiero</button>
+    </div>
+    <div class="col-xs-12 col-sm-3 form-group">
+      <button class="btn btn-info col-xs-12" ng-click="show_tab_kbi(2)">Producción</button>
+    </div>
+    <div class="col-xs-12 col-sm-3 form-group">
+      <button class="btn btn-success col-xs-12" ng-click="show_tab_kbi(3)">Cotizaciones</button>
+    </div>
+    <div class="col-xs-12 col-sm-3 form-group">
+      <button class="btn btn-warning col-xs-12" ng-click="show_tab_kbi(4)">Gastos</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 form-group">
+      <legend class="legend-title" align="center">
+        <span ng-if="show_financiero">Financiero</span>
+        <span ng-if="show_produccion">Producción</span>
+        <span ng-if="show_cotizacion">Cotizaciones</span>
+        <span ng-if="show_gastos">Gastos</span>
+        / {{ year_kbi }} / 
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+      </legend>
+    </div>
+  </div>
+  <div ng-if="show_financiero">
+    <div class="loader-kbi" ng-if="showLoaderKbi">
+      <img src="../../assets/images/loader/blue_loader.gif">
+    </div>
+    <div class="row container-chart" style="padding: 20px 0 10px">
+      <div class="col-xs-9">
+        <label>Recibos Pagados, Liquidados o Conciliados <span title="Total Prima neta de recibos Pagados, Liquidados o Conciliados con fecha de inicio de recibo del año seleccionado (Tipo Moneda)"> <i class="fa fa-question-circle"></i></label>
+        <div ng-if="show_currency_mxn">
+          <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancial.data" chart-labels="charts_kbi.chartDataFinancial.labels" chart-colours="charts_kbi.chartDataFinancial.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancial.series" height="54"></canvas>
+        </div>
+        <div ng-if="show_currency_usd">
+          <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancialDolar.data" chart-labels="charts_kbi.chartDataFinancialDolar.labels" chart-colours="charts_kbi.chartDataFinancialDolar.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancialDolar.series" height="54"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-3" style="padding: 40px 0 0">
+        <span>Primas por cobrar</span> <span title="Totales de Prima Total de recibos por cobrar que inicien  vigencia en el año seleccionado(Endosos, Pólizas, Fianzas, SubGrupo, Pendiente de Pago, Prorrogadas, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.prima_cobrar | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.prima_cobrarDolar | currency }}</label>
+        <br>
+        <span>Comisión por recibir</span> <span title="Total Comisión de recibos pendientes por recibir con fecha de inicio de recibo del año seleccionado (Tipo Moneda, Pendiente Pago, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.prima_recibir | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.prima_recibirDolar | currency }}</label>
+      </div>
+      <div class="col-xs-12">
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-9">
+        <label>Recibos Pagados, Liquidados o Conciliados <span title="Total Prima neta de recibos Pagados, Liquidados o Conciliados con fecha de inicio de recibo del año seleccionado (Tipo Moneda)"> <i class="fa fa-question-circle"></i></label>
+        <div ng-if="show_currency_mxn">
+          <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancial_anterior.data" chart-labels="charts_kbi.chartDataFinancial_anterior.labels" chart-colours="charts_kbi.chartDataFinancial_anterior.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancial_anterior.series" height="54"></canvas>
+        </div>
+        <div ng-if="show_currency_usd">
+          <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancialDolar_anterior.data" chart-labels="charts_kbi.chartDataFinancialDolar_anterior.labels" chart-colours="charts_kbi.chartDataFinancialDolar_anterior.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancialDolar_anterior.series" height="54"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-3" style="padding: 40px 0 0">
+        <span>Primas por cobrar</span> <span title="Totales de Prima Total de recibos por cobrar que inicien  vigencia en el año seleccionado(Endosos, Pólizas, Fianzas, SubGrupo, Pendiente de Pago, Prorrogadas, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_prima_cobrar | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_prima_cobrarDolar | currency }}</label>
+        <br>
+        <span>Comisión por recibir</span> <span title="Total Comisión de recibos pendientes por recibir con fecha de inicio de recibo del año seleccionado (Tipo Moneda, Pendiente Pago, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_prima_recibir | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_prima_recibirDolar | currency }}</label>
+      </div>
+    </div>
+    <div class="row container-chart" style="padding: 20px;">
+      <div class="col-xs-12">
+        <label>Subramos <span title="Totales de Prima Netas emitida por Subramo de pólizas con inicio de vigencia del año seleccionado (Tipo Moneda, SubRamo)"> <i class="fa fa-question-circle"></i> </span></label>
+      </div>
+      <div class="col-xs-3">
+        <label>Mes:</label>
+        <select class="form-control" name="payment" ng-model="month_old" ng-options="item.id as item.month for item in months_kbi" ng-change="dataMonth(month_old, year_old, month_new, year_new)">
+          <option value="" disabled selected>Todo el año</option>
+        </select>
+      </div>
+      <div class="col-xs-3">
+        <label>Año:</label>
+        <select class="form-control" name="payment" ng-model="year_old" ng-options="year.id as year.year for year in anios_kbi" ng-change="dataMonth(month_old, year_old, month_new, year_new)">
+          <option value="" disabled>Selecciona una opción</option>
+        </select>
+      </div>
+      <div class="col-xs-3">
+        <label>Mes Comparación:</label>
+        <select class="form-control" name="payment" ng-model="month_old" ng-options="item.id as item.month for item in months_kbi" ng-change="dataMonth(month_old, year_old, month_new, year_new)" ng-disabled="true">
+          <option value="" disabled selected>Todo el año</option>
+        </select>
+      </div>
+      <div class="col-xs-3">
+        <label>Año Comparación:</label>
+        <select class="form-control" name="payment" ng-model="year_new" ng-options="year.id as year.year for year in anios_kbi" ng-change="dataMonth(month_old, year_old, month_new, year_new)">
+          <option value="" disabled>Selecciona una opción</option>
+        </select>
+      </div>
+      <div class="col-xs-3">
+        <button class="btn btn-success col-xs-12 m-t" ng-click="monthComparative()">Comparar</button>
+      </div>
+      <div ng-if="show_currency_mxn">
+        <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancial.data" chart-labels="charts_kbi.polarDataFinancial.labels" chart-colours="charts_kbi.polarDataFinancial.colours" height="120"></canvas>            
+      </div>
+      <div ng-if="show_currency_usd">
+        <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancialDolar.data" chart-labels="charts_kbi.polarDataFinancialDolar.labels" chart-colours="charts_kbi.polarDataFinancial.colours" height="120"></canvas>            
+      </div>
+      <!-- <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-12">
+        <label>Subramos <span title="Totales de Prima Netas emitida por Subramo de pólizas con inicio de vigencia del año seleccionado (Tipo Moneda, SubRamo)"> <i class="fa fa-question-circle"></i> </span></label>
+        <div ng-if="show_currency_mxn">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancial_anterior.data" chart-labels="charts_kbi.polarDataFinancial_anterior.labels" chart-colours="charts_kbi.polarDataFinancial_anterior.colours" height="60"></canvas>            
+        </div>
+        <div ng-if="show_currency_usd">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancialDolar_anterior.data" chart-labels="charts_kbi.polarDataFinancialDolar_anterior.labels" chart-colours="charts_kbi.polarDataFinancialDolar_anterior.colours" height="60"></canvas>            
+        </div>
+      </div> -->
+    </div>
+    <div class="row container-chart">
+      <div class="col-xs-4" style="background-color: #884EA0; color: #ffffff;">
+        <span>Comisión neta del año</span> <span title="Total de Comisiones de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado (Tipo de Moneda, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.comision | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.comisionDolar | currency }}</label>
+      </div>
+      <div class="col-xs-4" style="background-color: #5DADE2; color: #ffffff;">
+        <span> Notas de crédito sobre prima total</span> <span title="Totales de Prima Total de notas de crédito con fecha de inicio de recibo del año seleccionado (Excluye recibos con estatus cerrados, cancelados)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.notas_credito | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.notas_creditoDolar | currency }}</label>
+        <label class="lbl-tableros" ng-if="!charts_kbi.notas_credito">{{ 0 | currency }}</label>
+      </div>
+      <div class="col-xs-4" style="background-color: #F1C40F; color: #ffffff;">
+        <span> Recibos pagados sobre prima neta</span> <span title="Totales de Prima Neta de recibos pagados, liquidado, conciliado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.recibos_pagados | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.recibos_pagadosDolar | currency }}</label>
+        <label class="lbl-tableros" ng-if="!charts_kbi.recibos_pagados">{{ 0 | currency }}</label>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-4" style="background-color: #D4D4D4; color: #ffffff;">
+        <span>Comisión neta del año</span> <span title="Total de Comisiones de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado (Tipo de Moneda, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_comision | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_comisionDolar | currency }}</label>
+      </div>
+      <div class="col-xs-4" style="background-color: #D4D4D4; color: #ffffff;">
+        <span> Notas de crédito sobre prima total</span> <span title="Totales de Prima Total de notas de crédito con fecha de inicio de recibo del año seleccionado (Excluye recibos con estatus cerrados, cancelados)"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.anterior_notas_credito | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.anterior_notas_creditoDolar | currency }}</label>
+        <label class="lbl-tableros" ng-if="!charts_kbi.notas_credito">{{ 0 | currency }}</label>
+      </div>
+      <div class="col-xs-4" style="background-color: #D4D4D4; color: #ffffff;">
+        <span> Recibos pagados sobre prima neta</span> <span title="Totales de Prima Neta de recibos pagados, liquidado, conciliado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <br>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.anterior_recibos_pagados | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.anterior_recibos_pagadosDolar | currency }}</label>
+        <label class="lbl-tableros" ng-if="!charts_kbi.recibos_pagados">{{ 0 | currency }}</label>
+      </div>
+    </div>
+  </div>
+  <div ng-if="show_produccion">
+    <div class="loader-kbi" ng-if="showLoaderKbi">
+      <img src="../../assets/images/loader/blue_loader.gif">
+    </div>
+    <div class="row container-chart">
+      <br>
+      <div class="col-xs-6">
+        <label>Meta a Registrar</label>
+        <input type="number" class="form-control" ng-model="newGoal.value" ng-change="validateDecimal(newGoal.value)">
+      </div>
+      <div class="col-xs-3 form-group" style="margin-top: 23px;">
+        <select class="form-control" ng-model="newGoal.model">
+          <option ng-repeat="option in newGoal.options" value="{{option.id}}">{{ option.name }}</option>
+        </select>
+      </div>
+      <div class="col-xs-3 form-group" style="margin-top: 23px;">
+        <button class="col-xs-12 btn btn-primary" ng-if="!showBtnKbi" ng-click="saveGoal()" ng-disabled="!newGoal.value">Guardar</button>
+        <button class="col-xs-12 btn btn-primary" ng-if="showBtnKbi" ng-click="editGoal()" ng-disabled="!newGoal.value">Editar</button>
+      </div>
+      <br>
+      <div class="col-xs-4">
+        <label>Meta: {{ charts_kbi.goal.value | currency }} {{ charts_kbi.goal.currency }}</label>
+      </div>
+      <div class="col-xs-4">
+        <label>Actual: {{ charts_kbi.goal.progress | currency }} {{ charts_kbi.goal.currency }}</label>
+      </div>
+      <div class="col-xs-4">
+        <label>Faltan: {{ charts_kbi.goal.remain | currency }} {{ charts_kbi.goal.currency }}</label>
+        <div class="col-xs-4 pull-right">            
+          <span title="Monto Faltante para cumplir Meta del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-12">
+        <div class="progress" style="height: 32px;">
+          <div class="progress-bar bar-goal animate" role="progressbar" ng-style="progressGoal" aria-valuemin="0" aria-valuemax="100"><label>{{ charts_kbi.goal.percentajeGoal }}%</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="row container-chart">
+      <div class="col-xs-6">
+        <span>Total de Primas de Pólizas canceladas de póliza</span>
+        <span title="Total de primas netas de pólizas Canceladas, PreCanceladas"> <i class="fa fa-question-circle"></i> </span>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label class="lbl-tableros" ng-if="show_currency_mxn">{{ charts_kbi.primas_canceladas | currency }}</label>
+        <label class="lbl-tableros" ng-if="show_currency_usd">{{ charts_kbi.primas_canceladasDolar | currency }}</label>
+      </div>
+      <div class="col-xs-6">
+        <span>Comisión perdida por notas de crédito</span>
+        <span title="Total de Comisión de recibos de Notas de crédito (Cancelados, PreCanceladas del año seleccionado)"> <i class="fa fa-question-circle"></i> </span>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.comision_perdida | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.comision_perdidaDolar | currency }}</label>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-6" style="background-color: #D4D4D4; color: #ffffff;">
+        <span>Total de Primas de Pólizas canceladas de póliza</span>
+        <span title="Total de primas netas de pólizas Canceladas, PreCanceladas"> <i class="fa fa-question-circle"></i> </span>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label class="lbl-tableros" ng-if="show_currency_mxn">{{ charts_kbi.anterior_primas_canceladas | currency }}</label>
+        <label class="lbl-tableros" ng-if="show_currency_usd">{{ charts_kbi.anterior_primas_canceladasDolar | currency }}</label>
+      </div>
+      <div class="col-xs-6" style="background-color: #D4D4D4; color: #ffffff;">
+        <span>Comisión perdida por notas de crédito</span>
+        <span title="Total de Comisión de recibos de Notas de crédito (Cancelados, PreCanceladas del año seleccionado)"> <i class="fa fa-question-circle"></i> </span>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_comision_perdida | currency }}</label>
+        <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_comision_perdidaDolar | currency }}</label>
+      </div>
+    </div>
+    <div class="row container-chart">
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #5DADE2;">
+          <i class="fa fa-user" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span>Contratantes</span>
+          <br>
+          <label class="lbl-tableros">{{ charts_kbi.contratantes }}</label> <span title=" Totales  de contratantes datos de alta en SAAM del año seleccionado(Físicas, Morales)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #27AE60;">
+          <i class="fa fa-file-text" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Pólizas/Fianzas</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.polizas }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.polizasDolar }}</label>
+          <span title="Total de pólizas y fianzas registradas en SAAM del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #F1C40F;">
+          <i class="fa fa-file" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> OT proceso </span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.ot }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.otDolar }}</label>
+          <span title="Total de OT proceso del año seleccionado Endosos (Pendiente, Tramite), OT de Poliza (Pendientes, Trámite)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #E67E22;">
+          <i class="fa fa-folder" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Endosos</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.endosos }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.endososDolar }}</label>
+          <span title="Total de Endosos del año seleccionado (Todos los estatus)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #BDC3C7;">
+          <i class="fa fa-bookmark" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Renovaciones</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.renovaciones }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.renovacionesDolar }}</label>
+          <span title="Total de Renovaciones del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #9B59B6;">
+          <i class="fa fa-certificate" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Siniestros</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.siniestros }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.siniestrosDolar }}</label>
+          <span title="Total de Siniestros registrados del año seleccionado (fecha de ingreso de siniestros y/o actualización)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <!-- <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-user" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span>Contratantes</span>
+          <br>
+          <label class="lbl-tableros">{{ charts_kbi.anterior_contratantes }}</label> <span title=" Totales  de contratantes datos de alta en SAAM del año seleccionado(Físicas, Morales)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-file-text" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Pólizas/Fianzas</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_polizas }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_polizasDolar }}</label>
+          <span title="Total de pólizas y fianzas registradas en SAAM del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-file" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> OT proceso </span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_ot }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_otDolar }}</label>
+          <span title="Total de OT proceso del año seleccionado Endosos (Pendiente, Tramite), OT de Poliza (Pendientes, Trámite)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-folder" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Endosos</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_endosos }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_endososDolar }}</label>
+          <span title="Total de Endosos del año seleccionado (Todos los estatus)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-bookmark" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Renovaciones</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_renovaciones }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_renovacionesDolar }}</label>
+          <span title="Total de Renovaciones del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div>
+      <div class="col-xs-2">
+        <div class="col-xs-3 box-tableros" style="background-color: #D4D4D4;">
+          <i class="fa fa-certificate" aria-hidden="true"></i>
+        </div>
+        <div class="col-xs-9">
+          <span> Siniestros</span>
+          <br>
+          <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.anterior_siniestros }}</label>
+          <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.anterior_siniestrosDolar }}</label>
+          <span title="Total de Siniestros registrados del año seleccionado (fecha de ingreso de siniestros y/o actualización)"> <i class="fa fa-question-circle"></i> </span>
+        </div>
+      </div> -->
+    </div>
+    <div class="row container-chart" style="padding: 10px;">
+      <div class="col-xs-6">
+        <label>Comisiones <span title="Total de Comisiones  de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span></label>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <div ng-if="show_currency_mxn">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProduction.data" chart-labels="charts_kbi.barDataProduction.labels" chart-colours="charts_kbi.barDataProduction.colours" height="110"></canvas>
+        </div>
+        <div ng-if="show_currency_usd">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProductionDolar.data" chart-labels="charts_kbi.barDataProductionDolar.labels" chart-colours="charts_kbi.barDataProductionDolar.colours" height="110"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-6 border-left">
+        <label>Fecha: </label>
+        <div class="datepicker-me input-group date" data-provide="datepicker" style="display: inline-block; margin-bottom: 6px;">
+          <input type="text" name="startDate" class="text-align-center form-control" ng-model="startDate_production" value="{{startDate_production}}" data-date-format="mm/dd/yyyy" >
+            <span class="input-group-addon" style="display: none;"><i class="fa fa-calendar"></i></span>
+        </div>
+        <div class="datepicker-me input-group date" data-provide="datepicker" style="display: inline-block; margin-bottom: 6px;">
+          <input type="text" name="endingDate" class="text-align-center form-control" ng-model="endDate_production" value="{{endDate_production}}" data-date-format="mm/dd/yyyy" >
+            <span class="input-group-addon" style="display: none;"><i class="fa fa-calendar"></i></span>
+        </div>
+        <button class="btn btn-primary" style="margin: -40px 0 0 0;" ng-click="vm.getFilter(1, year_kbi, startDate_production, endDate_production)" ng-disabled="showLoaderKbi">
+          Aplicar
+        </button>
+        <div class="loader-kbi" ng-if="showLoaderKbi">
+          <img src="../../assets/images/loader/blue_loader.gif">
+        </div>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <ul class="tab-kbi-prodution">
+           <li ng-class="{ 'active-kbi': show_ejectivo }" ng-click="show_tab_production(1)">Ejecutivos</li>
+           <li ng-class="{ 'active-kbi': show_aseguradora }" ng-click="show_tab_production(2)">Aseguradoras</li>
+           <li ng-class="{ 'active-kbi': show_subramo }" ng-click="show_tab_production(3)">Subramos</li>
+        </ul>
+        <div ng-if="show_ejectivo">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Ejecutivo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="user in charts_kbi.ejecutivos" ng-if="show_currency_mxn">
+                  <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                  <td>{{ user.user__count }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="user in charts_kbi.ejecutivosDolar" ng-if="show_currency_usd">
+                  <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                  <td>{{ user.user__count }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div ng-if="show_aseguradora">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Aseguradora</th>
+                  <th>Emitida <span title="Total de Prima Neta de pólizas por aseguradora del rango fecha seleccionado"> <i class="fa fa-question-circle"></i> </span></th>
+                  <th>Pagada <span title="Totales de Prima Neta de recibos pagados por aseguradora de la fecha  seleccionada (Pagado, liquidado o conciliado)"> <i class="fa fa-question-circle"></i> </span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="item in charts_kbi.aseguradoras" ng-if="item.aseguradora__alias && show_currency_mxn">
+                  <td>{{ item.aseguradora__alias }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="item in charts_kbi.aseguradorasDolar" ng-if="item.aseguradora__alias && show_currency_usd">
+                  <td>{{ item.aseguradora__alias }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div ng-if="show_subramo">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Subramo</th>
+                  <th>Emitida <span title="Totales de Prima Neta emitida de pólizas por SubRamo de fecha seleccionada (Aseguradora)"> <i class="fa fa-question-circle"></i> </span></th>
+                  <th>Pagada <span title="Totales de Prima Neta de recibos pagados por  SubRamo de fecha seleccionada (pagado, Liquidado, Conciliado, Subramo)"> <i class="fa fa-question-circle"></i> </span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="item in charts_kbi.subramos" ng-if="item.subramo__subramo_name && show_currency_mxn">
+                  <td>{{ item.subramo__subramo_name }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="item in charts_kbi.subramosDolar" ng-if="item.subramo__subramo_name && show_currency_usd">
+                  <td>{{ item.subramo__subramo_name }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-6">
+        <label>Comisiones <span title="Total de Comisiones  de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span></label>
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <div ng-if="show_currency_mxn">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProduction_anterior.data" chart-labels="charts_kbi.barDataProduction_anterior.labels" chart-colours="charts_kbi.barDataProduction_anterior.colours" height="110"></canvas>
+        </div>
+        <div ng-if="show_currency_usd">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProductionDolar_anterior.data" chart-labels="charts_kbi.barDataProductionDolar_anterior.labels" chart-colours="charts_kbi.barDataProductionDolar_anterior.colours" height="110"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-6 border-left">
+        <span ng-if="currency_kbi == 1">MXN</span>
+        <span ng-if="currency_kbi == 2">USD</span>
+        <ul class="tab-kbi-prodution">
+           <li ng-class="{ 'active-kbi': show_ejectivo }" ng-click="show_tab_production(1)">Ejecutivos</li>
+           <li ng-class="{ 'active-kbi': show_aseguradora }" ng-click="show_tab_production(2)">Aseguradoras</li>
+           <li ng-class="{ 'active-kbi': show_subramo }" ng-click="show_tab_production(3)">Subramos</li>
+        </ul>
+        <div ng-if="show_ejectivo">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Ejecutivo*</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="user in charts_kbi.anterior_ejecutivos track by $index" ng-if="show_currency_mxn">
+                  <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                  <td>{{ user.user__count }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="user in charts_kbi.anterior_ejecutivosDolar track by $index" ng-if="show_currency_usd">
+                  <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                  <td>{{ user.user__count }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div ng-if="show_aseguradora">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Aseguradora</th>
+                  <th>Emitida <span title="Total de Prima Neta de pólizas por aseguradora del rango fecha seleccionado"> <i class="fa fa-question-circle"></i> </span></th>
+                  <th>Pagada <span title="Totales de Prima Neta de recibos pagados por aseguradora de la fecha  seleccionada (Pagado, liquidado o conciliado)"> <i class="fa fa-question-circle"></i> </span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="item in charts_kbi.anterior_aseguradoras track by $index" ng-if="item.aseguradora__alias && show_currency_mxn">
+                  <td>{{ item.aseguradora__alias }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="item in charts_kbi.anterior_aseguradorasDolar track by $index" ng-if="item.aseguradora__alias && show_currency_usd">
+                  <td>{{ item.aseguradora__alias }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div ng-if="show_subramo">
+          <div class="col-xs-12 box-scroll">
+            <table class="list-production">
+              <thead>
+                <tr>
+                  <th>Subramo</th>
+                  <th>Emitida <span title="Totales de Prima Neta emitida de pólizas por SubRamo de fecha seleccionada (Aseguradora)"> <i class="fa fa-question-circle"></i> </span></th>
+                  <th>Pagada <span title="Totales de Prima Neta de recibos pagados por  SubRamo de fecha seleccionada (pagado, Liquidado, Conciliado, Subramo)"> <i class="fa fa-question-circle"></i> </span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-list" ng-repeat="item in charts_kbi.anterior_subramos track by $index" ng-if="item.subramo__subramo_name && show_currency_mxn">
+                  <td>{{ item.subramo__subramo_name }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+                <tr class="row-list" ng-repeat="item in charts_kbi.anterior_subramosDolar track by $index" ng-if="item.subramo__subramo_name && show_currency_usd">
+                  <td>{{ item.subramo__subramo_name }}</td>
+                  <td>{{ item.p_neta__sum | currency }}</td>
+                  <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                  <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="show_cotizacion">
+    <div class="row container-chart" style="padding: 10px;">
+      <div class="col-xs-9">
+        <label>Cotizaciones</label> <span title="Total de cotizaciones realizadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <div ng-if="show_for == '1'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotization.data" chart-labels="charts_kbi.barDataCotization.labels" chart-colours="charts_kbi.barDataCotization.colours" height="80"></canvas>
+        </div>
+        <div ng-if="show_for == '2'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizationRamo.data" chart-labels="charts_kbi.barDataCotizationRamo.labels" chart-colours="charts_kbi.barDataCotizationRamo.colours" height="80"></canvas>
+        </div>
+        <div ng-if="show_for == '3'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizacionSubramo.data" chart-labels="charts_kbi.barDataCotizacionSubramo.labels" chart-colours="charts_kbi.barDataCotizacionSubramo.colours" height="80"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <label>Ver por: </label>
+        <br>
+        <select class="form-control" name="payment" ng-model="show_for" ng-options="item.id as item.name for item in options" ng-change="verpor(show_for)">
+          <option value="" disabled>Selecciona una opción</option>
+        </select>
+        <br>
+        <span>No. de cotizaciones</span><br>
+        <label class="lbl-tableros">{{ charts_kbi.cotizaciones }}</label>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-9">
+        <label>Cotizaciones</label> <span title="Total de cotizaciones realizadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <div ng-if="show_for == '1'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotization_anterior.data" chart-labels="charts_kbi.barDataCotization_anterior.labels" chart-colours="charts_kbi.barDataCotization_anterior.colours" height="80"></canvas>
+        </div>
+        <div ng-if="show_for == '2'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizationRamo_anterior.data" chart-labels="charts_kbi.barDataCotizationRamo_anterior.labels" chart-colours="charts_kbi.barDataCotizationRamo_anterior.colours" height="80"></canvas>
+        </div>
+        <div ng-if="show_for == '3'">
+          <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizacionSubramo_anterior.data" chart-labels="charts_kbi.barDataCotizacionSubramo_anterior.labels" chart-colours="charts_kbi.barDataCotizacionSubramo_anterior.colours" height="80"></canvas>
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <span>No. de cotizaciones</span><br>
+        <label class="lbl-tableros">{{ charts_kbi.anterior_cotizaciones }}</label>
+      </div>
+    </div>
+    <div class="row container-chart">
+      <div class="col-xs-3" style="padding: 10px;">
+        <label>Bateo: {{ charts_kbi.bateo}}%</label> <span title="Porcentaje Total de cotizaciones bateadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <div class="box-scroll-cotization">
+          <ul class="list-cotization" ng-repeat="item in charts_kbi.monthsBateo">
+            <li>{{ item.month }} <span class="pull-right">{{ item.value }}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-xs-9" style="padding: 10px;">
+        <label>Cotización y Emisión</label>
+        <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataCotization.data" chart-labels="charts_kbi.chartDataCotization.labels" chart-colours="charts_kbi.chartDataCotization.colours" chart-legend="true" chart-series="charts_kbi.chartDataCotization.series" height="70"></canvas>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-3" style="padding: 10px;">
+        <label>Bateo: {{ charts_kbi.anterior_bateo}}%</label> <span title="Porcentaje Total de cotizaciones bateadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+        <div class="box-scroll-cotization">
+          <ul class="list-cotization" ng-repeat="item in charts_kbi.monthsBateo_anterior">
+            <li>{{ item.month }} <span class="pull-right">{{ item.value }}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-xs-9" style="padding: 10px;">
+        <label>Cotización y Emisión</label>
+        <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataCotization_anterior.data" chart-labels="charts_kbi.chartDataCotization_anterior.labels" chart-colours="charts_kbi.chartDataCotization_anterior.colours" chart-legend="true" chart-series="charts_kbi.chartDataCotization_anterior.series" height="70"></canvas>
+      </div>
+    </div>
+  </div>
+  <div ng-if="show_gastos">
+    <div class="row container-chart">
+      <div class="col-xs-8">
+        <div class="concept-scroll">
+          <div class="col-xs-6">
+            <label>Mes</label>
+            <select class="form-control" name="payment" ng-model="vm.month_kbi" ng-options="month as month.month for month in months_kbi track by month.id" ng-change="selectMonth(vm.month_kbi)">
+              <option value="" disabled>Selecciona un mes</option>
+            </select>
+          </div>
+          <div class="col-xs-3" style="margin-top: 23px;">
+            <button class="col-xs-12 btn btn-primary" ng-click="saveGastos()">Guardar</button>
+          </div>
+          <div class="col-xs-3" style="margin-top: 23px;">
+            <button class="col-xs-12 btn btn-success" ng-click="addConcept()">Agregar concepto</button>
+          </div>
+          <div class="col-xs-12"></div>
+          <div ng-repeat="concept in concepts track by $index">
+            <div class="col-xs-6">
+              <label>Concepto</label>
+              <input class="form-control" type="text" ng-model="concept.concept" name="" />
+            </div>
+            <div class="col-xs-3">
+              <label>Gasto</label>
+              <input class="form-control" type="number" ng-model="concept.cantidad" ng-change="validateGasto(concept.cantidad)" name="" />
+            </div>
+            <div class="col-xs-3" style="margin-top: 23px;" ng-if="concept.value > 9">
+              <button class="col-xs-12 btn btn-danger" ng-click="removeConcept($index)">Quitar concepto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-4" ng-if="charts_kbi.barDataGastos.concepts.length > 0">
+        <div class="box-scroll">
+          <br>
+          <table class="list-production">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Concepto</th>
+                <th>Cantidad</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item_conc in charts_kbi.barDataGastos.concepts | orderBy: 'month' track by $index"> 
+                <td><span >{{monthName(item_conc.month)}}</span></td> 
+                <td><span >{{item_conc.concept}}</span></td>                               
+                <td><span >{{item_conc.cantidad | currency}}</span></td>
+                <td><span ng-click="deleteConcept(item_conc, $index)"><i class="fa fa-trash" aria-hidden="true"></i></span></td>                   
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row container-chart">
+      <div class="col-xs-8">
+        <canvas id="bar" class="chart chart-bar" chart-data="charts_kbi.barDataGastos.data" chart-labels="charts_kbi.barDataGastos.labels" chart-colours="charts_kbi.barDataGastos.colours" chart-legend="true" chart-series="charts_kbi.barDataGastos.series" height="100"></canvas>
+      </div>
+      <div class="col-xs-4">
+        <label>Tipo de cambio:</label>
+        <input class="form-control" type="text" ng-model="tipo_cambio">
+        <button class="btn btn-primary btn-sm" ng-click="saveTipoCambio(tipo_cambio)"><i class="fa fa-save" aria-hidden="true" ng-disabled="showLoaderKbi"></i></button>
+        <div class="loader-kbi" ng-if="showLoaderKbi">
+          <img src="../../assets/images/loader/blue_loader.gif">
+        </div>
+        <div class="box-scroll">
+          <br>
+          <table class="list-production">
+            <thead>
+              <tr>
+                <th>Utilidad<span title="Total de comision en el año seleccionado: {{total_utilidad | currency }}"> <i class="fa fa-question-circle"></i> </span></th>
+                <th>Comisiones MXN/USD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item_uti in charts_kbi.monthsUtilidad track by $index"> 
+                <td><span >{{item_uti.month}}</span></td> 
+                <td><span >{{item_uti.value | currency}}</span></td>                  
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-xs-12">
+        <br>
+        <label>Comparativa del año inmediato anterior {{ year_kbi_preview }}</label>
+      </div>
+      <div class="col-xs-8">
+        <canvas id="bar" class="chart chart-bar" chart-data="charts_kbi.barDataGastos_anterior.data" chart-labels="charts_kbi.barDataGastos_anterior.labels" chart-colours="charts_kbi.barDataGastos_anterior.colours" chart-legend="true" chart-series="charts_kbi.barDataGastos_anterior.series" height="100"></canvas>
+      </div>
+      <div class="col-xs-4">
+        <br>
+        <div class="box-scroll">
+          <br>
+          <table class="list-production">
+            <thead>
+              <tr>
+                <th>Utilidad<span title="Total de comision en el año seleccionado: {{total_utilidad_ant | currency }}"> <i class="fa fa-question-circle"></i> </span></th>
+                <th>Comisiones MXN/USD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item_uti in charts_kbi.monthsUtilidad_anterior track by $index"> 
+                <td><span >{{item_uti.month}}</span></td> 
+                <td><span >{{item_uti.value | currency}}</span></td>                 
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+  setTimeout(function(){ if(document.getElementById("box-kbi")){document.getElementById("box-kbi").style.width = "0px"; }}, 10);
+  var clic = 1;
+  function divLogin(){
+    if(clic==1){
+      angular.element(document.getElementById('box-kbi')).scope().getFilter(0);
+      document.getElementById("box-kbi").style.width = "1100px";
+      clic = clic + 1;
+    } else{
+      document.getElementById("box-kbi").style.width = "0px";      
+      clic = 1;
+    }   
+  }
+</script>

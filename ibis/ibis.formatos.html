@@ -1,0 +1,27 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Formatos</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+
+      <li>
+        <a>IBIS</a>
+      </li>
+
+      <li class="active">
+        <strong>Formatos</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="ibox-content">
+  <div class="row">
+    <div ng-include="'templates/upload.html'"></div>
+  </div>
+  <div class="col-xs-12 text-right form-group">
+    <button class="btn btn-primary" ng-click="saveFiles()">Guardar Archivos</button>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Plantillas para Compartir Siniestros por WhatsApp Web</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="ibis.formatos">IBIS</a>
+      </li>
+      <li class="active">
+        <strong>Plantillas para Compartir Siniestros por WhatsApp Web</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row" style="padding:20px">
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <button class="col-xs-12 btn btn-info pull-right m-t" ng-click="createQuotation()">Agregar Plantilla</button>
+    </div>
+    <div class="col-xs-12" ng-show="showPlantilla">
+    <legend ng-if="!showEditInformation" class="legend-title" align="center">Nueva Plantilla</legend>
+    <legend ng-if="showEditInformation" class="legend-title" align="center">Actualizar Plantilla</legend>
+    <form class="row" name="form">
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Identificador<span class="color-red">*</span></label>
+        <input class="form-control" type="text" ng-model="plantilla.title" name="plantillaTitle" required>
+      </div>
+      <div class="col-xs-12 form-group">
+          <label>Mensaje<span class="color-red">*</span></label>
+          <textarea type ="text" class="form-control" name="mensaje" ng-model="plantilla.text" required></textarea>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button ng-if="!showEditInformation" class="col-xs-12 btn btn-primary" ng-disabled="form.$invalid || savingPlantilla" ng-click="saveDelivery(plantilla)">Crear Plantilla</button>
+        <button ng-if="showEditInformation" class="col-xs-12 btn btn-primary" ng-disabled="form.$invalid || savingPlantilla" ng-click="updateDelivery(plantilla)">Actualizar Plantilla</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button class="col-xs-12 btn btn-white" ng-click="closeQuotation()">Cancelar</button>
+      </div>
+      </form>
+    </div>
+</div>
+
+<div class="ibox float-e-margins">
+  <div class="ibox-title">
+    <h5>Plantillas para Compartir Siniestros por WhatsApp Web</h5>
+  </div>
+  <div class="ibox-content">
+    <div class="row">
+      <div class="panel-body table-over-y animate" ng-hide="showInfoPlantilla">
+        <table class="table table-hover table-bordered hidden-xs hidden-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Identificador</th>
+              <th>Mensaje</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="pl in vm.templatesList track by $index" ng-click="showInformation(pl)">
+              <td>{{ pl.id }}</td>
+              <td>{{ pl.title }}</td>
+              <td>{{ pl.text }}</td>
+              <td ng-click="$event.stopPropagation()">
+                <a class="btn btn-sm btn-white" ng-click="editQuatation(pl)" title="Editar plantilla"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                <a class="btn btn-sm btn-danger m-l-xs" ng-click="borrarPlantilla(pl)" title="Eliminar plantilla"><i class="fa fa-trash" aria-hidden="true"></i></a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div ng-if="showTemplates" class="text-center hidden-xs hidden-sm">
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+                <a class="page-link">
+                  <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                </a>
+              </li>
+              <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+                <a class="page-link" >{{page}}</a>
+              </li>
+              <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+                <a class="page-link">
+                  <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                </a>
+              </li>
+              <li class="page-item" >
+                <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                  <span aria-hidden="true">
+                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                  </span>
+                  <span class="sr-only">Last</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

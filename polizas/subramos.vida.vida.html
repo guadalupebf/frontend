@@ -1,0 +1,58 @@
+<!-- Asegurado CODE 4-->
+<div class="col-lg-12">
+  <div class="ibox float-e-margins">
+    <div class="ibox-title">
+      <h5>Formularios</h5>
+      <div ibox-tools></div>
+    </div>
+    <div class="ibox-content">
+      <div class="form-group">
+        <label class="control-label">Nombre</label>
+        <input class="form-control" type="text"></div>
+      <div class="form-group">
+        <label class="control-label">Apellido</label>
+        <input class="form-control" type="text"></div>
+      <div class="form-group" id="data_2">
+        <label class="control-label">Fecha de Nacimiento</label>
+        <div class="input-group date">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date" ng-model="vm.form.birthday" view="year">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label">Sexo</label>
+        <select class="form-control m-b" name="">
+          <option value="M">MASCULINO</option>
+          <option value="F">FEMENINO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="control-label">Fumador</label>
+        <select class="form-control m-b" name="">
+          <option value="S">Si</option>
+          <option value="N">No</option>
+        </select>
+      </div>
+      <!-- TODO many with ngRepeat -->
+      <div class="form-group">
+        <label class="control-label">Beneficiarios(s) (nombre completo, separado por nombre y apellidos)</label>
+        <input class="form-control" type="text">
+      </div>
+      <div class="form-group">
+        <label class="control-label">Parentesco</label>
+        <input class="form-control" type="text">
+      </div>
+      <div class="form-group">
+        <label class="control-label">Fecha de nacimiento</label>
+        <input class="form-control" type="text">
+      </div>
+      <div class="form-group">
+        <label class="control-label">Porcentaje</label>
+        <input class="form-control" type="text">
+      </div>
+    </div>
+  </div>
+</div>
+<!--  Puede haber varios beneficiarios. Entre todos no deben pasar el 100% del porcentaje. -->

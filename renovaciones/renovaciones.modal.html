@@ -1,0 +1,374 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Renovaciones</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="ibox float-e-margins">
+        <div class="ibox-content wizard">
+          <div class="wizard">
+            <div class="row">
+              <div class="col-lg-12">
+                <form method="post" name="form" role="form">
+                  <div class="tabs-container" ng-init="poliza = true; recibos = false; bitacora = false">
+                    <ul class="nav nav-tabs">
+                      <li ng-class="{ 'active': poliza }">
+                        <a ng-click="poliza = true;  bitacora = false; recibos = false">Información de Póliza</a>
+                      </li>
+                      <li ng-class="{ 'active': recibos }">
+                        <a ng-click="recibos = true;  bitacora = false; poliza = false">Recibos</a>
+                      </li>
+                      <li ng-class="{ 'active': bitacora }">
+                        <a ng-click="poliza = false; recibos = false; bitacora = true">Bitácora</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="tab-content">
+                    <div class="tab-pane" ng-class="{'active': poliza}">
+                      <div class="btn-group pull-right btn-mt option_button">
+                        <button type="button" class="btn no-mb btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="fa fa-bolt"></span> Opciones</button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="goToPolicy(forms)">Ver Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="goToPolicy(forms)">Ver Póliza (Carátula)</a>
+                          </li>
+                          <li>
+                            <a ng-click="getPDF(forms.id)">Ver PDF</a>
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="openRenovateModal(forms, 2)">Renovar Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">                            
+                            <a ng-click="openRenovateModal(forms, '')">Renovar Póliza (Carátula)</a>
+                            <!-- <a>Renovar como:</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li>
+                                <a ng-click="openRenovateModal(forms, '')">Colectividad</a>
+                              </li>
+                              <li>
+                                <a ng-click="openRenovateModal(forms, 1)">OT</a>
+                              </li>
+                            </ul> -->
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="goToEdit(forms)">Editar Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="goToEdit(forms)">Editar Póliza (Carátula)</a>
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="deletePolicy(forms)">Eliminar Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="deletePolicy(forms)">Eliminar Póliza (Carátula)</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="files.length">
+                             <a>Ver adjuntos</a>
+                             <ul class="dropdown-menu dropdown-menu-right">
+                               <li class="disabled" ng-if="!files">
+                                 <a class="disabled"> No hay archivos adjuntos </a>
+                               </li>
+                               <li class="disabled" ng-if="files">
+                                 <a class="disabled"> Archivos adjuntos </a>
+                               </li>
+                               <li ng-if="files" ng-repeat="file in files track by $index">
+                                 <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+                               </li>
+                             </ul>
+                           </li>
+                           <li class="dropdown-submenu" ng-if="cartas.length && view_cartas">
+                             <a>Ver carta</a>
+                             <ul class="dropdown-menu dropdown-menu-right">
+                               <li ng-if="cartas" ng-repeat="carta in cartas track by $index">
+                                 <a ng-click="viewCarta(forms.id, carta.id)"> {{carta.name}} </a>
+                               </li>
+                             </ul>
+                           </li>
+
+                        </ul>
+                      </div>
+                      <div class="row">
+                        <div class="col-xs-12">
+                        <br>
+                          <div class="col-xs-12 col-md-4">
+                            <legend class="legend-title" align="center">Contratante</legend>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Nombre:</span>
+                              <div>
+                                <span>{{contratante.full_name}} {{contratante.j_name}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Dirección:</span>
+                              <div>
+                                <span>{{addressContratante.route}} {{addressContratante.street_number}}, {{addressContratante.sublocality}}.</span>
+                                <div>
+                                  <span>
+                                    {{ addressContratante.administrative_area_level_1}}, {{addressContratante.administrative_area_level_2}}.
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Teléfono:</span>
+                              <div>
+                                <span>{{contratante.phone_number | phonenumber}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Correo Electrónico:</span>
+                              <div>
+                                <span>{{contratante.email}}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-xs-12 col-md-8 border-left">
+                            <legend class="legend-title" align="center">Información</legend>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color" >Número de Póliza:</span>
+                              <div>
+                                <span>{{forms.poliza_number}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Aseguradora - Cve Agente:</span>
+                              <div>
+                                <span>{{forms.aseguradora}} - {{forms.clave.clave}} <span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Ramo:</span>
+                              <div>
+                                <span>{{forms.ramo}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Subramo:</span>
+                              <div>
+                                <span>{{forms.subramo}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Paquete:</span>
+                              <div>
+                                <span>{{forms.paquete}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Vigencia:</span>
+                              <div>
+                                <span>{{forms.start_of_validity | date: 'dd/MM/yyyy': 'UTC'}} - {{forms.end_of_validity | date: 'dd/MM/yyyy': 'UTC'}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Frecuencia de Pago:</span>
+                              <div>
+                                <span>{{forma_pago(forms.forma_de_pago)}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Estatus:</span>
+                              <div>
+                                <span>{{status(forms.status)}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Moneda:</span>
+                              <div>
+                                <span ng-if="forms.f_currency == 1">PESOS</span>
+                                <span ng-if="forms.f_currency == 2">DOLARES</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color"><strong>Creado por:</strong></span>
+                              <div>
+                                <span>{{forms.owner}}</span>
+                              </div>
+                            </div>
+                            <div class="col-xs-12">
+                              <hr>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Prima Neta:</span>
+                              <div>
+                                <span>{{forms.p_neta | currency}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Derecho:</span>
+                              <div>{{forms.derecho | currency}}</div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Recargo por Pago Fraccionado:</span>
+                              <div>{{forms.rpf | currency}}</div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Descuento:</span>
+                              <div>
+                                <span>{{forms.descuento | currency}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Prima Total:</span>
+                              <div>
+                                <span>{{forms.p_total | currency}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Comisión:</span>
+                              <div>
+                                <span>{{forms.comision | currency}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-4">
+                              <span class="blue-color">Iva:</span>
+                              <div>
+                                <span>{{forms.iva | currency}}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="col-xs-12" ng-if="forms.document_type != 3">
+                            <legend class="legend-title" align="center">Coberturas</legend>
+                            <table class="table table-bordered table-hover">
+                              <thead>
+                                <tr>
+                                  <th>Cobertura</th>
+                                  <th>Suma Asegurada</th>
+                                  <th>Deducible</th>
+                                  <th ng-show="forms.subramo == 'Gastos Médicos'">Coaseguro</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr ng-repeat="coverage in forms.coverageInPolicy_policy | orderBy: 'priority' track by coverage.url">
+                                  <td>{{formatCoverage(coverage.coverage_name)}}</td>
+                                  <td>{{formatCoverage(coverage.sum_insured)}}</td>
+                                  <td>{{formatCoverage(coverage.deductible)}}</td>
+                                  <td ng-show="forms.subramo == 'Gastos Médicos'">{{coverage.coinsurance}}%</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" ng-class="{'active': recibos}">
+                      <div class="btn-group pull-right btn-mt option_button">
+                        <button type="button" class="btn no-mb btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="fa fa-bolt"></span> Opciones</button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="goToPolicy(forms)">Ver Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="goToPolicy(forms)">Ver Colectividad</a>
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="openRenovateModal(forms, 2)">Renovar Póliza</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a>Renovar como:</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li>
+                                <a ng-click="openRenovateModal(forms, '')">Colectividad</a>
+                              </li>
+                              <li>
+                                <a ng-click="openRenovateModal(forms, 1)">OT</a>
+                              </li>
+                            </ul>
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="goToEdit(forms)">Editar Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="goToEdit(forms)">Editar Colectividad</a>
+                          </li>
+                          <li ng-if="forms.document_type == 1">
+                            <a ng-click="deletePolicy(forms)">Eliminar Póliza</a>
+                          </li>
+                          <li ng-if="forms.document_type == 3 || forms.document_type == 4">
+                            <a ng-click="deletePolicy(forms)">Eliminar Colectividad</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="files.length">
+                             <a>Ver adjuntos</a>
+                             <ul class="dropdown-menu dropdown-menu-right">
+                               <li class="disabled" ng-if="!files">
+                                 <a class="disabled"> No hay archivos adjuntos </a>
+                               </li>
+                               <li class="disabled" ng-if="files">
+                                 <a class="disabled"> Archivos adjuntos </a>
+                               </li>
+                               <li ng-if="files" ng-repeat="file in files track by $index">
+                                 <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+                               </li>
+                             </ul>
+                           </li>
+                           <li class="dropdown-submenu" ng-if="cartas.length">
+                             <a>Ver carta</a>
+                             <ul class="dropdown-menu dropdown-menu-right">
+                               <li ng-if="cartas" ng-repeat="carta in cartas track by $index">
+                                 <a ng-click="viewCarta(forms.id, carta.id)"> {{carta.name}} </a>
+                               </li>
+                             </ul>
+                           </li>
+                        </ul>
+                      </div>
+                      <div class="row" ng-if="forms.recibos_poliza.length">
+                        <br>
+                        <div class="col-xs-12">
+                          <table class="table table-bordered table-hover">
+                            <thead>
+                              <tr>
+                                <th>Recibo</th>
+                                <th>Contratante</th>
+                                <th>Estatus</th>
+                                <th>Prima Total</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="receipt in forms.recibos_poliza track by $index" ng-click="dismis(forms, receipt)">
+                                <td ng-bind="receipt.recibo_numero"></td>
+                                <td>{{contratante.full_name}}{{contratante.j_name}}</td>
+                                <td>{{receipt.status}}</td>
+                                <td>{{receipt.prima_total | currency}}</td>
+                                <td>{{receipt.fecha_inicio | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                                <td>{{receipt.fecha_fin | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div class="row" ng-if="!forms.recibos_poliza.length">
+                        <br>
+                        <div class="col-xs-12 text-center">
+                          Multiples recibos
+                          Para consultar dirigase a menu de opciones rapidas > Ver colectividad
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" ng-class="{'active': bitacora}">
+                      <div class="row">
+                        <br>
+                        <div class="col-xs-12">
+                          <comments datasource="comments_data" typemodel="6" config="comments_config" idmodel="renewal_id" exportable="true"></comments>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-warning" type="button" ng-click="cancelRenovate(forms)">No renovar</button>
+    <button ng-if="user.permiso.crear" class="btn btn-success ladda-button" type="button" ng-click="renewal(forms)" data-style="expand-right"><span class="ladda-label">Renovar</span></button>
+    <button class="btn btn-white" ng-click="cancel()" type="button">Cerrar</button>
+  </div>
+</div>

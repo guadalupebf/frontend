@@ -1,0 +1,248 @@
+<fieldset>
+	<h3 class="legend-title policy-calculate-title" align="center">
+		<i class="fa fa-calculator margin-left-10"></i>
+		PRIMAS DE PÓLIZAS
+	</h3>
+	<div class="ibox float-e-margins">
+		<form name="receiptsForm">
+	    <div class="row">
+	      <div class="col-md-3 col-sm-12 form-group">
+
+					<label class="control-label">Prima neta<span class="color-red">*</span></label>
+					<!--<input
+				 		class="form-control"
+					  	ng-model="order.poliza.primaNeta"
+					  	min="0.00"
+					  	step="any"
+					  	max="9999999999"
+					  	type="text" required="true"
+					  	format-as-currency
+					  	placeholder=""
+					  	value=""/>-->
+					  	<input-currency model="order.poliza.primaNeta"></input-currency>
+				</div>
+				<div class="col-md-3 col-sm-12 form-group">
+					<label class="control-label" for="rpf">Recargo por Pago Fraccionado</label>
+				  	<!--<input
+				  		class="form-control"
+				  		ng-model="order.poliza.rpf"
+				  		min="0.00"
+				  		step="any"
+				  		max="9999999999"
+				  		type="text"
+				  		value=""
+				  		format-as-currency/> -->
+				  		<input-currency model="order.poliza.rpf"></input-currency>
+				</div>
+				<div class="col-md-3 col-sm-12 form-group">
+					<label for="derecho">Derecho de Póliza<span class="color-red">*</span></label>
+				  	<!--<input
+				  		class="form-control"
+				  		ng-model="order.poliza.derecho"
+				  		min="0.00"
+				  		step="any"
+				  		max="9999999999"
+				  		type="text" required="true"
+				  		value=""
+				  		format-as-currency/>-->
+				  		<input-currency model="order.poliza.derecho"></input-currency>
+				</div>
+				<div class="col-md-3 col-sm-12 form-group">
+				  	<label for="sub-total">Sub-Total</label>
+				  	<!--<input
+				  		class="form-control"
+				  		format-as-currency
+				  		ng-model="order.poliza.subTotal"
+				  		min="0.00"
+				  		step="any"
+				  		max="9999999999"
+				  		type="text"
+				  		value=""
+							/> -->
+						<input-currency model="order.poliza.subTotal"></input-currency>
+				</div>
+
+				<div class="col-md-3 col-sm-12 form-group">
+					<label for="prima-total">IVA de póliza</label>
+				  	<!--<input
+				  		class="form-control"
+				  		format-as-currency
+				  		ng-init="order.poliza.iva=0"
+				  		ng-model="order.poliza.iva"
+				  		min="0.00"
+				  		step="any"
+				  		max="9999999999"
+				  		type="text"
+				  		value=""/> -->
+				  		<input-currency model="order.poliza.iva"></input-currency>
+				</div>
+
+				<div class="col-md-3 col-sm-12 form-group">
+				  	<label for="prima-total">Prima Total</label>
+				  	<!--<input
+				  		class="form-control"
+				  		format-as-currency
+				  		ng-model="order.poliza.primaTotal"
+				  		min="0.00"
+				  		step="any"
+				  		max="9999999999"
+				  		type="text"
+				  		value=""
+							/> -->
+						<input-currency model="order.poliza.primaTotal"></input-currency>
+				</div >
+
+				<div class="row col-md-12">
+					<div class="col-md-3 col-sm-12 form-group">
+						<label class="control-label margin-bottom-0" for="">Derecho</label>
+						<div class="checkbox margin-top-5">
+					    	<label>
+					      		<input ng-model="order.configDerecho" type="checkbox"/>
+					      		Cargos sólo al primer recibo
+					      	</label>
+					  	</div>
+					</div>
+
+					<div class="col-md-3 col-sm-12 form-group">
+						<label class="control-label margin-bottom-0" for="">RPF</label>
+					  	<div class="checkbox margin-top-5">
+					    	<label>
+					      		<input ng-model="order.configRPF" type="checkbox"/>
+					      		Cargos sólo al primer recibo
+					      	</label>
+					  	</div>
+					</div>
+					<div class="col-md-3 col-sm-12 form-group">
+						<label class="control-label margin-bottom-0" for="">IVA</label>
+						<div class="checkbox margin-top-5">
+							<label>
+								<input type="checkbox" ng-init="order.poliza.ivaStatus = true" ng-model="order.poliza.ivaStatus" ng-click="changeIva(order.poliza.ivaStatus)" ng-change="calculate(order.poliza)">
+								Aplica IVA
+							</label>
+						</div>
+					</div>
+					<!-- <div class="row" ng-if="!editedReceipts"> -->
+					<div class="row">
+						<div class="pull-right" >
+							<button class="btn btn-success btn-shadow" ng-show="order.poliza.primaNeta && order.poliza.derecho" ng-click="calculate(order.poliza); order.receiptOptions.calculate()" ng-disabled="!order.poliza.primaNeta || !order.poliza.derecho" ><i class="fa fa-calculator btn-shadow" aria-hidden="true"></i> Calcular y generar recibos</button>
+				    	</div>
+	    			</div>
+	    		</div>
+
+	    
+		</form> 
+		<div class="row">
+			<div ng-if="order.defaults.showReceipts">
+					<div ng-if="order.receipts.length">
+				  		<table  class="table footable table-stripped">
+				  		<thead>
+	                        <tr>
+	                          <th class="footable-visible footable-sortable footable-first-column text-align-center" data-breakpoints="xs">
+	                            Recibo
+	                          </th>
+	                          <th  class="footable-sortable text-align-center" data-hide="phone" >
+	                            Fecha Inicio
+	                          </th>
+	                          <th  class="footable-sortable text-align-center" data-hide="phone" >
+	                            Fecha Fin
+	                          </th>
+	                          <th class="footable-visible footable-sortable text-align-center" data-hide="phone">
+	                            Prima Neta
+	                          </th>
+	                          <th class="footable-visible footable-sortable text-align-center" data-hide="phone">
+	                            RPF
+	                          </th>
+	                          <th class="footable-sortable text-align-center" data-hide="phone" >
+	                            Derecho
+	                          </th>
+	                          <th  class="footable-sortable text-align-center" data-hide="phone" ng-show="order.poliza.ivaStatus">
+	                            IVA
+	                          </th>
+	                          <th  class="footable-sortable footable-last-column footable-visible text-align-center" data-breakpoints="xs"  >
+	                            Prima Total
+	                          </th>
+	                          <th>Comisión</th>
+	                        </tr>
+                      </thead>
+					
+				  			<tbody> 			
+				  				<tr ng-repeat="receipt in order.receipts track by $index">
+				  					<td class="text-align-center" ng-if="!showInput"> {{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}} </td>
+				  					<td class="text-align-center" ng-if="showInput">
+				  						<input class="form-control " step="any" value="{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}" type="text"/>
+				  					</td>
+				  					<td class="text-align-center" ng-if="!showInput"> {{receipt.startDate | date: 'dd-MM-yyyy'}} </td>
+				  					<td ng-if="showInput">
+				  						<div class="datepicker-me" >
+				  							<input
+				  							type="text"
+				  							class="width-100 text-align-center form-control"
+					  						data-provide="datepicker"
+					  						ng-model="receipt.startDate"
+					  						value="{{receipt.startDate}}"
+				  							ng-disabled ="showInput == true"
+					  						/>
+			  							</div>
+				  					</td>
+				  					<td class="text-align-center" ng-if="!showInput"> {{receipt.endingDate | date: 'dd-MM-yyyy'}} </td>
+				  					<td ng-if="showInput">
+					  					<div class="datepicker-me">
+				  							<input
+				  							type="text"
+				  							class="width-100 text-align-center form-control"
+					  						data-provide="datepicker"
+					  						ng-model="receipt.endingDate"
+					  						value="{{receipt.endingDate}}"
+				  							ng-disabled="showInput == true"
+					  						/>
+				  						</div>
+			  						</td>
+			  						<td class="text-align-center"  ng-if="!showInput">{{receipt.prima | currency}} </td>
+				  					<td ng-if="showInput">
+				  						<!-- <input class="form-control text-align-center" format-as-currency ng-model="receipt.prima" step="any" type="text"/> -->
+				  						<input-currency model="receipt.prima"></input-currency>
+				  					</td>
+				  					<td class="text-align-center" ng-if="!showInput"> {{receipt.rpf | currency}} </td>
+				  					<td ng-if="showInput">
+				  						<!-- <input class="form-control text-align-center" format-as-currency ng-model="receipt.rpf" type="text"/> -->
+				  						<input-currency model="receipt.rpf"></input-currency>
+				  					</td>
+				  					<td class="text-align-center" ng-if="!showInput"> {{receipt.derecho | currency}} </td>
+				  					<td ng-if="showInput">
+				  						<!-- <input class="form-control text-align-center" format-as-currency ng-model="receipt.derecho" type="text"/> -->
+				  						<input-currency model="receipt.derecho"></input-currency>
+				  					</td>
+				  					<td class="text-align-center" ng-if="order.poliza.iva;!showInput" ng-show="order.poliza.ivaStatus"> {{receipt.iva | currency}} </td>
+				  					<td ng-if="order.poliza.iva; showInput" ng-show="order.poliza.ivaStatus">
+				  						<!-- <input class="form-control text-align-center" format-as-currency ng-model="receipt.iva" type="text"/> -->
+				  						<input-currency model="order.poliza.iva"></input-currency>
+				  					</td>
+			  						<td class="text-align-center" ng-if="!showInput"> {{receipt.total | currency}} </td>
+				  					<td ng-if="showInput">
+				  						<!-- <input class="form-control text-align-center" format-as-currency ng-model="receipt.total" type="text"/> -->
+				  						<input-currency model="receipt.total"></input-currency>
+				  					</td>
+				  					<td>
+				  						<span ng-if="receipt.comision && !showInput">{{receipt.comision | currency}}</span>
+				  						<!-- <input ng-if="showInput" class="form-control text-align-center" format-as-currency ng-model="receipt.comision" type="text"/> -->
+				  						<input-currency ng-if="showInput" model="receipt.comision"></input-currency>
+				  						<!-- <span ng-if="receipt.comision">$0.00</span> -->
+				  					</td>
+				  				</tr>
+				  			</tbody>
+				  		</table>
+						 <div class="pull-right" >
+							 <button ng-if="order.receipts.length; !showInput" type="button" class="btn btn-primary btn-shadow" ng-click="editTable()"><i class="fa fa-pencil-square-o btn-shadow" aria-hidden="true"></i> Editar Recibo</button>
+							<button ng-if="order.receipts.length; showInput" type="button" class="btn btn-success btn-shadow" ng-click="editTable()"><i class="fa fa-floppy-o btn-shadow" aria-hidden="true"></i> Guardar cambios</button>
+						</div>
+				  	</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			function currency(){
+				$('#money').prop("format-as-currency");
+			}
+		</script>
+	</div>
+</fieldset>

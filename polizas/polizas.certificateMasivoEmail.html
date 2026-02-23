@@ -1,0 +1,87 @@
+<div class="inmodal">
+    <div class="modal-header modal-header modal_title nav-header">
+      <h4 class="modal-title">{{titulo}}</h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="ibox float-e-margins">            
+            <div class="ibox-content">
+              <div class="row" ng-if="!vm.show_binnacle">
+                <div class="col-lg-12">
+                  <div class="tabs-container" >
+                    <uib-tabset>
+                      <uib-tab heading="Compartir por Email" id="email" ng-click="getTemplate(true)">
+                        <div class="panel-body">
+                            <div class="form-group col-xs-12">
+                              <br>
+                            </div>
+                            <hr>
+                            <div class="form-group col-xs-12">
+                              <label>Plantillas de Certificado:</label>
+                              <select class="form-control" ng-options="item.name for item in plantillas" ng-change="changePlantilla(plantilla)" ng-model="plantilla">
+                                <option value="">Selecciona una plantilla</option>
+                              </select>
+                            </div>
+                            <hr>
+                            <div class="form-group col-xs-12" ng-if="vmm.custom_email">
+                                <div class="form-group col-xs-12">
+                                    <label>Asunto:</label>
+                                    <input class="col-xs-12 form-control" type="text" name="" ng-model="vmm.subjectEmail" ng-blur="emptySubject(vmm.subjectEmail)">
+                                </div>
+                                <div text-angular ng-model="vmm.first_comment" name="first_comment"></div>
+                                <br/>
+                                <div ng-bind-html="vmm.body" name="body"></div>
+                                <div text-angular ng-model="vmm.second_comment" name="second_comment"></div>
+                                <br/>
+                                <div ng-bind-html="vmm.footer" name="footer"></div>                                
+                              </div>
+                              <div>
+                                <button class="btn btn-primary pull-right ladda-button" ng-if="sendOnlyEmail" ng-click="sendEmailMasivo()">Compartir por Email</button>
+                                <button class="btn btn-primary pull-right ladda-button" ng-if="!sendOnlyEmail" ng-click="sendEmailMasivoApp()">Compartir por App/Email</button>
+                              </div>
+                            </div>
+                          </div>
+                        </uib-tab>
+                      </uib-tabset>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+    </div>
+  </div>
+  
+  
+    <script>
+      function renombrarArchivoCargado(){
+        var strongTag = $(event.target).parent().parent().find("td strong");
+        var inputTag = $(event.target).parent().parent().find("td input");
+  
+        strongTag.hide();
+        inputTag.show();
+        inputTag.focus();
+      }
+  
+      function blurArchivoCargado(){
+        var strongTag = $(event.target).parent().parent().find("td strong");
+        var inputTag = $(event.target);
+  
+        strongTag.show();
+        inputTag.hide();
+      }
+    </script>
+  
+  <style type="text/css">
+    .to_send = {
+      background-color: red;
+    }
+  </style>
+  

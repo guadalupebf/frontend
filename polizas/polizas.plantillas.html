@@ -1,0 +1,177 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Pólizas</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Plantillas de Pólizas</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-xs-12 col-sm-6">
+      <button class="col-xs-12 btn btn-info pull-right m-t" ng-click="createQuotation()">Agregar Plantilla</button>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 pull-right">
+      <button class="col-xs-12 btn btn-secondary m-t" ng-click="cambiarCampos()">Campos en el Correo</button>
+    </div>
+    <!-- <div class="col-xs-12 col-sm-6 form-group">
+      <label for="defaultsubject"><input id="fecha_limite_email" type="checkbox" ng-model="configuracionGlobal.fecha_limite_email" ng-change="cahngeFechaLimiteEmail(configuracionGlobal.fecha_limite_email)"> Agregar Fecha límite de Pago al compartir una Póliza</label>
+    </div> -->
+    
+    <div class="ibox" ng-if="configurar">
+      <div class="ibox-title-c bg-light-gray clearfix">
+        <h3 class="section-title" style="text-align: center;">
+          Configuración de Visualización en Correo
+        </h3>
+        <span class="pull-right" ng-click="cambiarCampos()" style="cursor: pointer; color: #888;" title="Cerrar sección">
+          <i class="fa fa-times fa-lg"></i>
+        </span>
+      </div>
+
+      <div class="ibox-content-c row">
+        <form class="form-inline">
+          <div class="row">
+            <div class="col-xs-12 form-group">
+              <div class="col-sm-3 value-email" ng-repeat="campo in [
+                { id: 'fecha_limite_email', label: 'Agregar Fecha límite de Pago al compartir una Póliza', key: 'fecha_limite_email' },
+                { id: 'dato_pvigencia', label: 'Vigencia', key: 'vigencia' },
+                { id: 'dato_paseguradora', label: 'Compañía', key: 'compania' },
+                { id: 'dato_psubramo', label: 'Subramo', key: 'subramo' },
+                { id: 'dato_pmoneda', label: 'Moneda', key: 'moneda' },
+                { id: 'dato_pfrecuenciapago', label: 'Frecuencia de Pago', key: 'frecuenciapago' },
+                { id: 'dato_pasegurado', label: 'Asegurado', key: 'asegurado' },
+                { id: 'dato_ptotal', label: 'Prima Total de la Póliza', key: 'total' },
+                { id: 'dato_ptotalrecibo', label: 'Prima Total del 1er Recibo', key: 'totalrecibo' }
+              ]">
+                <div class="checkbox checkbox-inline-c">
+                  <label>
+                    <input type="checkbox"
+                          id="{{campo.id}}"
+                          ng-model="configuracionGlobal[campo.id]"
+                          ng-change="cambiarDato(campo.id, configuracionGlobal[campo.id])">
+                    {{campo.label}}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-xs-12" ng-show="showQuotation" style="margin-left: 25px;padding-right: 75px;">
+        <legend ng-if="!showEditInformation" class="legend-title" align="center">Nueva Plantilla</legend>
+        <legend ng-if="showEditInformation" class="legend-title" align="center">Actualizar Plantilla</legend>
+        <form class="row" name="form">
+          <div class="col-xs-12 col-sm-5 form-group">
+            <label>Nombre de la Plantilla <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="plantilla.name" name="plantillaName" required>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-6 form-group" > 
+            <label> Ramo(s) <span class="color-red">*</span></label>   
+            <select id="ramoSelect"  class="js-example-basic-multiple col-xs-12 form-control" name="states[]" multiple="multiple" ng-model="plantilla.ramo_code" data-ng-options="codes.descr ? codes.descr : codes.code for codes in allRamos | orderBy: 'descr' track by codes.code" ng-change="selectProv(select_code)" required ng-required="true">
+              <option value=""></option>
+            </select>          
+          </div>
+          <div class="col-xs-12 col-sm-2 form-group">
+            <label for="defaultsubject"><input id="plantilla.subject_default" type="checkbox" ng-model="plantilla.subject_default"> Asunto Default</label>
+          </div>
+          <div class="col-xs-12 col-sm-5 form-group">
+            <label ng-if="plantilla.subject_default==false">Asunto <span class="color-red">*</span></label>
+              <input ng-if="plantilla.subject_default==false" class="form-control" type="text" ng-model="plantilla.title" name="plantillaSubject" required>
+          </div>
+          <button type="button" class='btn btn-default ng-scope pull-right' unselectable="on" tabindex="-1" ng-click='getFile()' ng-disabled="!editor_focus">
+            <i class="fa fa-upload"></i>
+          </button>
+          <div class="col-xs-12 form-group">
+              <label>Texto Superior <span class="color-red">*</span></label>
+              <div text-angular ng-model="plantilla.text" name="plantillaText" ng-focus="focusEditor()" ng-blur="unfocusEditor()" required></div>
+          </div>
+          <div class="col-xs-12 form-group">
+              <label>Texto Inferior <span class="color-red">*</span></label>
+              <div text-angular name="plantillaBottom" ng-focus="focusEditor()" ng-blur="unfocusEditor()" ng-model="plantilla.bottom_text" required></div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+            <button ng-if="!showEditInformation" class="col-xs-12 btn btn-primary" ng-disabled="form.$invalid || savingPlantilla" ng-click="saveDelivery(plantilla)">Crear Plantilla</button>
+            <button ng-if="showEditInformation" class="col-xs-12 btn btn-primary" ng-disabled="form.$invalid || savingPlantilla" ng-click="updateDelivery(plantilla)">Actualizar Plantilla</button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+            <button class="col-xs-12 btn btn-white" ng-click="closeTemplate()">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<div class="ibox float-e-margins">
+  <div class="ibox-title">
+    <h5>Plantillas</h5>
+  </div>
+  <div class="ibox-content">
+    <div class="row">
+      <div class="panel-body table-over-y animate" ng-if="!showInfoQuotation">
+        <table class="table table-hover table-bordered hidden-xs hidden-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Asunto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="item in vm.quotations track by $index" ng-click="showInformation(item)">
+              <td>{{ item.id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.title }}</td>
+              <td ng-click="$event.stopPropagation()">
+                <a class="btn btn-sm btn-white" ng-click="editQuatation(item)" title="Editar plantilla"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                <a class="btn btn-sm btn-danger m-l-xs" ng-click="borrarPlantilla(item)" title="Eliminar plantilla"><i class="fa fa-trash" aria-hidden="true"></i></a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div ng-if="show_pagination" class="text-center">
+          <pagination config="vm.config_pagination" model="vm.quotations"></pagination>
+        </div>
+      </div>
+      <div class="animate" ng-if="showInfoQuotation">
+        <div class="col-xs-12">
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <button class="col-xs-12 btn btn-info" ng-click="showInformation(null)"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group">
+          <span class="blue-color">Name:</span>
+          <div>
+            <span>{{ quotation.name}}</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group">
+          <span class="blue-color">Asunto:</span>
+          <div>
+            <span>{{ quotation.title }}</span>
+          </div>
+        </div>
+        <div class="col-xs-12 form-group">
+          <span class="blue-color">Texto Superior:</span>
+          <div text-angular ng-model="quotation.text" name="quotation.text" ta-disabled="isReadOnly"></div>
+          <br/>
+        </div>
+        <div class="col-xs-12 form-group">
+          <span class="blue-color">Texto Inferior:</span>
+          <div text-angular ng-model="quotation.bottom_text" name="quotation.bottom_text" ta-disabled="isReadOnly"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

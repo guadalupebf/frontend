@@ -1,0 +1,135 @@
+<div class="inmodal">
+    <div class="modal-header">
+        <h4 class="modal-title">Prima de la Póliza</h4>
+    </div>
+    <div class="modal-body">
+        <!-- <form class="form-group"> -->
+            <div class="col-sm-6 form-group">
+                <label>Prima neta: $</label>
+                <input type="number" value="" class="form-control m-b" format-as-currency id="prima-neta" ng-model="poliza.primaNeta" placeholder="">
+            </div>
+            <div class="col-sm-6 form-group">
+                <label>RPF: $</label>
+                <input type="number" value="" class="form-control m-b" format-as-currency id="rpf" ng-model="poliza.rpf" placeholder="">
+            </div>
+            <div class="col-sm-6 form-group">
+                <label>Derecho de Póliza: $</label>
+                <input type="number" value="" class="form-control m-b" format-as-currency id="derecho" ng-model="poliza.derecho" placeholder="">
+            </div>
+            <div class="col-sm-6 form-group">
+                <label>IVA: </label>
+                <input type="text" value="" class="form-control" id="iva" ng-model="poliza.iva" placeholder="">
+            </div>
+            <div class="col-sm-6 form-group">
+                <label>Sub-Total: $</label>
+                <input type="number" value="" class="form-control" id="sub-total" ng-model="poliza.subTotal" placeholder="" disabled="">
+            </div>
+            <div class="col-sm-6 form-group">
+                <label>Prima Total:$</label>
+                <input type="number" value="" class="form-control" id="prima-total" ng-model="poliza.primaTotal" placeholder="" disabled="">
+            </div>
+        <!-- </form> -->
+        <button type="button" id="calculate" name="button" class="btn btn-primary" ng-click="calculate()">Calcular y generar recibos</button>
+        <div id="personalizado">
+          <div id="divConfigDerecho" class="checkbox">
+            <label><input id="configDerecho" type="checkbox" ng-model="configDerecho">Derecho - Cargos sólo al primer recibo</label>
+          </div>
+          <div id="divConfigRPF" class="checkbox">
+            <label><input id="configRPF" type="checkbox" ng-model="configRPF">RPF - Cargos sólo al primer recibo</label>
+          </div>
+        </div>
+        <div ng-if="showReceipts" class="form-horizontal">
+            <div class="form-group">
+                <label for="" class="col-sm-6 h4">Cantidad de recibos: {{amountReceipts}}</label>
+            </div>
+        </div>
+        <div ng-if="showReceipts">
+            <h5><strong>Recibo inicial</strong></h5>
+            <form method="post">
+                <div class="row" >
+                    <div class="col-sm-6 col-xs-12" ng-repeat="receipt in receipts track by $index">
+                      <div class="panel panel-default">
+                        <div class="panel-heading">Recibo # {{$index + 1}}</div>
+                        <div class="panel-body">
+                          <div class="form-horizontal">
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Prima neta: $</label>
+                              <div class="col-sm-8">
+                                <input class="form-control" ng-model="receipt.prima" step="any" type="text">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">RPF: $</label>
+                              <div class="col-sm-8">
+                                <input class="form-control" ng-model="receipt.rpf" type="text">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Derecho: $</label>
+                              <div class="col-sm-8">
+                                <input class="form-control" ng-model="receipt.derecho" type="text">
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">IVA(%):
+                              </label>
+                              <div class="col-sm-8">
+                                <input class="form-control" disabled  ng-model="receipt.iva"  type="number">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Sub Total: $</label>
+                              <div class="col-sm-8">
+                                <input class="form-control"  ng-model="receipt.subTotal"  type="number">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Prima Total: $</label>
+                              <div class="col-sm-8">
+                                <input class="form-control"  ng-model="receipt.total" type="number">
+                              </div>
+                            </div>
+                            <!-- <div class="form-group">
+                              <label class="col-sm-4 control-label"inicio">Fecha inicio:
+                              </label>
+                              <div class="col-sm-8">
+                                <input class="form-control"  ng-model="receipt.startDate" type="datetime">
+                              </div>
+                            </div> -->
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Fecha de inicio</label>
+                              <div class="col-sm-8">
+                                <div class="input-group date">
+                                  <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                  <input class="form-control" date-time ng-model="receipt.startDate" format="dd-MM-yyyy" view="year" min-view="date" auto-close="true">
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label class="col-sm-4 control-label">Fecha de fin</label>
+                              <div class="col-sm-8">
+                                <div class="input-group date">
+                                  <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                  <input class="form-control" date-time ng-model="receipt.endingDate" format="dd-MM-yyyy" view="year" min-view="date" auto-close="true">
+                                </div>
+                              </div>
+                            </div>
+                            <!-- <div class="form-group">
+                              <label class="col-sm-4 control-label">Fecha fin:
+                              </label>
+                              <div class="col-sm-8">
+                                <input class="form-control" ng-model="receipt.endingDate"  type="datetime">
+                              </div>
+                            </div> -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-white" ng-click="cancel()">Cancelar</button>
+        <button type="button" class="btn btn-primary" ng-click="ok()">Guardar</button>
+    </div>
+</div>

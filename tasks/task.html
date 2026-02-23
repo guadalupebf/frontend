@@ -1,0 +1,463 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-6">
+    <h2>Tareas</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Tareas</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+    <button class="btn btn-success col-xs-12" ng-click="addTaskOK()">Agregar tarea</button>
+  </div>
+  <div ng-show="show_task" class="col-xs-12">
+    <legend class="legend-title" align="center">Nueva Tarea</legend>
+    <form class="row" name="form">
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Titulo<span class="red-color"> *</span></label>
+        <input type="text" class="form-control" ng-model="vm.form.title" required />
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group"
+          ng-class="{'has-error': form.assigned.$touched && form.assigned.$invalid}">
+        <label>Asignar a <span class="red-color">*</span></label>
+
+        <select name="assigned"
+          class="form-control"
+          ng-model="vm.form.assigned_url"
+          ng-options="u.url as (u.first_name + ' ' + u.last_name) for u in users track by u.url"
+          ng-required="true">
+          <option value="">Seleccione un usuario</option>
+        </select>
+
+        <div class="help-block" ng-if="form.assigned.$touched && form.assigned.$error.required">
+          Requerido
+        </div>
+      </div>
+      <!-- <div class="col-xs-12 col-sm-6 form-group">
+        <label>Asignar a<span class="red-color"> *</span></label>
+        <select class="form-control" ng-model="vm.form.assigned" data-ng-options="vendedor.first_name + ' ' + vendedor.last_name for vendedor in users | orderBy: 'first_name' track by vendedor.url" ng-change="vm.changeAssigned(vm.form.assigned); vm.saveLocalstorange()" required>
+          <option value="">Seleccione un usuario</option>
+        </select>
+      </div> -->
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Involucrados</label>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+        <div class="col-xs-12">
+          <select id="select_user" style="width: 100%;" class="js-example-basic-multiple2 form-control" name="states[]" multiple="multiple" ng-model="select_user" data-ng-options="user.first_name + ' ' + user.last_name for user in users  track by user.url" ng-change="selectUser(select_user)">
+          </select>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Fecha de compromiso<span class="red-color"> *</span></label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="" class="form-control width-100 text-align-center" ng-model="vm.form.compromiso" value="{{vm.form.compromiso}}" ng-change="vm.saveLocalstorange()" data-date-format="dd/mm/yyyy" required />
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Prioridad<span class="red-color"> *</span></label>
+        <select class="form-control"
+          name="priority"
+          ng-model="vm.form.priority_int"
+          ng-options="priority.id as priority.name for priority in priorities | orderBy:'name'"
+          ng-change="vm.changePriority(vm.form.priority_int)"
+          required>
+          <option value="">Seleccione una prioridad</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Concepto<span class="red-color"> *</span></label>
+        <select class="form-control"
+                ng-model="vm.form.concept"
+                ng-options="concept.id as concept.name for concept in concepts | orderBy:'name'"
+                ng-change="vm.changeConcept(vm.form.concept)"
+                required>
+          <option value="">Seleccione un concepto</option>
+        </select>
+      </div>
+      <div class="col-xs-12 form-group">
+        <label>Descripción<span class="red-color"> *</span></label>
+        <textarea type="text" class="form-control" ng-model="vm.form.descrip" required ng-change="vm.saveLocalstorange()"></textarea>
+      </div>
+      <div class="col-xs-12">
+        <div>
+          <div ng-include="'templates/upload.html'"></div>
+        </div>
+        <div class="ibox-content" ng-show="vm.form.id">
+          <div class="row" ng-include="'templates/show-files.html'"></div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button class="col-xs-12 btn btn-primary ladda-button" ng-disabled="form.$invalid" ng-click="saveTask(vm.form)">Crear Tarea</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button class="col-xs-12 btn btn-white" ng-click="show_task = false">Cancelar</button>
+      </div>
+    </form>
+    <div class="col-xs-12">
+      <hr>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-6 form-group" ng-enter="getTickets(7, chain)">
+    <label>Buscar:</label>
+    <div class="col-xs-12 input-group">
+      <input class="form-control" placeholder="Buscar en todas las tareas (Enter para buscar)" ng-model="chain" type="text">
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-primary" ng-click="getTickets(7, chain)">Buscar</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-6 form-group" ng-enter="getTickets(7, chain)">
+    <label>Buscar por usuario:</label>
+    <div class="col-xs-12 input-group">       
+      <div class="col-xs-12">
+        <select id="select_user" style="width: 100%;" class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="selected_user" data-ng-options="user.first_name + ' ' + user.last_name for user in users | orderBy: 'first_name' track by user.url" >
+          <option value=""></option>
+        </select>
+      </div>    
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-primary" ng-click="getTickets(7, chain)">Buscar</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-4 form-group">
+    <label>Prioridad:</label>
+    <select class="form-control" ng-model="vm.form.priority" data-ng-options="priority.name for priority in priorities | orderBy: 'name' track by priority.id" ng-change="getTickets(vm.form.priority.id)" required>
+      <option value="">Seleccione una prioridad</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-4 form-group">
+    <label>Estatus:</label>
+    <select class="form-control" ng-model="vm.form.status" data-ng-options="priority.name for priority in statusTask | orderBy: 'name' track by priority.id" ng-change="getTickets(vm.form.priority.id)" required>
+      <option value="">Seleccione un estatus</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-4 form-group">
+    <label>Ver:</label>
+    <select class="form-control" ng-model="vm.form.ver" data-ng-options="priority.name for priority in seeTask | orderBy: 'name' track by priority.id" ng-change="getTickets(vm.form.priority.id)" required>
+      <option value="">Seleccione un estatus</option>
+    </select>
+  </div>
+  <div class="col-xs-12 form-group">
+    <!-- <span>* Los filtros no son combinables con el buscador</span> -->
+  </div>
+  <div class="col-xs-12">
+    <table class="table table-bordered table-hover" ng-show="!show_comment">
+      <thead>
+        <tr>
+          <th>Estatus</th>
+          <th>Folio</th>
+          <th>Título</th>
+          <th>Fecha promesa <span class="pull-right"><input type="checkbox" name="" ng-model="fechahoy" ng-click="getTickets(7, chain,1,1,fechahoy)">Solo de hoy</span></span></th>
+          <th>Prioridad</th>
+          <th>Concepto</th>
+          <th>Antigüedad</th>
+          <th>Dias de creación al cierre</th>
+          <th>Usuario que reasignó</th>
+          <th>Fecha de reasignación</th>
+          <th>Usuario asignado</th>
+          <th>Creador</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="ticket in tickets track by $index"  ng-click="openModal(ticket)" ng-class="{'alert-warning' : ticket.up_date < 3 }">
+          <td>
+            <span ng-if="!ticket.closed">Abierta</span>
+            <span ng-if="ticket.closed">Cerrada</span></td>
+          <td>{{ ticket.identifier }}</td>
+          <td>{{ ticket.title }}</td>
+          <td>{{ ticket.date | date: 'dd/MM/yyyy': 'UTC' }}</td>
+          <td>
+            <div class="label priority" ng-class="{'label-success': ticket.closed, 'label-danger' : ticket.priority == 1 && !ticket.closed, 'label-warning' : ticket.priority == 2 && !ticket.closed, 'label-info' : ticket.priority == 3 && !ticket.closed }">
+              <!-- <span ng-if="ticket.closed">Hecho</span> -->
+              <span ng-if="ticket.priority == 1 && !ticket.closed">Alta</span>
+              <span ng-if="ticket.priority == 2 && !ticket.closed">Media</span>
+              <span ng-if="ticket.priority == 3 && !ticket.closed">Baja</span>
+              <span ng-if="ticket.priority == 1 && ticket.closed">Hecho/Alta</span>
+              <span ng-if="ticket.priority == 2 && ticket.closed">Hecho/Media</span>
+              <span ng-if="ticket.priority == 3 && ticket.closed">Hecho/Baja</span>
+            </div>
+          </td>
+          <td>{{conceptTicket(ticket.concept)}}</td>
+          <td>{{ ticket.antiguedad }} días</td>
+          <td>{{ ticket.contador_dias_cierre }}</td>
+          <td>{{ ticket.reassignBy }}</td>
+          <td>{{ ticket.reassign_date |  date: 'dd/MM/yyyy': 'UTC' }}</td>
+          <td><img ng-src="{{ ticket.image }}"  class="w-i">{{ticket.assigned.first_name}} {{ticket.assigned.last_name}}</td>
+          <td>{{ ticket.owner.first_name }} {{ ticket.owner.last_name }}</td>
+          <td>
+            <a ng-if="!ticket.closed" class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); Complete(ticket, $index)" title="Cerrar tarea"><i class="fa fa-times-circle"></i></a>
+            <a ng-if="ticket.closed" class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); Complete(ticket, $index)" title="Abrir tarea"><i class="fa fa-folder-open"></i></a>
+            <a class="btn btn-white btn-sm" href="" ng-if="!ticket.archived" ng-click="$event.stopPropagation(); archiveTask(ticket)" title="Archivar tarea"><i class="fa fa-archive"></i></a>
+            <a class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); getLog(ticket)" title="Log de tarea"><i class="fa fa-history"></i></a>
+            <a class="btn btn-info btn-sm" title="Crear Recordatorio" ng-click="$event.stopPropagation();vm.createRecordatorio(ticket,22)"><i class="fa fa-clock-o" aria-hidden="true"></i></a> 
+            <a class="btn btn-white btn-sm" href="" ng-if="ticket.closed && !ticket.ot_id_reference && (ticket.concept==1 || ticket.concept==2 || ticket.concept==11 || ticket.concept==3 || ticket.concept==10)" ng-click="$event.stopPropagation();createOT(ticket)"><i class="fa fa-external-link" aria-hidden="true" title="Crear OT"></i></a>
+            <a class="btn btn-danger btn-sm" href="" ng-if="ticket.closed && ticket.ot_id_reference && (ticket.concept==1 || ticket.concept==2 || ticket.concept==11 || ticket.concept==3 || ticket.concept==10)" ng-click="$event.stopPropagation();irOT(ticket)"><i class="fa fa-eye" aria-hidden="true" title="Información OT"></i></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div ng-if="show_comment && !radio.closed">
+      <div class="row">
+        <div class="col-xs-12" align="center">
+          <legend class="legend-title" align="center">Cerrar tarea</legend>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="btn btn-info col-xs-12" ng-click="closeComment()"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+      </div>
+      <div class="col-xs-12 bab">
+        <br>
+        <label>Título: {{ radio.title }}</label>
+        <div class="col-xs-12">
+          <span><i class="fa fa-edit" style="padding: 13px;"></i> Agregue un comentario de cierre</span>
+          <div class="col-xs-12">
+            <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="22" idmodel="vm.polizaId" exportable="true"></comments>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-if="show_comment && radio.closed">
+      <div class="row">
+        <div class="col-xs-12" align="center">
+          <legend class="legend-title" align="center">Esta tarea ya esta cerrada.</legend>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="btn btn-info col-xs-12" ng-click="closeComment()"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="btn btn-warning col-xs-12" ng-click="openTask(radio)"><i class="fa fa-folder-open-o" aria-hidden="true"></i> Abrir Tarea</button>
+        </div>
+      </div>
+    </div>
+    <!-- PAGINACION -->
+    <div ng-if="show_pag_task" class="text-center hidden-xs hidden-sm">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+            <a class="page-link">{{page}}</a>
+          </li>
+          <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" >
+            <a class="page-link" ng-click="lastPage()" aria-label="Last">
+              <span aria-hidden="true">
+                <i class="fa fa-step-forward" aria-hidden="true"></i>
+              </span>
+              <span class="sr-only">Last</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 m-t pull-right" ng-if="tickets.length > 0">
+      <button class="btn btn-primary col-xs-12" ng-click="exportToExcel(tickets,fechahoy)">Exportar a excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="row">
+  <div class="col-xs-12 form-group">
+    <button class="btn btn-no-fill pull-right" ng-click="vm.createTask()">Agregar tarea</button>
+  </div>
+  <div class="col-xs-6">
+    <label class="btn btn-danger" ng-model="vm.calendarView" uib-btn-radio="'year'" ng-click="getTickets(1)">Alta</label>
+    <label class="btn btn-warning" ng-model="vm.calendarView" uib-btn-radio="'month'" ng-click="getTickets(2)">Media</label>
+    <label class="btn btn-info" ng-model="vm.calendarView" uib-btn-radio="'week'" ng-click="getTickets(3,3)">Baja</label>
+    <label class="btn btn-success" ng-model="vm.calendarView" uib-btn-radio="'day'" ng-click="getTickets(4)">Completado</label>
+    <label class="btn btn-gray" ng-model="vm.calendarView" uib-btn-radio="'day'" ng-click="getTickets(8)">Archivado</label>
+  </div>
+  <div class="col-xs-6">
+    <label class="btn btn-default pull-right" ng-model="vm.calendarView" uib-btn-radio="'creadas'" ng-click="getTickets(6)">Creadas</label>
+    <label class="btn btn-default pull-right" ng-model="vm.calendarView" uib-btn-radio="'mis'" ng-click="getTickets(5)">Mis tareas</label>
+  </div>
+  <div class="col-xs-11 col-md-offset-1 form-group container-box">
+    <div class="col-xs-8 col-sm-10 search-bar">
+        <div class="row">
+            <form role="search" class="navbar-form-custom" method="post" ng-enter="getTickets(7, chain)">
+                <div class="col-xs-12 form-group">
+                    <div class="row">
+                        <div class="input-group">
+                            <span>
+                                <input class="form-control mi-input search-custom" style="color: gray; border: 1px solid lightgray; border-radius: 4px; height: 34px; margin-top: 13px;" placeholder="Buscar en todas las tareas (Enter para buscar)" ng-model="chain" name="top-search" id="top-search" type="search" title="Enter para buscar">
+                                <i class="fa fa-times-circle color-white pull-right" ng-if="chain" style="position: absolute; top: 20px; right: 80px; font-size: 20px; z-index: 2000;"></i>
+                            </span>
+                          <span class="input-group-btn">
+                            <button ng-click="getAllTickets()" class="btn btn-green" style="margin-top: 13px;" type="button">Ver todas</button>
+                          </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br>
+    </div>
+  </div>
+  <br>
+  <div class="form-group container-box" style="margin-left: 40px">
+    <div class="row">
+      <br>
+      <div class="row">
+        <div ng-click="vm.changeColumns(1, vm.task_folio == 1 ? 2 : 1)" class="col-xs-12 col-md-2 title-task">Estatus &nbsp; Folio <span ng-class="{'fa fa-sort-desc': vm.task_folio == 1, 'fa fa-sort-asc': vm.task_folio == 2}"></span></div>
+        <div ng-click="vm.changeColumns(2, vm.task_titulo == 1 ? 2 : 1)" class="col-xs-12 col-md-3 title-task">Titulo <span ng-class="{'fa fa-sort-desc': vm.task_titulo == 1, 'fa fa-sort-asc': vm.task_titulo == 2}"></span></div>
+        <div ng-click="vm.changeColumns(3, vm.task_fecha == 1 ? 2 : 1)" class="col-xs-12 col-md-1 title-task">Fecha <span ng-class="{'fa fa-sort-desc': vm.task_fecha == 1, 'fa fa-sort-asc': vm.task_fecha == 2}"></span></div>
+        <div ng-click="vm.changeColumns(4, vm.task_prioridad == 1 ? 2 : 1)" class="col-xs-12 col-md-1 title-task">Prioridad <span ng-class="{'fa fa-sort-desc': vm.task_prioridad == 1, 'fa fa-sort-asc': vm.task_prioridad == 2}"></span></div>
+        <div class="col-xs-12 col-md-1 title-task">Antigüedad</div>
+        <div ng-click="vm.changeColumns(5, vm.task_usuario == 1 ? 2 : 1)" class="col-xs-12 col-md-1 title-task">Usuario <span ng-class="{'fa fa-sort-desc': vm.task_usuario == 1, 'fa fa-sort-asc': vm.task_usuario == 2}"></span></div>
+        <div ng-click="vm.changeColumns(6, vm.task_owner == 1 ? 2 : 1)" class="col-xs-12 col-md-1 title-task">Creador <span ng-class="{'fa fa-sort-desc': vm.task_owner == 1, 'fa fa-sort-asc': vm.task_owner == 2}"></span></div>
+        <div class="col-xs-12 col-md-2 title-task">Acciones</div>
+      </div>
+      <br>
+      <div class="row m-b" ng-repeat="ticket in items track by $index" ng-if="items.length">
+        <div class="col-xs-12 col-md-2">
+          <span class="check-task" ng-if="!ticket.closed" ng-click="Complete(ticket, $index)"><i class="fa fa-circle-o" aria-hidden="true"></i></span>
+          <span class="check-task" ng-if="ticket.closed"><i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          <span class="color-blue">{{ticket.identifier}}</span>
+        </div>
+        <div class="col-md-3">
+          {{ticket.title}}
+        </div>
+        <div class="col-md-1">
+          <a href=""> {{ticket.date | date: 'dd/MM/yyyy'}}</a>
+        </div>
+        <div class="col-md-1">
+          <div class=" label priority" ng-class="{'label-success': ticket.closed, 'label-danger' : ticket.priority == 1 && !ticket.closed, 'label-warning' : ticket.priority == 2 && !ticket.closed, 'label-info' : ticket.priority == 3 && !ticket.closed }">
+            <span ng-if="ticket.closed">Hecho</span>
+            <span ng-if="ticket.priority == 1 && !ticket.closed">Alta</span>
+            <span ng-if="ticket.priority == 2 && !ticket.closed">Media</span>
+            <span ng-if="ticket.priority == 3 && !ticket.closed">Baja</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <span>{{ticket.antiguedad}} días</span>
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <img ng-src="{{ ticket.image }}" class="w-i">
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <span>{{ticket.owner.first_name}} {{ticket.owner.last_name}}</span>
+        </div>
+        <div class="col-xs-12 col-md-2">
+          <a href="" ng-click="openModal(ticket)"><i class="fa fa-eye link-task"></i></a>
+          &nbsp; &nbsp;
+          <a href="" ng-if="!ticket.archived" ng-click="archiveTask(ticket)"><i class="fa fa-archive link-task"></i></a>
+          &nbsp; &nbsp;
+          <a href="" ng-click="getLog(ticket)"><i class="fa fa-history link-task"></i></a>
+        </div>
+        <div class="row col-xs-12 bab" ng-if="show[$index]">
+          <div class="col-xs-12">
+            <span><i class="fa fa-edit" style="padding: 13px;"></i> Agregue un comentario de cierre</span>
+            <div class="col-xs-12">
+              <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="22" idmodel="vm.polizaId" exportable="true"></comments>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-b" ng-repeat="ticket in tickets track by $index" ng-if="!vm.main_comming">
+        <div class="col-xs-12 col-md-2">
+          <span class="check-task" ng-if="!ticket.closed" ng-click="Complete(ticket, $index)"><i class="fa fa-circle-o" aria-hidden="true"></i></span>
+          <span class="check-task" ng-if="ticket.closed && disabledButton" ng-click="openTask(ticket, $index)"><i class="fa fa-check-circle-o" aria-hidden="true"></i></span>
+          <span class="check-task" ng-if="ticket.closed && !disabledButton"><i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          <span class="color-blue">{{ticket.identifier}}</span>
+        </div>
+        <div class="col-xs-12 col-md-3">
+          {{ticket.title}}
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <a href=""> {{ticket.date | date: 'dd/MM/yyyy'}}</a>
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <div class="label priority" ng-class="{'label-success': ticket.closed, 'label-danger' : ticket.priority == 1 && !ticket.closed, 'label-warning' : ticket.priority == 2 && !ticket.closed, 'label-info' : ticket.priority == 3 && !ticket.closed }">
+            <span ng-if="ticket.closed">Hecho</span>
+            <span ng-if="ticket.priority == 1 && !ticket.closed">Alta</span>
+            <span ng-if="ticket.priority == 2 && !ticket.closed">Media</span>
+            <span ng-if="ticket.priority == 3 && !ticket.closed">Baja</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <span>{{ticket.antiguedad}} días</span>
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <img ng-src="{{ ticket.image }}" class="w-i">
+        </div>
+        <div class="col-xs-12 col-md-1">
+          <span>{{ticket.owner.first_name}} {{ticket.owner.last_name}}</span>
+        </div>
+        <div class="col-xs-12 col-md-2">
+          <a href="" ng-click="openModal(ticket)"><i class="fa fa-eye link-task"></i></a>
+          &nbsp; &nbsp;
+          <a href="" ng-if="!ticket.archived" ng-click="archiveTask(ticket)"><i class="fa fa-archive link-task"></i></a>
+          &nbsp; &nbsp;
+          <a href="" ng-click="getLog(ticket)"><i class="fa fa-history link-task"></i></a>
+        </div>
+        <div class="row col-xs-12 bab" ng-if="show[$index]">
+          <div class="col-xs-12">
+            <span><i class="fa fa-edit" style="padding: 13px;"></i> Agregue un comentario de cierre</span>
+            <div class="col-xs-12">
+              <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="22" idmodel="vm.polizaId" exportable="true"></comments>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div ng-if="show_pag_task" class="text-center hidden-xs hidden-sm">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+            <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+              <a class="page-link">
+                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+              </a>
+            </li>
+            <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+              <a class="page-link">{{page}}</a>
+            </li>
+            <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+              <a class="page-link">
+                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+              </a>
+            </li>
+            <li class="page-item" >
+              <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                <span aria-hidden="true">
+                  <i class="fa fa-step-forward" aria-hidden="true"></i>
+                </span>
+                <span class="sr-only">Last</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row col-xs-12" ng-if="tickets.length > 0">
+      <div class="col-xs-12 m-t">
+        <button class="btn btn-primary pull-right" ng-click="exportToExcel(tickets)">Exportar a excel</button>
+      </div>
+    </div>
+  </div>
+</div> -->

@@ -1,0 +1,832 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Reportes de Operación Semanal</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Reporte Operación Semanal </strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row" ng-if="showAll == true">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins" >
+      <div class="ibox-title">
+        <h5>Índices</h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <div class="row animate">
+          <div class="col-xs-12">
+            <div class="tabs-container" >
+              <uib-tabset>
+
+                <uib-tab heading="Recibos" id="recibos" ng-click="vm.Generar(1)"  >
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-4 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                          <div>
+                            <span class="blue-color col-xs-6" ng-click="specificShow(1,1)">Pagados</span> # {{vm.resultados.count_pagado}}
+                          </div>
+                          <div>
+                            <span class="blue-color col-xs-6" ng-click="specificShow(1,2)">Vencidos</span> # {{vm.resultados.count_vencido}}
+                          </div>
+                        </div>
+                      </div>
+                       <!--  <div class="col-xs-12 col-sm-6 col-md-3 float-e-margins m-b">
+                          <div class="ibox-content">
+                            <div class="row">
+                              <div class="col-xs-12 form-group">
+                                <span class="blue-color col-xs-6">Pagados</span>
+                                <div class="col-xs-6" align="center">
+                                  #14
+                                </div>
+                              </div>
+                              <div class="col-xs-12 form-group">
+                                <span class="blue-color col-xs-6">Vencidos</span>
+                                <div class="col-xs-6" align="center">
+                                  #12
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de recibo</th>
+                            <th>Referencia</th>
+                            <th>Prima Neta</th>
+                            <th>Derecho</th>
+                            <th>RPF</th>
+                            <th>IVA</th>
+                            <th>Prima Total</th>
+                            <th>Comisión</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Tipo</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="receipt in vm.resultados.results_pagados track by $index">
+                              <td >{{receipt.poliza.natural }}{{receipt.fianza.natural}}{{receipt.poliza.juridical}} {{receipt.fianza.juridical}} {{receipt.endorsement.fianza.juridical.j_name}}{{receipt.endorsement.fianza.natural.full_name}}{{receipt.endorsement.poliza.juridical.j_name}}{{receipt.endorsement.poliza.natural.full_name}}</td>
+                              <td >{{receipt.recibo_numero}}</td>
+                              <td >{{receipt.poliza.poliza_number}}{{receipt.fianza.fianza_number}}{{receipt.endorsement.number_endorsement}}{{receipt.bono.factura_number}}</td>
+                              <td >{{receipt.prima_neta | currency}}</td>
+                              <td >{{receipt.derecho | currency}}</td>
+                              <td >{{receipt.rpf | currency}}</td>
+                              <td >{{receipt.iva | currency}}</td>
+                              <td >{{receipt.prima_total | currency}}</td>
+                              <td >{{receipt.comision | currency}}</td>
+                              <td >{{status_rec(receipt.status)}}</td>
+                              <td >{{receipt.fecha_inicio | date: 'dd/MM/yyyy'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy'}}</td>
+                              <td ><span ng-if="receipt.poliza && receipt.receipt_type ==1">Póliza</span><span ng-if="receipt.endorsement && receipt.receipt_type ==1">Endoso</span><span ng-if="receipt.fianza && receipt.receipt_type ==1">Fianza</span><span ng-if="receipt.receipt_type == 2">Endoso</span> <span ng-if="receipt.bono">Bono</span><span ng-if="receipt.receipt_type == 3">Nota de Crédito</span></td>
+                              <td >{{receipt.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{receipt.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="receipt in vm.resultados.results_vencidos track by $index" >
+                              <td >{{receipt.poliza.natural }}{{receipt.fianza.natural}}{{receipt.poliza.juridical}} {{receipt.fianza.juridical}} {{receipt.endorsement.fianza.juridical.j_name}}{{receipt.endorsement.fianza.natural.full_name}}{{receipt.endorsement.poliza.juridical.j_name}}{{receipt.endorsement.poliza.natural.full_name}}</td>
+                              <td >{{receipt.recibo_numero}}</td>
+                              <td >{{receipt.poliza.poliza_number}}{{receipt.fianza.fianza_number}}{{receipt.endorsement.number_endorsement}}{{receipt.bono.factura_number}}</td>
+                              <td >{{receipt.prima_neta | currency}}</td>
+                              <td >{{receipt.derecho | currency}}</td>
+                              <td >{{receipt.rpf | currency}}</td>
+                              <td >{{receipt.iva | currency}}</td>
+                              <td >{{receipt.prima_total | currency}}</td>
+                              <td >{{receipt.comision | currency}}</td>
+                              <td >{{status_rec(receipt.status)}}</td>
+                              <td >{{receipt.fecha_inicio | date: 'dd/MM/yyyy'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy'}}</td>
+                              <td ><span ng-if="receipt.poliza && receipt.receipt_type ==1">Póliza</span><span ng-if="receipt.endorsement && receipt.receipt_type ==1">Endoso</span><span ng-if="receipt.fianza && receipt.receipt_type ==1">Fianza</span><span ng-if="receipt.receipt_type == 2">Endoso</span> <span ng-if="receipt.bono">Bono</span><span ng-if="receipt.receipt_type == 3">Nota de Crédito</span></td>
+                              <td >{{receipt.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{receipt.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Pólizas" id="polizas" ng-click="vm.responsiv();vm.Generar(2)">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-7 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,1)">Creadas</span> # {{vm.resultados.count_creada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,2)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,3)">Renovadas</span>  # {{vm.resultados.count_renovada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,4)">No Renovadas</span> # {{vm.resultados.count_norenovada}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Póliza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Aseguradora</th>
+                            <th>Identificador</th>
+                            <th>Forma de Pago</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="poliza in vm.resultados.results_creadas track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_canceladas track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_renovadas track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_norenovadas track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Fianzas" id="fianzas" ng-click="vm.responsiv();vm.Generar(3)">
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-6 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,1)">Creadas</span> # {{vm.resultados.count_creada}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,2)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,3)">Anuladas</span> # {{vm.resultados.count_anulada}}</div>
+                        </div>
+                      </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Fianza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Afianzadora</th>
+                            <th>Identificador</th>
+                            <th>Forma de Pago</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="fianza in vm.resultados.results_creadas track by $index" >
+                              <td >{{fianza.natural.full_name}}{{fianza.juridical.j_name}}</td>
+                              <td >{{fianza.fianza_number}}</td>
+                              <td >{{fianza.ramo}}</td>
+                              <td >{{fianza.subramo}}</td>
+                              <td >{{fianza.afianzadora}}</td>
+                              <td >{{fianza.identifier}}</td>
+                              <td >{{forma_pago(fianza.forma_de_pago)}}</td>
+                              <td >{{status_fianza(fianza.status)}}</td>
+                              <td >{{fianza.start_of_validity | date: 'dd/MM/yyyy'}} - {{fianza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{fianza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{fianza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Endosos" id="endosos" ng-click="vm.responsiv();vm.Generar(4)">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-6 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(4,1)">Creados</span> # {{vm.resultados.count_creado}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Póliza/Fianza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Número Endoso</th>
+                            <th>Tipo</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="endoso in vm.resultados.results_creadas track by $index" >
+                              <td >{{endoso.policy.natural}}{{endoso.fianza.natural}}{{endoso.policy.juridical}}{{endoso.fianza.juridical}}</td>
+                              <td >{{endoso.policy.poliza_number}}{{endoso.fianza.fianza_number}}</td>
+                              <td >{{endoso.policy.ramo}}{{endoso.fianza.ramo}}</td>
+                              <td >{{endoso.policy.subramo}}{{endoso.fianza.subramo}}</td>
+                              <td >{{endoso.number_endorsement}}</td>
+                              <td >{{endoso.endorsement_type}}</td>
+                              <td >{{status_endoso(endoso.status)}}</td>
+                              <td >{{endoso.init_date | date: 'dd/MM/yyyy'}} - {{endoso.end_date | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{endoso.updated_at | date: 'dd/MM/yyyy'}} </td>
+                              <td >{{endoso.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Siniestros" id="siniestros" ng-click="vm.responsiv();vm.Generar(5)">
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-6 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(5,1)">Creados</span> # {{vm.resultados.count_creado}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(5,2)">Completados</span> # {{vm.resultados.count_completado}}</div>
+                        </div>
+                      </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Póliza</th>
+                            <th>Aseguradora</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Fecha de Ingreso</th>
+                            <th>Estatus</th>
+                            <th>Vigencia de la Póliza</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="siniestro in vm.resultados.results_creado track by $index" >
+                              <td >{{siniestro.poliza.natural}}{{siniestro.poliza.juridical}}</td>
+                              <td >{{siniestro.poliza.poliza_number}}</td>
+                              <td >{{siniestro.poliza.aseguradora}}</td>
+                              <td >{{siniestro.poliza.ramo}}</td>
+                              <td >{{siniestro.poliza.subramo}}</td>
+                              <td >{{siniestro.fecha_ingreso | date:'dd/MM/yyyy'}}</td>
+                              <td >{{status_sin(siniestro.status)}}</td>
+                              <td >{{siniestro.poliza.start_of_validity | date:'dd/MM/yyyy'}} - {{siniestro.poliza.end_of_validity | date:'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="siniestro in vm.resultados.results_completado track by $index" >
+                              <td >{{siniestro.poliza.natural}}{{siniestro.poliza.juridical}}</td>
+                              <td >{{siniestro.poliza.poliza_number}}</td>
+                              <td >{{siniestro.poliza.aseguradora}}</td>
+                              <td >{{siniestro.poliza.ramo}}</td>
+                              <td >{{siniestro.poliza.subramo}}</td>
+                              <td >{{siniestro.fecha_ingreso | date:'dd/MM/yyyy'}}</td>
+                              <td >{{status_sin(siniestro.status)}}</td>
+                              <td >{{siniestro.poliza.start_of_validity | date:'dd/MM/yyyy'}} - {{siniestro.poliza.end_of_validity | date:'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Órdenes de Trabajo" id="ots" ng-click="vm.responsiv();vm.Generar(6)">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-6 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(6,1)">Pendientes</span> # {{vm.resultados.count_pendiente}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(6,2)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Folio Interno</th>
+                            <th>Aseguradora</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Identificador</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha modificación</th>
+                            <th>Creada por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="poliza in vm.resultados.results_pendiente track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.internal_number}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_cancelada track by $index" >
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.internal_number}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+              </uib-tabset>
+
+            </div>
+          </div>
+        </div>
+        
+        <div ng-if="vm.resultados">
+          <div ng-if="showButtonExcel == true">
+            <div class="col-xs-8 col-sm-6 col-md-3 form-group margin-top-24 pull-right">
+              <button ng-click="exportData(1)" class="col-xs-8 btn btn-primary ladda-button"><i class="fa fa-download"></i> Exportar registros </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div class="row" ng-if="showAll == false">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins" >
+      <div class="ibox-title">
+        <h5>Índices</h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <div class="row animate">
+          <div class="col-xs-12">
+            <div class="tabs-container" >
+              <uib-tabset>
+
+                <uib-tab heading="Recibos" id="recibos" ng-click="vm.Generar(1);specificShow(1,1);"  >
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-4 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                          <div>
+                            <span class="blue-color col-xs-6" ng-click="specificShow(1,1);vm.Generar(1)">Pagados</span> # {{vm.resultados.count_pagado}}
+                          </div>
+                          <div>
+                            <span class="blue-color col-xs-6" ng-click="specificShow(1,2);vm.Generar(1)">Vencidos</span> # {{vm.resultados.count_vencido}}
+                          </div>
+                        </div>
+                      </div>
+                       <!--  <div class="col-xs-12 col-sm-6 col-md-3 float-e-margins m-b">
+                          <div class="ibox-content">
+                            <div class="row">
+                              <div class="col-xs-12 form-group">
+                                <span class="blue-color col-xs-6">Pagados</span>
+                                <div class="col-xs-6" align="center">
+                                  #14
+                                </div>
+                              </div>
+                              <div class="col-xs-12 form-group">
+                                <span class="blue-color col-xs-6">Vencidos</span>
+                                <div class="col-xs-6" align="center">
+                                  #12
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de recibo</th>
+                            <th>Referencia</th>
+                            <th>Prima Neta</th>
+                            <th>Derecho</th>
+                            <th>RPF</th>
+                            <th>IVA</th>
+                            <th>Prima Total</th>
+                            <th>Comisión</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Tipo</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="receipt in vm.resultados.results_pagados track by $index" ng-if="showSpecific1_a">
+                              <td >{{receipt.poliza.natural }}{{receipt.fianza.natural}}{{receipt.poliza.juridical}} {{receipt.fianza.juridical}} {{receipt.endorsement.fianza.juridical.j_name}}{{receipt.endorsement.fianza.natural.full_name}}{{receipt.endorsement.poliza.juridical.j_name}}{{receipt.endorsement.poliza.natural.full_name}}</td>
+                              <td >{{receipt.recibo_numero}}</td>
+                              <td >{{receipt.poliza.poliza_number}}{{receipt.fianza.fianza_number}}{{receipt.endorsement.number_endorsement}}{{receipt.bono.factura_number}}</td>
+                              <td >{{receipt.prima_neta | currency}}</td>
+                              <td >{{receipt.derecho | currency}}</td>
+                              <td >{{receipt.rpf | currency}}</td>
+                              <td >{{receipt.iva | currency}}</td>
+                              <td >{{receipt.prima_total | currency}}</td>
+                              <td >{{receipt.comision | currency}}</td>
+                              <td >{{status_rec(receipt.status)}}</td>
+                              <td >{{receipt.fecha_inicio | date: 'dd/MM/yyyy'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy'}}</td>
+                              <td ><span ng-if="receipt.poliza && receipt.receipt_type ==1">Póliza</span><span ng-if="receipt.endorsement && receipt.receipt_type ==1">Endoso</span><span ng-if="receipt.fianza && receipt.receipt_type ==1">Fianza</span><span ng-if="receipt.receipt_type == 2">Endoso</span> <span ng-if="receipt.bono">Bono</span><span ng-if="receipt.receipt_type == 3">Nota de Crédito</span></td>
+                              <td >{{receipt.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{receipt.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="receipt in vm.resultados.results_vencidos track by $index" ng-if="showSpecific1_b" >
+                              <td >{{receipt.poliza.natural }}{{receipt.fianza.natural}}{{receipt.poliza.juridical}} {{receipt.fianza.juridical}} {{receipt.endorsement.fianza.juridical.j_name}}{{receipt.endorsement.fianza.natural.full_name}}{{receipt.endorsement.poliza.juridical.j_name}}{{receipt.endorsement.poliza.natural.full_name}}</td>
+                              <td >{{receipt.recibo_numero}}</td>
+                              <td >{{receipt.poliza.poliza_number}}{{receipt.fianza.fianza_number}}{{receipt.endorsement.number_endorsement}}{{receipt.bono.factura_number}}</td>
+                              <td >{{receipt.prima_neta | currency}}</td>
+                              <td >{{receipt.derecho | currency}}</td>
+                              <td >{{receipt.rpf | currency}}</td>
+                              <td >{{receipt.iva | currency}}</td>
+                              <td >{{receipt.prima_total | currency}}</td>
+                              <td >{{receipt.comision | currency}}</td>
+                              <td >{{status_rec(receipt.status)}}</td>
+                              <td >{{receipt.fecha_inicio | date: 'dd/MM/yyyy'}} - {{receipt.fecha_fin | date: 'dd/MM/yyyy'}}</td>
+                              <td ><span ng-if="receipt.poliza && receipt.receipt_type ==1">Póliza</span><span ng-if="receipt.endorsement && receipt.receipt_type ==1">Endoso</span><span ng-if="receipt.fianza && receipt.receipt_type ==1">Fianza</span><span ng-if="receipt.receipt_type == 2">Endoso</span> <span ng-if="receipt.bono">Bono</span><span ng-if="receipt.receipt_type == 3">Nota de Crédito</span></td>
+                              <td >{{receipt.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{receipt.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Pólizas" id="polizas" ng-click="vm.Generar(2);specificShow(2,1);">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-7 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,1);vm.Generar(2)">Creadas</span> # {{vm.resultados.count_creada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,2);vm.Generar(2)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,3);vm.Generar(2)">Renovadas</span>  # {{vm.resultados.count_renovada}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(2,4); vm.Generar(2)">No Renovadas</span> # {{vm.resultados.count_norenovada}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Póliza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Aseguradora</th>
+                            <th>Identificador</th>
+                            <th>Forma de Pago</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="poliza in vm.resultados.results_creadas track by $index" ng-if="showSpecific2_a">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_canceladas track by $index" ng-if="showSpecific2_b">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_renovadas track by $index" ng-if="showSpecific2_c">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_norenovadas track by $index" ng-if="showSpecific2_d">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.poliza_number}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{forma_pago(poliza.forma_de_pago)}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Fianzas" id="fianzas" ng-click="vm.Generar(3);specificShow(3,1);">
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-6 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,1); vm.Generar(3)">Creadas</span> # {{vm.resultados.count_creada}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,2); vm.Generar(3)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(3,3);vm.Generar(3)">Anuladas</span> # {{vm.resultados.count_anulada}}</div>
+                        </div>
+                      </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Fianza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Afianzadora</th>
+                            <th>Identificador</th>
+                            <th>Forma de Pago</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="fianza in vm.resultados.results_creadas track by $index" ng-if="showSpecific3_a">
+                              <td >{{fianza.natural}}{{fianza.juridical}}</td>
+                              <td >{{fianza.fianza_number}}</td>
+                              <td >{{fianza.ramo}}</td>
+                              <td >{{fianza.subramo}}</td>
+                              <td >{{fianza.afianzadora}}</td>
+                              <td >{{fianza.identifier}}</td>
+                              <td >{{forma_pago(fianza.forma_de_pago)}}</td>
+                              <td >{{status_fianza(fianza.status)}}</td>
+                              <td >{{fianza.start_of_validity | date: 'dd/MM/yyyy'}} - {{fianza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{fianza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{fianza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Endosos" id="endosos" ng-click="vm.Generar(4);specificShow(4,1);">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-6 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(4,1);vm.Generar(4)">Creados</span> # {{vm.resultados.count_creado}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Póliza/Fianza</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Número Endoso</th>
+                            <th>Tipo</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="endoso in vm.resultados.results_creadas track by $index" ng-if="showSpecific4_a">
+                              <td >{{endoso.policy.natural}}{{endoso.fianza.natural}}{{endoso.policy.juridical}}{{endoso.fianza.juridical}}</td>
+                              <td >{{endoso.policy.poliza_number}}{{endoso.fianza.fianza_number}}</td>
+                              <td >{{endoso.policy.ramo}}{{endoso.fianza.ramo}}</td>
+                              <td >{{endoso.policy.subramo}}{{endoso.fianza.subramo}}</td>
+                              <td >{{endoso.number_endorsement}}</td>
+                              <td >{{endoso.endorsement_type}}</td>
+                              <td >{{status_endoso(endoso.status)}}</td>
+                              <td >{{endoso.init_date | date: 'dd/MM/yyyy'}} - {{endoso.end_date | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{endoso.updated_at | date: 'dd/MM/yyyy'}} </td>
+                              <td >{{endoso.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Siniestros" id="siniestros" ng-click="vm.Generar(5);specificShow(5,1);">
+                  <div class="panel-body">
+                      <div class="project-list">
+                      <div class="col-xs-6 form-group pull-right">
+                        <span class="col-xs-6">Total de Registros</span>
+                        <div class="col-xs-6" align="center">
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(5,1);vm.Generar(5)">Creados</span> # {{vm.resultados.count_creado}}</div>
+                         <div><span class="blue-color col-xs-6" ng-click="specificShow(5,2);vm.Generar(5)">Completados</span> # {{vm.resultados.count_completado}}</div>
+                        </div>
+                      </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Número de Póliza</th>
+                            <th>Aseguradora</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Fecha de Ingreso</th>
+                            <th>Estatus</th>
+                            <th>Vigencia de la Póliza</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Creado por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="siniestro in vm.resultados.results_creado track by $index" ng-if="showSpecific5_a" >
+                              <td >{{siniestro.poliza.natural}}{{siniestro.poliza.juridical}}</td>
+                              <td >{{siniestro.poliza.poliza_number}}</td>
+                              <td >{{siniestro.poliza.aseguradora}}</td>
+                              <td >{{siniestro.poliza.ramo}}</td>
+                              <td >{{siniestro.poliza.subramo}}</td>
+                              <td >{{siniestro.fecha_ingreso | date:'dd/MM/yyyy'}}</td>
+                              <td >{{status_sin(siniestro.status)}}</td>
+                              <td >{{siniestro.poliza.start_of_validity | date:'dd/MM/yyyy'}} - {{siniestro.poliza.end_of_validity | date:'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="siniestro in vm.resultados.results_completado track by $index" ng-if="showSpecific5_b">
+                              <td >{{siniestro.poliza.natural}}{{siniestro.poliza.juridical}}</td>
+                              <td >{{siniestro.poliza.poliza_number}}</td>
+                              <td >{{siniestro.poliza.aseguradora}}</td>
+                              <td >{{siniestro.poliza.ramo}}</td>
+                              <td >{{siniestro.poliza.subramo}}</td>
+                              <td >{{siniestro.fecha_ingreso | date:'dd/MM/yyyy'}}</td>
+                              <td >{{status_sin(siniestro.status)}}</td>
+                              <td >{{siniestro.poliza.start_of_validity | date:'dd/MM/yyyy'}} - {{siniestro.poliza.end_of_validity | date:'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{siniestro.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+
+                <uib-tab heading="Órdenes de Trabajo" id="ots" ng-click="vm.Generar(6);specificShow(6,1);">
+                  <div class="panel-body">
+                      <div class="project-list">
+                        <div class="col-xs-6 form-group pull-right">
+                          <span class="col-xs-6">Total de Registros</span>
+                          <div class="col-xs-6" align="center">
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(6,1);vm.Generar(6)">Pendientes</span> # {{vm.resultados.count_pendiente}}</div>
+                           <div><span class="blue-color col-xs-6" ng-click="specificShow(6,2);vm.Generar(6)">Canceladas</span> # {{vm.resultados.count_cancelada}}</div>
+                          </div>
+                        </div>
+                        <table class="table table-bordered  table-hover" >
+                          <thead>
+                            <th>Contratante</th>
+                            <th>Folio Interno</th>
+                            <th>Aseguradora</th>
+                            <th>Ramo</th>
+                            <th>Subramo</th>
+                            <th>Identificador</th>
+                            <th>Estatus</th>
+                            <th>Vigencia</th>
+                            <th>Fecha modificación</th>
+                            <th>Creada por</th>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="poliza in vm.resultados.results_pendiente track by $index" ng-if="showSpecific6_a">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.internal_number}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                            <tr ng-repeat="poliza in vm.resultados.results_cancelada track by $index" ng-if="showSpecific6_b">
+                              <td >{{poliza.natural}}{{poliza.juridical}}</td>
+                              <td >{{poliza.internal_number}}</td>
+                              <td >{{poliza.aseguradora}}</td>
+                              <td >{{poliza.ramo}}</td>
+                              <td >{{poliza.subramo}}</td>
+                              <td >{{poliza.identifier}}</td>
+                              <td >{{status(poliza.status)}}</td>
+                              <td >{{poliza.start_of_validity | date: 'dd/MM/yyyy'}} - {{poliza.end_of_validity | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.updated_at | date: 'dd/MM/yyyy'}}</td>
+                              <td >{{poliza.owner}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br>
+                        <br>
+                      </div>
+                  </div>
+                </uib-tab>
+              </uib-tabset>
+
+            </div>
+          </div>
+        </div>
+        
+        <div ng-if="vm.resultados">
+          <div ng-if="showButtonExcel == true">
+            <div class="col-xs-8 col-sm-6 col-md-3 form-group margin-top-24 pull-right">
+              <button ng-click="exportData(1)" class="col-xs-8 btn btn-primary ladda-button"><i class="fa fa-download"></i> Exportar registros </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

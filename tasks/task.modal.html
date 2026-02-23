@@ -1,0 +1,229 @@
+<div class="inmodal" id="modal_in">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">{{title}}</h4>
+  </div>
+  <div class="modal-body">
+    <div class="col-xs-4 form-group" ng-if="vm.form.model == 7 && !desdeOT">
+      <button class="btn btn-primary" ng-click="goToRegis()">Ver {{ origin_task }}</button>
+    </div>
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7 && !desdeOT">
+      <button class="btn btn-primary" ng-click="goToRegis()">Ver {{ origin_task }}</button>
+    </div>
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7 && !desdeOT"">
+      <p> {{track_task_id}}</p>
+    </div>
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7 && !desdeOT"">
+      <p> {{track_task_entity_number}}</p>
+    </div>
+    <a class="btn btn-info btn-sm pull-right" title="Crear Recordatorio" ng-click=" $event.stopPropagation();createRecordatorio(vm.form,22)"><i class="fa fa-clock-o" aria-hidden="true"></i></a> 
+    <div class="row">
+      <div class="col-xs-12 form-group">
+        <label>Titulo <span class="red-color">*</span></label>
+        <input class="form-control" name="title" ng-model="vm.form.title" />
+      </div>
+
+      <div class="col-xs-12 col-sm-6 form-group"
+          ng-class="{'has-error': form.assigned.$touched && form.assigned.$invalid}">
+        <label>Asignar a <span class="red-color">*</span></label>
+
+        <select name="assigned"
+                class="form-control"
+                ng-model="vm.form.assigned"
+                ng-options="v as (v.first_name + ' ' + v.last_name) for v in users | orderBy:'first_name' track by v.url"
+                ng-change="vm.changeAssigned(vm.form.assigned)"
+                ng-required="true">
+          <option value="">Seleccione un usuario</option>
+        </select>
+
+        <div class="help-block" ng-if="form.assigned.$touched && form.assigned.$error.required">
+          Requerido
+        </div>
+      </div>
+    	<!-- <div class="col-xs-6 form-group">
+        <label>Asignar a: <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.assigned" data-ng-options="vendedor.first_name + ' ' + vendedor.last_name for vendedor in users | orderBy: 'first_name' track by vendedor.url" ng-change="vm.changeAssigned(vm.form.assigned)">
+          <option value="">Seleccione</option>
+        </select>
+      </div> -->
+    	<div class="col-xs-6 form-group">
+        <label>Fecha compromiso<span class="red-color">*</span></label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="" class="form-control width-100 text-align-center" ng-model="vm.form.compromiso" value="{{vm.form.compromiso}}" data-date-format="dd/mm/yyyy" required />
+         	<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+	    </div>
+    	<div class="col-xs-6 form-group"> 
+        <label> Involucrados</label>  
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>          
+        <div class="col-xs-12">
+          <select id="select_user" style="width: 100%;" class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="select_user" data-ng-options="user.first_name + ' ' + user.last_name for user in users | orderBy: 'first_name' track by user.url" ng-change="selectUser(select_user)">
+            <option value=""></option>
+          </select>
+        </div>       
+      </div>
+      <div class="col-xs-6 form-group">
+        <label>Prioridad <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.priority"
+            data-ng-options="priority.name for priority in priorities | orderBy: 'name' track by priority.id"
+            ng-change="vm.changePriority(vm.form.priority)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>   
+      <div class="col-xs-6 form-group">
+        <label>Concepto <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.concept"
+            data-ng-options="concept.name for concept in concepts | orderBy: 'name' track by concept.id"
+            ng-change="vm.changeConcept(vm.form.concept)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>   
+    	<div class="col-xs-12 form-group">
+    	  <label>Descripción <span class="red-color">*</span></label>
+    	  <textarea type="text" class="form-control" ng-model="vm.form.descrip"></textarea>
+    	</div>
+    </div>
+    <div class="col-xs-12 form-group">
+      <button type="button" class="btn btn-secondary m-r-sm" ng-click="vm.showRecordatorios()">{{vm.form.recordatorios.length}}</button><span class="blue-color">Recordatorios</span>
+    </div>
+    <div class="ibox float-e-margins animate m-t" ng-if="vm.recordatoriosFlag">
+      <div class="ibox-title">
+        <h5>Recordatorios</h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <button class="btn btn-info m-b" ng-click="vm.recordatoriosFlag = false; vm.infoFlag = true"><span class="fa fa-reply"></span> Regresar</button>
+        <table class="table table-hover table-bordered">
+          <thead>
+            <th>Recordatorio ID</th>
+            <th>Resumen</th>
+            <th>Descripción</th>
+            <th>Fecha programada</th>
+            <th>Hora programada</th>
+            <th>Vista</th>
+          </thead>
+          <!-- <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.NotasModal(nota,vm.insurance)"> -->
+          <tr ng-repeat="reco in ticket1.recordatorios track by $index" ng-click="goToRecordatorio(reco, $index)">
+            <td>{{ reco.recordatorio.id }}</td>
+            <td >{{ reco.recordatorio.nombre}}</td>
+            <td>{{ reco.recordatorio.descr }} </td>
+            <td>{{ reco.recordatorio.fecha_programada | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+            <td>{{ reco.recordatorio.hora_programada | date: 'h:mm:ss a'  : 'UTC'}}</td>
+            <td ng-class="{'label-info' : reco.seen }" ng-if="reco.seen"><i class="fa fa-eye" aria-hidden="true"></i> Visto</td>
+            <td ng-class="{'label-success' : !reco.seen }" ng-if="!reco.seen">No visto</td>
+          </tr>
+        </table>
+       </div>
+    </div>
+    <div class="row">
+      <div ng-include="'templates/upload.html'"></div>
+    </div>
+    <div class="ibox-content" ng-if="vm.form.id">
+      <div class="row" ng-include="'templates/show-files.html'"></div>
+    </div>
+
+    <br>
+
+    <div class="row" ng-if="vm.form.title">
+      <div class="col-xs-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h5>Bitácora</h5>
+          </div>
+          <div class="ibox-content">
+            <div class="row">
+              <div class="col-xs-12">
+                <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="22" idmodel="vm.polizaId"></comments>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" ng-show="vm.form.id && !historic_email" ng-click="send_historic_email()"><i class="fa fa-envelope" aria-hidden="true"></i> Envíar histórico por email</button>
+    <div class="row">
+      <div class="col-xs-12 col-lg-12 form-group text-center" ng-show="historic_email">
+        <input name="email_x" ng-value="1" name="email_x"  ng-model="email_x" type="radio" class="ng-valid ng-dirty ng-touched"><span for="email_x">Manual</span><br>
+        <div class="col-xs-12 col-lg-12 form-group" ng-show="email_x == '1' && historic_email">
+<!--           <input type="email" ng-show="historic_email" class="form-control" ng-model="vm.email_send_historic" placeholder="example@something.com"> -->
+<!-- 
+          <hr>
+          <div class="col-xs-9" ng-show="historic_email">
+            <tags-input ng-model="vm.email_tags" ng-change="changeEmailSendManual(vm.email_tags)"></tags-input>
+          </div>
+          <hr> -->
+          <div class="col-xs-12 col-lg-12">
+            <select id="select_email_manual"  data-placeholder="example@something.com," class="form-control col-xs-12 col-lg-12" style="width: 100%;" class="js-example-basic-multiple form-control" name="states[]" multiple="multiple"  ng-model="select_email_manual" ng-change="selectManualEmails(select_email_manual)">
+              <option></option>
+            </select>
+          </div>
+        </div>
+        <br>
+        <hr>
+        <input name="email_x" ng-value="2" name="email_x"  ng-model="email_x" type="radio" class="ng-valid ng-dirty ng-touched"><span for="email_x">Sistema</span><br>        
+        <div class="col-xs-8 form-group" ng-show="emails_users.length > 0 && historic_email && email_x == '2'">
+          <!-- <label>Correos de Usuarios del Sistema <span class="red-color">*</span></label>
+          <select class="form-control" ng-model="vm.email_send_historic"
+              data-ng-options="email for email in emails_users | orderBy: email"
+              ng-change="vm.changeEmailSendH(email_send_historic)"
+              >
+              <option value="">Seleccione un correo</option>
+          </select> -->
+          <div class="col-xs-12  form-group"> 
+            <label> Correos de Usuarios del Sistema </label>  <br>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>     
+            <div class="col-xs-12">
+              <select id="select_email_system" style="width: 100%;" class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="select_email" data-ng-options="email for email in emails_users | orderBy: email" ng-change="changeEmailSendH(select_email)">
+                <option value=""></option>
+              </select>
+            </div>          
+          </div>
+        </div>
+      </div>
+      
+      
+      <br>   
+      <div class="col-xs-4">
+        <button class="btn btn-primary ladda-button" ng-if="vm.form.id && historic_email" ng-click="send_historic(vm.form)" ng-disabled="(!vm.emails_selected_manual && email_x == 1) || (email_x == 2 && vm.emails_selected.length == 0)"><i class="fa fa-paper-plane" aria-hidden="true" ></i>  Envíar </button>
+      </div>
+    </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-if="vm.form.id" ng-click="updateTask(vm.form)">Actualizar</button>
+  <button class="btn btn-primary" ng-if="!vm.form.id" ng-click="saveTask(vm.form)">Guardar</button>
+  <button type="button" class="btn btn-white" ng-click="close()">Cerrar</button>
+</div>
+<script type="text/javascript">
+	$('#select_user').select2({
+        dropdownParent: $('#modal_in')
+    });
+  $('#select_email_system').select2({
+        dropdownParent: $('#modal_in')
+    });
+  $('#select_email_manual').select2({
+        dropdownParent: $('#modal_in'),
+    });
+  $(".js-example-tokenizer").select2({
+      tags: true,
+      tokenSeparators: [',', ' ']
+  })
+
+  $('#select_email_manual').select2({
+       tags: true,
+       multiple: true,
+       tokenSeparators: [",", " "],       
+       placeholder: {
+          // id: -1,
+          text: "example@some,",
+       }
+  });
+</script>
+<script type="text/javascript">  
+  // $(window).load(function() { $("#state").select2(); });
+  // angular.element(document).ready(function(){
+  //   $('.js-example-basic-multiple').select2();
+  // });
+</script>

@@ -1,0 +1,715 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Renovaciones</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active" >
+        <strong>Renovaciones</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Filtros</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div>
+              <div class="col-sm-3">
+                <label>Contratante</label>
+                <div class="form-group">
+                  <autocomplete datasource="contractors_data" id="contractors" model="vm.form.contratante" change="vm.matchesContractors(vm.form.contratante.val)"></autocomplete>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="col-sm-3">
+                <label>Grupo</label>
+                <div class="form-group">
+                  <autocomplete datasource="groups_data" id="groups" model="vm.form.group" change="vm.matchesGroup(vm.form.group.val)"></autocomplete>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="subgroups.length >0">
+              <label>SubGrupo</label>
+              <select class="form-control" ng-model="vm.form.subgroup" data-ng-options="subgroup.group_name for subgroup in subgroups track by subgroup.url" ng-change="vm.changeSubgroup(vm.form.subgroup)" required>
+                <option value="">Todos los subgrupos</option>
+              </select>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="subsubgroups.length >0">
+              <label>SubsubGrupo</label>
+              <!-- <autocomplete datasource="subgroups_data" id="subgroups" model="vm.form.subgroup" change="vm.matchesSubGroup(vm.form.subgroup.val)"></autocomplete> -->
+              <select class="form-control" ng-model="vm.form.subsubgroup" data-ng-options="subsubgroup.group_name for subsubgroup in subsubgroups track by subsubgroup.url" ng-change="vm.changeSubsubgroup(vm.form.subsubgroup)" required>
+                <option value="">Todos los subgrupos</option>
+              </select>
+            </div>
+            <div class="col-xs-12 col-sm-4 form-group">
+              <label>Clasificación</label>
+              <autocomplete datasource="classification_data" id="classification" model="vm.form.classification" change="vm.matchesClassification(vm.form.classification.val)"></autocomplete>
+            </div>         
+            <!-- <div class="col-xs-12">
+              <label>
+                  <input type="checkbox" ng-model="extraFields"> Filtro de Línea de Negocio, Célula, Agrupación
+              </label>      
+              <div ng-show="extraFields"> -->
+              <div class="col-xs-12 col-sm-4 form-group" ng-if="campo_celula">
+                <label>{{moduleName}}</label>
+                <select class="form-control" ng-model="vm.form.celula" data-ng-options="celula.celula_name for celula in celulas track by celula.url" ng-change="vm.changecelula(vm.form.celula)">
+                  <option value="">Todo</option>
+                </select>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group" ng-if="campo_lineanegocio">
+                <label>Línea de Negocio</label>
+                <select class="form-control" ng-model="vm.form.businesLine" data-ng-options="businesLine.name for businesLine in vm.businesLine track by businesLine.id" ng-change = "vm.changeBLine(vm.form.businesLine)" required>
+                  <option value="">Todas las líneas</option>
+                </select>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group" ng-if="campo_agrupacion">
+                <label>Nivel de Agrupación</label>
+                <autocomplete datasource="groupinglevels_data" id="groupingleves" model="vm.form.groupinglevel" change="vm.matchesGroupinglevel(vm.form.groupinglevel.val)"></autocomplete>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="vm.form.groupinglevel.subgrupos.length >0 && campo_agrupacion">
+                <label>SubAgrupación</label>
+                <select class="form-control" ng-model="vm.form.subgrouping" data-ng-options="subgrouping.description for subgrouping in vm.form.groupinglevel.subgrupos track by subgrouping.url" ng-change="vm.changeSubgrouping(vm.form.subgrouping)" required>
+                  <option value="">Todos los subgrupos</option>
+                </select>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="vm.form.subgrouping.subsubgrupos.length >0 && campo_agrupacion">
+                <label>SubsubAgrupación</label>
+                <select class="form-control" ng-model="vm.form.subsubgrouping" data-ng-options="subsubgroupin.description for subsubgroupin in vm.form.subgrouping.subsubgrupos track by subsubgroupin.url" ng-change="vm.changeSubsubgrouping(vm.form.subsubgrouping)" required>
+                  <option value="">Todos los subgrupos</option>
+                </select>
+              </div>
+              <!-- </div>
+            </div> -->
+            <!-- --------------- -->
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group"> 
+              <label> Aseguradora(s)</label>      
+              <select class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="vm.form.providers" data-ng-options="providers.alias ? providers.alias : providers.id for providers in vm.providers | orderBy: 'alias' track by providers.url" ng-change="selectProv(vm.form.providers)">
+                <option value=""></option>
+              </select>          
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group"> 
+              <label> Ramo(s)</label>
+              <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>    -->       
+              <select class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="vm.form.ramos" ng-change="selectRamos(vm.form.ramos)">
+                <option value="1">Vida</option>
+                <option value="2">Accidentes y Enfermedades</option>
+                <option value="3">Daños</option>
+              </select>          
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group"> 
+              <label> Subramo(s)</label>       
+              <select class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="vm.form.subramos" data-ng-options="subramos_toselected.subramo_name for subramos_toselected in vm.subramos_toselected track by subramos_toselected.id" ng-change="selectSubramos(vm.form.subramos)">
+              </select>          
+            </div>
+            <div class="form-group">
+              <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 form-group">
+                <label>Tipo de póliza:</label>
+                <select class="form-control" ng-model="vm.form.tipo_poliza" ng-options="option.name for option in vm.option_tp track by option.id">
+                  <option value="">Selecciona una opción</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+                <label>Forma de pago</label>
+                <select class="form-control m-b" ng-model="vm.form.payment"
+                    data-ng-options="payment.name for payment in vm.payment track by payment.id"
+                    ng-change = "vm.changePayment(vm.form.payment)" required>
+                    <option value="">Todas las formas de pago</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <label>Reporte por: <span class="color-red">*</span></label>
+                <select class="form-control" ng-model="vm.form.renovadas" ng-options="option.name for option in vm.option track by option.id">
+                  <option value="">Selecciona una opción</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row col-xs-12 col-sm-6 col-md-6 col-lg-5 form-group">
+              <label>Carátula:</label><br>
+              <div class="col-xs-12 input-group">
+                <autocomplete datasource="autocompleteData" model="vm.word" change="vm.getCaratulas(vm.word)" ></autocomplete>
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-block btn-success" ng-disabled="btnSearchDisabled" ng-click="vm.getCarSelected(vm.word)"><span class="fa fa-ok"></span> Seleccionar</button>
+                </div>
+              </div>
+            </div><br><br>
+          </div>
+          <div class="row">
+
+
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+              <label>Desde: </label>
+              <div class="datepicker-me input-group date" data-provide="datepicker">
+                <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="vm.form.since" value="{{vm.form.since}}" ng-change="vm.options.changeSince()" data-date-format="mm/dd/yyyy">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+              <label>Hasta: </label>
+              <div class="datepicker-me input-group date" data-provide="datepicker">
+                <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="vm.form.until" value="{{vm.form.until}}" ng-change="vm.options.changeUntil()" data-date-format="mm/dd/yyyy">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-3" ng-if="vm.acceso_ver_pol || vm.acceso_ver_ot">
+              <button class="btn btn-success m-t col-xs-12" ng-click="vm.Generar(1,1)">Consultar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul id="contextRenovaciones" class="dropdown-menu" role='menu' z-index ="1000"> 
+    <!-- <li><a ng-click="open_new_tab()">Abrir en nueva pestaña</a></li> -->
+  </ul>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Renovaciones</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div ng-if="!results && !vm.show_binnacle && (vm.acceso_ver_pol || vm.acceso_ver_ot)" class="row" >
+            <div class="tabs-container">
+              <uib-tabset>
+                <uib-tab heading="Pólizas Vencidas" id="vencidas" ng-click="vm.getRenovaciones(1,1,1)">
+                  <div class="panel-body">
+                    <table class="table table-striped table-hover table-bordered">
+                      <thead>
+                        <tr>
+                          <th ng-click="vm.changeRenewalT(1, vm.ren_nump_asc == 1 ? 2 : 1)">
+                            Número de póliza
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_nump_asc == 1, 'fa fa-sort-asc': vm.ren_nump_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(2, vm.ren_cont_asc == 1 ? 2 : 1)">
+                            Contratante
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_cont_asc == 1, 'fa fa-sort-asc': vm.ren_cont_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(3, vm.ren_type_asc == 1 ? 2 : 1)">
+                            Tipo
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_type_asc == 1, 'fa fa-sort-asc': vm.ren_type_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(4, vm.ren_aseg_asc == 1 ? 2 : 1)">
+                            Aseguradora
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_aseg_asc == 1, 'fa fa-sort-asc': vm.ren_aseg_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(5, vm.ren_pack_asc == 1 ? 2 : 1)">
+                            Paquete
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pack_asc == 1, 'fa fa-sort-asc': vm.ren_pack_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(6, vm.ren_subr_asc == 1 ? 2 : 1)">
+                            Subramo
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_subr_asc == 1, 'fa fa-sort-asc': vm.ren_subr_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(7, vm.ren_fini_asc == 1 ? 2 : 1)">
+                            Fecha de Inicio
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_fini_asc == 1, 'fa fa-sort-asc': vm.ren_fini_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(8, vm.ren_ffin_asc == 1 ? 2 : 1)">
+                            Fecha de Fin
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_ffin_asc == 1, 'fa fa-sort-asc': vm.ren_ffin_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(9, vm.ren_pago_asc == 1 ? 2 : 1)">
+                            Forma de Pago
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pago_asc == 1, 'fa fa-sort-asc': vm.ren_pago_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(10, vm.ren_est_asc == 1 ? 2 : 1)">
+                            Estatus
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_est_asc == 1, 'fa fa-sort-asc': vm.ren_est_asc == 2}"></span>
+                          </th>
+                          <th>Antigüedad</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr 
+                          ng-repeat="insurance in vm.insurances track by $index" 
+                          ng-click="vm.openRenovateModal(insurance)" 
+                          ng-if="insurance.status == 13"
+                          context="contextRenovaciones"  
+                          ng-right-click="ShowContextMenu(insurance)"
+                          >
+                          <td>
+                            <div ng-if="insurance.poliza_number == 0">OT</div>
+                            <span ng-if="insurance.poliza_number != 0">{{ insurance.poliza_number }}</span>
+                          </td>
+                          <td>{{ insurance.contractor.full_name }}</td>
+                          <td>{{ insurance.contractor.type_person }}</td>
+                          <td>{{ insurance.aseguradora }}</td>
+                          <td>{{ insurance.paquete }}</td>
+                          <td>{{ insurance.subramo }}</td>
+                          <td>{{ insurance.start_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td>{{ insurance.end_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td payment="{{insurance.forma_de_pago}}"></td>
+                          <td status="{{insurance.status}}"><span ng-if="!insurance.existe_ot_renovacion && orgName =='ancora' && insurance.renewed_status ==2 && insurance.is_renewable==1">- En Proceso de Renovación</span></td>
+                          <td>{{ insurance.antiguedad }} días</td>
+                          <td ng-click="$event.stopPropagation()">
+                            <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(insurance)">
+                              <i class="fa fa-comment" aria-hidden="true"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!-- paginacion de  -->
+                    <div ng-if="paginacionVenc['count'] > 10" class="text-center">
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                          <li class="page-item" ng-click="anteriorPaginaVenc(paginaVenc)">
+                            <a class="page-link" aria-label="Previous" role="button">
+                              <span aria-hidden="true">&laquo;</span>
+                            </a>
+                          </li>
+                          <li class="page-item" ng-click="siguientePaginaVenc(paginaVenc)">
+                            <a class="page-link" aria-label="Next" role="button">
+                              <span aria-hidden="true">
+                                    <span aria-hidden="true">&raquo;</span>
+                              </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </uib-tab>
+                <uib-tab heading="Pólizas Vigentes" id="vigentes" ng-click="vm.getRenovaciones(2,1,1)" >
+                  <div class="panel-body">
+                    <table class="table table-striped table-hover hidden-xs hidden-sm" >
+                      <thead>
+                        <tr>
+                          <th ng-click="vm.changeRenewalT(1, vm.ren_nump_asc == 1 ? 2 : 1)">
+                            Número de póliza
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_nump_asc == 1, 'fa fa-sort-asc': vm.ren_nump_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(2, vm.ren_cont_asc == 1 ? 2 : 1)">
+                            Contratante
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_cont_asc == 1, 'fa fa-sort-asc': vm.ren_cont_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(3, vm.ren_type_asc == 1 ? 2 : 1)">
+                            Tipo
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_type_asc == 1, 'fa fa-sort-asc': vm.ren_type_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(4, vm.ren_aseg_asc == 1 ? 2 : 1)">
+                            Aseguradora
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_aseg_asc == 1, 'fa fa-sort-asc': vm.ren_aseg_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(5, vm.ren_pack_asc == 1 ? 2 : 1)">
+                            Paquete
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pack_asc == 1, 'fa fa-sort-asc': vm.ren_pack_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(6, vm.ren_subr_asc == 1 ? 2 : 1)">
+                            Subramo
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_subr_asc == 1, 'fa fa-sort-asc': vm.ren_subr_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(7, vm.ren_fini_asc == 1 ? 2 : 1)">
+                            Fecha de inicio
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_fini_asc == 1, 'fa fa-sort-asc': vm.ren_fini_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(8, vm.ren_ffin_asc == 1 ? 2 : 1)">
+                            Fecha de fin
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_ffin_asc == 1, 'fa fa-sort-asc': vm.ren_ffin_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(9, vm.ren_pago_asc == 1 ? 2 : 1)">
+                            Forma de pago
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pago_asc == 1, 'fa fa-sort-asc': vm.ren_pago_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewalT(10, vm.ren_est_asc == 1 ? 2 : 1)">
+                            Estatus
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_est_asc == 1, 'fa fa-sort-asc': vm.ren_est_asc == 2}"></span>
+                          </th>
+                          <th>Antigüedad</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="insurance in vm.insurances track by $index" ng-click="vm.openRenovateModal(insurance)" ng-if="insurance.status == 14" context="contextRenovaciones"  
+                          ng-right-click="ShowContextMenu(insurance)">
+                          <td>
+                            <div ng-if="insurance.poliza_number == 0">OT</div>
+                            <span ng-if="insurance.poliza_number != 0">{{ insurance.poliza_number }}</span>
+                          </td>
+                          <td>{{ insurance.contractor.full_name }} </td>
+                          <td>{{ insurance.contractor.type_person }}</td>
+                          <td>{{ insurance.aseguradora }}</td>
+                          <td>{{ insurance.paquete }}</td>
+                          <td>{{ insurance.subramo }}</td>
+                          <td>{{ insurance.start_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td>{{ insurance.end_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td payment="{{insurance.forma_de_pago}}"></td>
+                          <td status="{{insurance.status}}"></td>
+                          <td>{{ insurance.antiguedad }} días</td>
+                          <td ng-click="$event.stopPropagation()">
+                            <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(insurance)">
+                              <i class="fa fa-comment" aria-hidden="true"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div ng-if="paginacionVig['count'] > 10" class="text-center">
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                          <li class="page-item" ng-click="anteriorPaginaVig(paginaVig)">
+                            <a class="page-link" aria-label="Previous" role="button">
+                              <span aria-hidden="true">&laquo;</span>
+                            </a>
+                          </li>
+                          <li class="page-item" ng-click="siguientePaginaVig(paginaVig)">
+                            <a class="page-link" aria-label="Next" role="button">
+                              <span aria-hidden="true">
+                                    <span aria-hidden="true">&raquo;</span>
+                              </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                    <br>
+                    <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="insurance in vm.insurances track by $index" ng-if="insurance.status == 14">
+                      <div class="ibox-title">
+                        <h5> {{ vm.table.headers[0] }}: {{ insurance.poliza_number }}</h5>
+                        <div ibox-tools></div>
+                      </div>
+                      <div class="ibox-content" ng-click="vm.openRenovateModal(insurance)" style="display: none">
+                        <table class="table-flex">
+                          <tr class="table-row" >
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[0] }} </label>
+                              <p> {{ insurance.poliza_number }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[1] }} </label>
+                              <p> {{ insurance.contractor.full_name }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[2] }} </label>
+                              <p> {{ insurance.contractor.type_person}} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[3] }} </label>
+                              <p> {{ insurance.aseguradora }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[4] }} </label>
+                              <p> {{ insurance.paquete }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[5] }} </label>
+                              <p> {{ insurance.subramo }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[6] }} </label>
+                              <p> {{ insurance.start_of_validity | date: 'dd-MM-yyyy' : 'UTC'}} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[7] }} </label>
+                              <p> {{ insurance.end_of_validity | date: 'dd-MM-yyyy': 'UTC' }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[8] }} </label>
+                              <p> {{ insurance.forma_de_pago }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[9] }} </label>
+                              <p> {{ insurance.status }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.table.headers[10] }} </label>
+                              <p> {{ insurance.antiguedad }} </p>
+                            </div>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                    <div ng-if="vm.show_pag_policy" class="text-center visible-xs-block visible-sm-block">
+                        <nav aria-label="Page navigation example">
+                          <ul class="pagination justify-content-center">
+                            <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+                              <a class="page-link">
+                                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                              </a>
+                            </li>
+                            <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+                              <a class="page-link" >{{page}}</a>
+                            </li>
+                            <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+                              <a class="page-link">
+                                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                              </a>
+                            </li>
+                            <li class="page-item" >
+                              <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                                <span aria-hidden="true">
+                                  <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                </span>
+                                <span class="sr-only">Last</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </nav>
+                    </div>
+                  </div>
+                </uib-tab>
+              </uib-tabset>
+            </div>
+          </div>
+          <div ng-if="results && !vm.show_binnacle" class="row animate">
+            <div class="tabs-container">
+              <uib-tabset>
+                <uib-tab heading="Resultados" id="vencidas">
+                  <div class="panel-body">
+                    <table class="table table-striped table-hover table-bordered hidden-xs hidden-sm"  >
+                      <thead>
+                        <tr >
+                          <th ng-click="vm.changeRenewal(1, vm.ren_nump_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[0]">
+                            {{vm.tableRes.headers[0]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_nump_asc == 1, 'fa fa-sort-asc': vm.ren_nump_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(2, vm.ren_cont_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[1]">
+                            {{vm.tableRes.headers[1]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_cont_asc == 1, 'fa fa-sort-asc': vm.ren_cont_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(3, vm.ren_type_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[2]">
+                            {{vm.tableRes.headers[2]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_type_asc == 1, 'fa fa-sort-asc': vm.ren_type_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(4, vm.ren_aseg_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[3]">
+                            {{vm.tableRes.headers[3]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_aseg_asc == 1, 'fa fa-sort-asc': vm.ren_aseg_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(5, vm.ren_pack_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[4]">
+                            {{vm.tableRes.headers[4]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pack_asc == 1, 'fa fa-sort-asc': vm.ren_pack_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(6, vm.ren_subr_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[5]">
+                            {{vm.tableRes.headers[5]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_subr_asc == 1, 'fa fa-sort-asc': vm.ren_subr_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(7, vm.ren_fini_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[6]">
+                            {{vm.tableRes.headers[6]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_fini_asc == 1, 'fa fa-sort-asc': vm.ren_fini_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(8, vm.ren_ffin_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[7]">
+                            {{vm.tableRes.headers[7]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_ffin_asc == 1, 'fa fa-sort-asc': vm.ren_ffin_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(9, vm.ren_pago_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[8]">
+                            {{vm.tableRes.headers[8]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_pago_asc == 1, 'fa fa-sort-asc': vm.ren_pago_asc == 2}"></span>
+                          </th>
+                          <th ng-click="vm.changeRenewal(10, vm.ren_est_asc == 1 ? 2 : 1)" ng-model="vm.tableRes.headers[9]">
+                            {{vm.tableRes.headers[9]}}
+                            <span ng-class="{'fa fa-sort-desc': vm.ren_est_asc == 1, 'fa fa-sort-asc': vm.ren_est_asc == 2}"></span>
+                          </th>
+                          <th ng-model="vm.tableRes.headers[10]"> {{vm.tableRes.headers[10]}} </th>
+                          <th ng-model="vm.tableRes.headers[11]"> {{vm.tableRes.headers[11]}} </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                       <!--  <tr ng-repeat="insurance in vm.insurances track by $index" ng-click="vm.openRenovateModal(insurance)" ng-if="insurance.status == 14" > -->
+                        <tr ng-repeat="insurance in vm.insurances track by $index" ng-click="vm.openRenovateModal(insurance)" context="contextRenovaciones" ng-right-click="ShowContextMenu(insurance)">
+                          <td>
+                            <div ng-if="insurance.poliza_number == 0">OT</div>
+                            <span ng-if="insurance.poliza_number != 0">{{ insurance.poliza_number }}</span>
+                          </td>
+                          <td>{{ insurance.contractor.full_name }}</td>
+                          <td>{{ insurance.contractor.type_person}}</td>
+                          <td>{{ insurance.aseguradora }}</td>
+                          <td>{{ insurance.paquete }}</td>
+                          <td>{{ insurance.subramo }}</td>
+                          <td>{{ insurance.start_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td>{{ insurance.end_of_validity | date: 'dd-MM-yyyy': 'UTC'}}</td>
+                          <td payment="{{insurance.forma_de_pago}}"></td>
+                          <td><span status="{{insurance.status}}"></span><span ng-if="orgName =='ancora' && insurance.renewed_status ==2 && insurance.is_renewable==1">- En Proceso de Renovación</span></td>
+                          <td>{{ insurance.antiguedad }} días</td>
+                          <td ng-click="$event.stopPropagation()">
+                              <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(siniestro)">
+                                <i class="fa fa-comment" aria-hidden="true"></i>
+                              </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div ng-if="paginacion['count'] > 10" class="text-center">
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                          <li class="page-item" ng-click="anteriorPagina(pagina)">
+                            <a class="page-link" aria-label="Previous" role="button">
+                              <span aria-hidden="true">&laquo;</span>
+                            </a>
+                          </li>
+                          <li class="page-item" ng-repeat="pagina in paginacion.totalPaginas" ng-click="selecionPagina(pagina)" ng-class="{'active': pagina === paginacion.paginaActual}">
+                            <a class="page-link" role="button">{{pagina}}</a>
+                          </li>
+                          <li class="page-item" ng-click="siguientePagina(pagina)">
+                            <a class="page-link" aria-label="Next" role="button">
+                              <span aria-hidden="true">
+                                    <span aria-hidden="true">&raquo;</span>
+                              </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                    <!-- <div ng-if="vm.show_pag_renew" class="text-center hidden-xs hidden-sm">
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                          <li ng-if="show_prev_block" ng-click="previousBlockPagesP()">
+                            <a class="page-link">
+                              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                            </a>
+                          </li>
+                          <li class="page-item" ng-repeat="page in totalPagesP | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPageP(page)" >
+                            <a class="page-link" >{{page}}</a>
+                          </li>
+                          <li ng-click="nextBlockPagesP()" ng-if="totalPages.length > 5">
+                            <a class="page-link">
+                              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                            </a>
+                          </li>
+                          <li class="page-item" >
+                            <a class="page-link" ng-click="lastPageP()" aria-label="Last">
+                              <span aria-hidden="true">
+                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                              </span>
+                              <span class="sr-only">Last</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div> -->
+                    <br>
+                    <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="insurance in vm.insurances track by $index" ng-if="insurance.status == 14">
+                      <div class="ibox-title">
+                        <h5> {{ vm.tableRes.headers[0] }}: {{ insurance.poliza_number }}</h5>
+                        <div ibox-tools></div>
+                      </div>
+                      <div class="ibox-content" ng-click="vm.openRenovateModal(insurance)" style="display: none">
+                        <table class="table-flex">
+                          <tr class="table-row" >
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[0] }} </label>
+                              <p> {{ insurance.poliza_number }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[1] }} </label>
+                              <p> {{ insurance.contractor.full_name }}</p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[2] }} </label>
+                              <p> {{ insurance.contractor.type_person}} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[3] }} </label>
+                              <p> {{ insurance.aseguradora }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[4] }} </label>
+                              <p> {{ insurance.paquete }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[5] }} </label>
+                              <p> {{ insurance.subramo }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[6] }} </label>
+                              <p> {{ insurance.start_of_validity | date: 'dd-MM-yyyy': 'UTC' }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[7] }} </label>
+                              <p> {{ insurance.end_of_validity | date: 'dd-MM-yyyy': 'UTC' }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[8] }} </label>
+                              <p> {{ insurance.forma_de_pago }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[9] }} </label>
+                              <p> {{ insurance.status }} </p>
+                            </div>
+                            <div class="table-cell col-xs-12 col-sm-6">
+                              <label> {{ vm.tableRes.headers[10] }} </label>
+                              <p> {{ insurance.antiguedad }} </p>
+                            </div>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                    <div ng-if="vm.show_pag_renew" class="text-center visible-xs-block visible-sm-block">
+                         <nav aria-label="Page navigation example">
+                          <ul class="pagination justify-content-center">
+                            <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+                              <a class="page-link">
+                                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                              </a>
+                            </li>
+                            <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+                              <a class="page-link" >{{page}}</a>
+                            </li>
+                            <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+                              <a class="page-link">
+                                <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                              </a>
+                            </li>
+                            <li class="page-item" >
+                              <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                                <span aria-hidden="true">
+                                  <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                </span>
+                                <span class="sr-only">Last</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </nav>
+                      </div>
+                  </div>
+                </uib-tab>
+<!-- -TABLA RESPONSIVA RESULTADOS RENOVACIONES -->
+              </uib-tabset>
+            </div>
+            <br>
+            <div >
+              <button ng-click="exportData(1)" class="btn btn-primary ladda-button">Generar Reporte</button>
+              <!-- <button id="exportButton" class="btn btn-danger clearfix"><span class="fa fa-file-pdf-o"></span> Export to PDF</button> -->
+            </div>
+          </div>
+          <div class="row animate" ng-if="vm.show_binnacle">
+            <div class="col-md-12">
+              <div>
+                <a ng-click="vm.returnToReceipts()">Regresar</a>
+              </div>
+              <div class="col-md-12 margin-top-24"></div>
+              <div class="col-md-12">
+                <comments datasource="vm.comments_data" typemodel="6" config="vm.comments_config" idmodel="vm.renewal_id" exportable="true"></comments>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

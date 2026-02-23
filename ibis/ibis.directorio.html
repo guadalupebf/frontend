@@ -1,0 +1,51 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Directorio</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+
+      <li>
+        <a>IBIS</a>
+      </li>
+
+      <li class="active">
+        <strong>Directorio</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="row">
+  <div class="col-xs-12 margin-bottom-10">
+    <div class="ibox-title ">
+      <h5>Directorios</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="col-xs-12 form-group" ng-if="!loader">
+        <a class="btn btn-info pull-right" href="https://s3.amazonaws.com/miurabox/layouts/Layout_Directorio.xls">Descargar Layout</a>
+      </div>
+      <div class="col-xs-12 form-group" ng-if="!loader">
+        <label>Seleccione el archivo con los contactos para el directorio.</label>
+        <span>En caso de no tenerlo, por favor hacer click en el botón de Descargar Layout</span>
+      </div>
+      <div class="col-xs-12 form-group" ng-if="!loader">
+        <input class="btn btn-success" type="file" fileread ng-model="excelFile" name="readCsvFile" id="readCsvFile" ng-change="selectExcelDirectorio(excelFile)">
+      </div>
+      <div class="col-xs-12 form-group"> 
+          <label>Contenido del archivo</label>
+        </div>  
+      <div class="col-xs-12 form-group" ng-if="!id_tree">
+        <div id="tree_ids" class="treeview"></div>
+      </div>  
+      <div class="col-xs-12 form-group">
+        <div id="tree" class="treeview"></div>
+      </div>
+      <div class="col-xs-12" ng-if="saveFlag">
+        <button class="btn btn-primary" ng-click="save(1)"><i class="fa fa-save"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>

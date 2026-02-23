@@ -1,0 +1,202 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Polizas</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Pólizas</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeIn">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Agregar nueva póliza</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="alert alert-danger" ng-show="vm.error">{{vm.error}}</div>
+          <form class="form-horizontal" method="post" name="form" ng-submit="vm.submit(form.$valid)" novalidate role="form">
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Contratantes</label>
+                <div class="col-sm-10">
+                    <select class="form-control m-b" name="contratante" ng-model="vm.form.contratante">
+                        <option ng-repeat="contratante in vm.contratantes track by contratante.url" value="{{contratante.url}}">
+                            {{contratante.full_name}} {{contratante.j_name}} -- {{contratante.type_person}}
+                        </option>
+                    </select>
+                </div>
+              </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Folio de OT</label>
+              <div class="col-sm-10">
+                <input class="form-control" name="folio" ng-model="vm.form.folio" type="text">
+            </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Número de Póliza</label>
+              <div class="col-sm-10">
+                <input class="form-control" name="poliza" ng-model="vm.form.poliza" type="text">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Aseguradora<span class="color-red">*</span></label>
+              <div class="col-sm-10">
+                <select class="form-control m-b" ng-model="vm.form.aseguradora"
+                    data-ng-options="provider.compania for provider in vm.providers track by provider.url"
+                    ng-change="vm.changeProvider(vm.form.aseguradora)" required>
+                    <option value="">Selecciona un proveedor</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Ramo<span class="color-red">*</span></label>
+              <div class="col-sm-10">
+                  <select class="form-control m-b" ng-model="vm.form.ramo"
+                      data-ng-options="ramo.ramo_name for ramo in vm.ramos track by ramo.url"
+                      ng-change="vm.changeRamo(vm.form.ramo)" required>
+                      <option value="">Selecciona un ramo</option>
+                  </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Subramos<span class="color-red">*</span></label>
+              <div class="col-sm-10">
+                <select class="form-control m-b" ng-model="vm.form.subramo"
+                    data-ng-options="subramo.subramo_name for subramo in vm.subramos track by subramo.url"
+                    ng-change="vm.changeSubramo(vm.form.subramo)" required>
+                    <option value="">Selecciona un subramo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Paquetes<span class="color-red">*</span></label>
+              <div class="col-sm-10">
+                <select class="form-control m-b" ng-model="vm.form.paquete"
+                    data-ng-options="package.package_name for package in vm.packages track by package.url"
+                    ng-change="vm.changePackage(vm.form.paquete)" required>
+                    <option value="">Selecciona un paquete</option>
+                </select>
+              </div>
+            </div>
+            <div class="wrapper wrapper-content animated fadeIn">
+              <div class="row">
+                <div class="col-lg-10 col-md-offset-2">
+                  <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                      <h5>Coberturas</h5>
+                      <div ibox-tools></div>
+                    </div>
+                    <div class="ibox-content">
+                      <div class="table-responsive">
+                        <table class="table footable table-stripped" data-filter="#filter" data-page-size="25">
+                          <thead>
+                            <tr>
+                              <th class="footable-visible footable-sortable footable-first-column" data-breakpoints="xs">
+                                Cobertura
+                              </th>
+                              <th class="footable-visible footable-sortable" data-hide="phone" >
+                                Suma asegurada
+                              </th>
+                              <th class="footable-visible footable-sortable" data-hide="phone">
+                                Deducible
+                              </th>
+                              <th data-hide="phone" class="footable-sortable" style="display: none;">
+                                Prima
+                              </th>
+                              <th data-hide="phone" class="footable-sortable" style="display: none;">
+                                Opciones
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="coverage in vm.coverages track by $index" foo-repeat-done>
+                              <td><p ng-bind="coverage.coverage_name"></p></td>
+                              <td>
+                                  <select class="form-control m-b" ng-model="coverage.sumInPolicy"
+                                    data-ng-options="sum.sum_insured for sum in coverage.sums_coverage track by sum.url">
+                                    <option value="">0</option>
+                                  </select>
+                              </td>
+                              <td>
+                                  <select class="form-control m-b" ng-model="coverage.deductibleInPolicy"
+                                    data-ng-options="deductible.deductible for deductible in coverage.deductible_coverage track by deductible.url">
+                                    <option value="">0</option>
+                                  </select>
+                              </td>
+                              <th>
+                                <input class="form-control" ng-model="coverage.primaInPolicy">
+                              </th>
+                              <th>
+                                <button type="button" class="btn btn-w-m btn-danger" name="button"
+                                  ng-click="vm.deleteCoverage(coverage, $index)">Eliminar</button>
+                              </th>
+                            </tr>
+                          </tbody>
+                          <tfoot class="hide-if-no-paging">
+                             <tr>
+                                <td colspan="6" align="center">
+                                  <ul class="pagination"></ul>
+                                </td>
+                              </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group" id="data_2">
+              <label class="col-sm-2 control-label">Fecha de Inicio</label>
+              <div class="col-sm-10">
+                <div class="input-group date">
+                  <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  <input class="form-control" date-time name="startDate" ng-model="vm.form.startDate" format="dd-MM-yyyy" view="year" min-view="date" auto-close="true">
+                </div>
+              </div>
+            </div>
+            <div class="form-group" id="data_2">
+              <label class="col-sm-2 control-label">Fecha de Fin</label>
+              <div class="col-sm-10">
+                <div class="input-group date">
+                  <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  <input class="form-control" date-time name="endingDate" ng-model="vm.form.endingDate" format="dd-MM-yyyy" view="year" min-view="date" auto-close="true">
+                </div>
+              </div>
+            </div>
+            <div class="form-group" ng-hide="vm.show.ot">
+              <label class="col-sm-2 control-label">Forma de pago</label>
+              <div class="col-sm-10">
+                  <select class="form-control m-b" name="payment" ng-model="vm.form.payment">
+                      <option ng-repeat="payment in vm.payments" value="{{payment.code}}">{{payment.name}}</option>
+                  </select>
+              </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+              <div class="col-sm-8 col-sm-offset-2">
+                <!-- <button class="btn btn-white" type="button">Cancelar</button> -->
+                <button class="btn btn-primary" ng-disabled="form.$invalid"
+                  ng-show="vm.show.ot" ng-click="vm.hideOT()">Crear OT</button>
+                <button class="btn btn-primary" type="button" ng-disabled="form.$invalid"
+                  ng-hide="vm.show.ot" ng-click="vm.saveOT()">Guardar OT</button>
+                <button class="btn btn-primary" type="button"  ng-disabled="form.$invalid"
+                  ng-hide="vm.show.ot" ng-click="vm.openModal()">Crear recibo</button>
+                <button class="btn btn-primary" type="button" ng-disabled="form.$invalid"
+                  ng-show="!vm.show.ot" ng-click="vm.saveInsurance()">Crear póliza</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

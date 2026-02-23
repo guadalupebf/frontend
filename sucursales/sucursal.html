@@ -1,0 +1,158 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+      <h2>Sucursales</h2>
+      <ol class="breadcrumb margin-top-15">
+        <li>
+            <a ui-sref="inicio.inicio">Inicio</a>
+          </li>
+        <li class="active">
+            <strong>Sucursales</strong>
+          </li>
+      </ol>
+  </div>
+</div>
+<div>
+  <div class="row" ng-if="!showSucursal">
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <button class="col-xs-12 btn btn-info pull-right m-t" ng-click="createSucursal()">Agregar Sucursal</button>
+    </div>
+  </div>
+  <div ng-if="showSucursal">
+    <legend ng-if="!edit" class="legend-title" align="center">Nueva Sucursal</legend>
+    <legend ng-if="edit" class="legend-title" align="center">Actualizar Sucursal</legend>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Nombre de la Sucursal <span class="color-red">*</span></label>
+          <input class="form-control" value="" id="sucursal_name" ng-model="sucursal.sucursal_name" ng-change="saveLocalstorange()" required />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Calle</label>
+        <input type="text" class=" form-control" ng-model="address.route" ng-change="saveLocalstorange()" id="id_address_route" name="address_route" data-geo="route" />
+      </div>
+
+      <div class="col-xs-12 col-sm-3 form-group">
+        <label>Número Exterior</label>
+        <input type="text" class=" form-control" ng-model="address.street_number" ng-change="saveLocalstorange()" id="id_address_street_number" name="address_street_number" data-geo="street_number" />
+      </div>
+
+      <div class="col-xs-12 col-sm-3 form-group">
+        <label>Número Interior</label>
+        <input type="text" class=" form-control" ng-model="address.street_number_int" ng-change="saveLocalstorange()" id="id_address_street_number_int" name="address_street_number_int" />
+      </div>
+
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Colonia</label>
+        <input type="text" class=" form-control" ng-model="address.sublocality" ng-change="saveLocalstorange()" id="id_address_sublocality" name="address_sublocality" data-geo="sublocality" />
+      </div>
+
+      <div class="col-xs-12 col-sm-6 form-group" ng-class="{ 'has-error': form.state.$invalid && !form.state.$pristine }">
+        <label>Estado<span class="color-red">*</span></label>
+        <select class="form-control" data-ng-options="estado.state for estado in statesArray track by estado.url" name="state" ng-model="address.administrative_area_level_1" ng-change="saveLocalstorange()" required>
+          <option value="" disabled="">Selecciona un estado</option>
+        </select>
+      </div>
+
+      <div class="col-xs-12 col-sm-6 form-group" ng-class="{ 'has-error': form.city.$invalid && !form.city.$pristine }">
+        <label>Municipio<span class="color-red">*</span></label>
+        <select class="form-control" data-ng-options="ciudad.city for ciudad in address.administrative_area_level_1.cities track by ciudad.url" name="city" ng-model="address.administrative_area_level_2" ng-change="saveLocalstorange()" required>
+          <option value="" disabled="">Selecciona un municipio</option>
+        </select>
+      </div>
+
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Código Postal</label>
+        <input type="tel" name="zip" ng-model="address.postal_code" ng-change="saveLocalstorange()" minlength="5" maxlength="5" class="form-control" ng-keypress=filterValue($event) />
+      </div>
+
+      <div class="col-xs-12 form-group">
+        <label>Referencias</label>
+        <input type="text" class=" form-control" ng-model="address.details" ng-change="saveLocalstorange()" id="id_address_details" name="address_details" />
+      </div>
+
+      <input type="hidden" class=" form-control" ng-model="address.administrative_area_level_1_short" id="id_address_administrative_area_level_1_short" name="address_state_code" data-geo="administrative_area_level_1_short" />
+
+      <input type="hidden" class=" form-control" ng-model="address.country" id="id_address_country" name="address_country" data-geo="country" value="México" />
+
+      <input type="hidden" class=" form-control" ng-model="address.composed" id="id_address_composed" name="address_composed" />
+
+      <input type="hidden" class=" form-control" ng-model="address.country_code" id="id_address_country_code" name="address_country_code" data-geo="country_short" value="MX" />
+
+      <input type="hidden" class=" form-control" ng-model="address.locality" id="id_address_locality" name="address_locality" data-geo="locality" />
+
+      <input type="hidden" class=" form-control" ng-model="address.latitude" id="id_address_latitude" name="address_latitude" data-geo="lat" />
+
+      <input type="hidden" class=" form-control" ng-model="address.longitude" id="id_address_longitude" name="address_longitude" data-geo="lng" />
+
+      <input type="hidden" class=" form-control" ng-model="address.formatted" id="id_address_formatted" name="address_formatted" data-geo="formatted_address" />
+    </div>
+    <div class="row">
+      <div class="col-xs-12 form-group">
+        <label>Detalles</label>
+        <textarea type ="text" class="form-control" name="details" ng-model="sucursal.details" ng-change="saveLocalstorange()"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button ng-if="!edit" class="col-xs-12 btn btn-primary" ng-click="saveSucursal(sucursal)">Crear</button>
+        <button ng-if="edit" class="col-xs-12 btn btn-primary" ng-click="updateSucursal(sucursal)">Actualizar</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+        <button class="col-xs-12 btn btn-white" ng-click="closeSucursal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox float-e-margins" ng-if="!showSucursal">
+    <div class="ibox-title">
+      <h5>Sucursales</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row">
+        <div class="panel-body table-over-y animate" >
+          <table class="table table-hover table-bordered hidden-xs hidden-sm">
+            <thead>
+              <tr>
+                <th>Sucursal</th>
+                <th>Dirección</th>
+                <th>Detalles</th>
+                <th>Creada por</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in sucursalList track by $index" >
+                <td>{{ item.sucursal_name }}</td>
+                <td>
+                  <div ng-if="item.address_sucursal[0]">
+                    <span>{{ item.address_sucursal[0].route }} {{ item.address_sucursal[0].street_number }} int. {{ item.address_sucursal[0].street_number_int }} {{ item.address_sucursal[0].sublocality }}, {{ item.address_sucursal[0].postal_code }}, {{ item.address_sucursal[0].administrative_area_level_2 }}, {{ item.address_sucursal[0].administrative_area_level_1 }}</span>
+                    <!-- <span class="blue-color">Estado: </span>{{ item.address_sucursal[0].administrative_area_level_1 }} 
+                    <span class="blue-color">Municipio: </span>{{ item.address_sucursal[0].administrative_area_level_2 }}
+                    <span class="blue-color">Calle: </span>{{ item.address_sucursal[0].route }}
+                    <span class="blue-color">Colonia: </span>{{ item.address_sucursal[0].sublocality }}
+                    <span class="blue-color">#Int.: </span>{{ item.address_sucursal[0].street_number_int }}
+                    <span class="blue-color">#Ext.: </span>{{ item.address_sucursal[0].street_number }}
+                    <span class="blue-color">#Cód.Postal: </span>{{ item.address_sucursal[0].postal_code }} -->
+                  </div>
+                  <div ng-if="!item.address_sucursal[0]">No existe</div>
+                </td>
+                <td>{{ item.details }}</td>
+                <td>{{ item.owner }} </td>
+                <td>
+                  <a class="btn btn-sm btn-white" ng-click="editSucursal(item, $index)">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <div class="col-xs-12 col-sm-6 col-md-3 m-t" ng-show="sucursalList">
+            <button class="col-xs-12 btn btn-primary" ng-disabled="form.$invalid" ng-click="getDeliveryPDF()">Generar reporte</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

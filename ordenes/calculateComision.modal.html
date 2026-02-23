@@ -1,0 +1,43 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Calcular comisión por Referenciador</h4>
+  </div>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content wizard">
+        <div class="wizard col-xs-12">
+            <div class="row">
+              <div class="form-group col-xs-12" align="center">
+                <label for="motivo" align="center">Referenciador </label>
+                <input class="form-control" type="text" name="name" ng-model="name" disabled="" align="center">
+              </div>
+              <div class="form-group col-xs-12 col-sm-3">
+                <label for="go" align="center">Gastos de Operación %</label>
+                <input class="form-control" type="text" name="valueGo" ng-model="valueGo" disabled="">
+              </div>
+              <div class="form-group col-xs-12 col-sm-3">
+                <label for="selectType">Prima Total</label>
+                <input class="form-control" type="text" name="valueMonto" ng-model="valueMonto" ng-change="changeMonto(valueGo ,valueMonto, valueComision, valueComInicial)" disabled="">
+              </div>
+              <div class="form-group col-xs-12 col-sm-3">
+                <label for="motivo">Comisión <span class="color-red">*</span></label>
+                <input class="form-control" type="text" name="valueComInicial" ng-model="valueComInicial" ng-change="changeCom(valueGo ,valueMonto, valueComision,valueComInicial)" ng-disabled="!valueMonto">
+              </div>
+              <div class="form-group col-xs-12 col-sm-3">
+                <label for="motivo">Comisión al referenciador</label>
+                <input class="form-control" type="text" name="valueComision" ng-model="valueComision" ng-change="numberFormatDolar(valueComision)" disabled="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>
+<div class="modal-footer">
+  <button class="btn btn-white" ng-click="cancelCalculate()" type="button">Cerrar</button>
+  <button class="btn btn-secondary ladda-button" ng-disabled="!valueMonto || !valueComInicial" ng-click="comCalculatePeso(valueMonto,valueComInicial)" type="button">Calcular comisión</button>
+  <button class="btn btn-success ladda-button" ng-disabled="!valueComision" ng-click="cTotal(valueMonto,valueComInicial,valueComision)" type="button">Asignar</button>
+</div>

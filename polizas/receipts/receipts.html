@@ -1,0 +1,140 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Pólizas</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="breadcrumb">
+        <a ui-sref="polizas.table">Pólizas</a>
+      </li>
+      <li class="breadcrumb">
+        <a ui-sref="polizas.info({polizaId: vm.poliza_id})">Póliza # {{vm.poliza_number}}</a>
+      </li>
+      <li class="active">
+        <strong>Recibos</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeIn">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Recibo</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="form-group">
+            <button class="btn btn-w-m btn-primary pull-right" name="button"
+              ng-click="vm.editReceipt()" type="button" ng-show="vm.canEditReceipt" ng-if="vm.user.permiso.editar">Editar</button>
+            <button class="btn btn-w-m btn-success pull-right margin-right-10" name="button"
+              ng-click="vm.applyEditReceipt()" type="button" ng-show="!vm.canEditReceipt" ng-if="vm.user.permiso.editar">Guardar</button>
+            <button class="btn btn-w-m btn-white pull-right margin-right-10" name="button"
+              ng-click="vm.cancelEditReceipt()" type="button" ng-show="!vm.canEditReceipt">Cancelar</button>
+          </div>
+          <br>
+          <div class="form-group col-md-6">
+            <label>Fecha de inicio</label>
+            <div class="input-group date">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date"
+                ng-model="vm.receipt.fecha_inicio" view="year" ng-disabled="vm.canEditReceipt">
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label>Fecha de fin</label>
+            <div class="input-group date">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              <input auto-close="true" class="form-control" date-time format="dd-MM-yyyy" min-view="date"
+                ng-model="vm.receipt.fecha_fin" view="year" ng-disabled="vm.canEditReceipt">
+            </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label>Prima neta:</label>
+            <input class="form-control" format-as-currency ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.prima_neta" step="any" type="text">
+          </div>
+          <div class="form-group col-md-6">
+            <label>Recargo por Pago Fraccionado:</label>
+            <input class="form-control" format-as-currency ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.rpf" type="text">
+          </div>
+          <div class="form-group col-md-6">
+            <label>Derecho:</label>
+            <input class="form-control" format-as-currency ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.derecho" type="text">
+          </div>
+          <div class="form-group col-md-6">
+            <label>IVA(%):</label>
+            <input class="form-control" ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.iva" type="text">
+          </div>
+          <div class="form-group col-md-6">
+            <label>Sub Total:</label>
+            <input class="form-control" format-as-currency ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.sub_total" type="text">
+          </div>
+          <div class="form-group col-md-6">
+            <label>Prima Total:</label>
+            <input class="form-control" format-as-currency ng-disabled="vm.canEditReceipt" ng-model="vm.receipt.prima_total" type="text">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Modificar Estatus</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="form-group">
+            <button class="btn btn-w-m btn-info pull-right" name="button"
+              ng-click="vm.editReceiptStatus(vm.receipt)" type="button" ng-if="vm.user.permiso.editar">Aplicar</button>
+          </div>
+          <br>
+          <div class="form-group">
+            <!-- TODO this should be a directive <div receipt-change></div> -->
+            <label>Estatus Actual: </label> {{vm.receipt.status | receipts}}
+            <!-- <input class="form-control" ng-bind="vm.receipt.status | receipts"> -->
+          </div>
+          <div class="form-group">
+            <label>Estatus</label>
+            <select class="form-control"
+              ng-model="vm.status"
+              ng-options="s.label for s in vm.statusReceipt"
+              ng-change="vm.changeReceiptStatus()"
+              ng-disabled="vm.canEditReceiptStatus">
+              <!-- <option value="">Selecciona un estado</option> -->
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Archivos</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <!-- TODO archives -->
+          <div upload-template></div>
+          <div class="hr-line-dashed"></div>
+          <div class="row">
+            <div class="form-group">
+                <button class="btn btn-success pull-right margin-right-10" ng-click="vm.uploadFiles()" id="uploadButton" type="button" ng-if="uploader.queue.length >= 1">Subir archivos</button>
+            </div>
+          </div>
+          <div class="hr-line-dashed"></div>
+          <div ng-include="'templates/show-filesRecepits.html'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,512 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Paquetes</h2> 
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Paquetes</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="row">
+   <button class="col-md-3 col-xs-6 btn btn-info ml-75 button1" ng-if="vm.user.permiso.crear" name="button" type="button"  ng-click="vm.toggle(1)" >Crear Paquete</button>
+  <button  class="col-md-3 col-xs-6 btn btn-info ml-75 button2" ng-if="vm.user.permiso.crear" name="button"  ng-click="vm.hideForm1()" type="button" >Crear Cobertura</button>
+  <button  class="col-md-3 col-xs-6 btn btn-info  ml-75 button2" ng-if="vm.user.permiso.editar" name="button"  ng-click="vm.hideForm2()" type="button" >Personalizar Paquete</button>
+<!-- /develop-->
+</div>
+<!--Formulario Crear Paquete-->
+<div class="row" ng-show="vm.showForm == 1">
+    <div class="col-lg-12 margin-bottom-10">
+    <div class="ibox-title ">
+          <h5>Creación de paquetes</h5>
+    </div>
+      <div class="ibox-content">
+          <form method="post" name="form" ng-submit="vm.submit(form.$valid)" novalidate role="form" >
+            <div class="form-group">
+              <div class="col-md-6" >
+                <label class="control-label">Nombre del paquete<span class="color-red">*</span></label>
+                <div ng-class="{ 'has-error': form.packageName.$invalid && !form.packageName.$pristine  }">
+                 <input class="form-control" name="packageName" ng-model="vm.form.package_name" required type="text">
+                 </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Proveedor<span class="color-red">*</span></label>
+                <div ng-class="{ 'has-error': form.provider.$invalid && !form.provider.$pristine  }">
+                 <select class="form-control m-b" name="provider" ng-model="vm.form.provider"
+                    data-ng-options="provider.compania for provider in vm.providers | orderBy: 'compania' track by provider.url"
+                    ng-change="vm.changeProvider(vm.form.provider)"
+                    required>
+                    <option value="">Selecciona un proveedor</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Ramo<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': form.ramo.$invalid && !form.ramo.$pristine  }">
+                 <select class="form-control m-b" name="ramo" ng-model="vm.form.ramo"
+                    data-ng-options="ramo.ramo_name for ramo in vm.ramos track by ramo.url"
+                    ng-change="vm.changeRamo(vm.form.ramo)"
+                    required>
+                    <option value="">Selecciona un ramo</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Subramo<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+                 <select class="form-control m-b" name="subramo" ng-model="vm.form.subramo"
+                    data-ng-options="subramo.subramo_name for subramo in vm.subramos track by subramo.url" required>
+                    <option value="">Selecciona un subramo</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+            <!-- <div class="hr-line-dashed"></div> -->
+              <label class="col-md-6 control-label">Observaciones</label>
+              <div class="col-sm-12">
+                <textarea class="form-control" name="description" ng-model="vm.form.description" type="text"></textarea>
+              </div>
+             <!--  <div class="hr-line-dashed"></div> -->
+            </div>
+            <div class="row">
+              <div class="form-group col-xs-12">
+                <button class="btn btn-white pull-right mt5" ng-click="vm.hideForm()" type="button" ><!-- <i class="fa fa-times" aria-hidden="true"> </i>  -->Cancelar</button>
+                <button class="btn btn-success pull-right margin-right-10 mt5" ng-disabled="!vm.form.package_name" type="submit"><!-- <i class="fa fa-check" aria-hidden="true"> </i> --> Crear paquete</button>
+                <!-- <button class="btn btn-info pull-right margin-right-10 mb5 mt5" ng-click="vm.showPackage()" type="button" >Personalizar paquete</button> -->
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      <!--Formulario Crear Paquete-->
+
+
+<!--Personalizar paquetes-->
+  <div class="row" ng-show="vm.showForm2">
+    <div class="col-lg-12 margin-bottom-10">
+      <div class="ibox-title ">
+            <h5>Personalización de paquetes</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="alert alert-danger" ng-show="vm.error">{{vm.error}}</div>            
+            <form name="personalizar_package">
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Proveedor<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': personalizar_package.package_provider.$invalid && !personalizar_package.package_provider.$pristine}">
+                <select class="form-control m-b" ng-options="prov as prov.compania for prov in vm.providers" name="package_provider" ng-model="vm.form.package_provider" ng-change="vm.changePackageProvider(vm.form.package_provider)" required>
+                <option value="">Selecciona un proveedor</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Ramo<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': personalizar_package.ramo.$invalid && !personalizar_package.ramo.$pristine  }">
+                <select class="form-control m-b" ng-options="ramo.ramo_name for ramo in vm.package_ramos track by ramo.url" name="ramo" ng-model="vm.form.package_ramo" ng-change="vm.changePackageRamo(vm.form.package_ramo)" required>
+                  <option value="">Selecciona un ramo</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Subramo<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': personalizar_package.subramo.$invalid && !personalizar_package.subramo.$pristine  }">
+                <select class="form-control m-b" ng-options="subramo.subramo_name for subramo in vm.package_subramos track by subramo.url" name="subramo" ng-model="vm.form.package_subramo" ng-change="vm.changePackageSubramo(vm.form.package_subramo)" required>
+                  <option value="">Selecciona un subramo</option>
+                </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-6">
+                <label class="control-label">Paquete<span class="color-red">*</span></label>
+                <div  ng-class="{ 'has-error': personalizar_package.package_paquete.$invalid && !personalizar_package.package_paquete.$pristine  }">
+                <select class="form-control m-b" ng-options="paquete.package_name for paquete in vm.package_paquetes track by paquete.url" name="package_paquete" ng-model="vm.form.package_paquete" ng-change="vm.changePackagePackage(vm.form.package_paquete)" required>
+                   <option value="">Selecciona un paquete</option>
+                </select>
+                </div>
+              </div>
+            </div>
+
+            </form>
+   
+            <!-- table -->
+            <div class="form-group animate" id="cobertura" ng-if="vm.test == true && vm.ordenar == false && vm.cobDe == true">
+            <!-- <div class="ibox-content"> -->
+              <table id="cobertura-table" class="footable" data-filter="#filter" data-page-size="25" ng-if="vm.form.package_paquete && vm.package_covs.length" >
+                <thead>
+                  <tr class="col-md-6" >
+                    <th class="text-align-center footable-visible footable-sortable footable-first-column margin-bottom-10" data-breakpoints="xs">Cobertura
+                    </th>
+                    <th class="footable-visible footable-sortable margin-bottom-10" data-hide="phone" ></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- <tr class="col-md-6" ng-repeat="coverage in vm.package_covs | orderBy: 'priority' track by coverage.url" > -->
+                  <tr class="col-md-6" ng-repeat="coverage in vm.package_covs track by coverage.url" >
+                    <td class="col-xs-7 ">
+                      <p ng-bind="coverage.coverage_name"></p>
+                    </td>
+                    <div class="col-md-12">
+                      <div class="col-sm-6 ">
+                          <td>
+                          <div class="col-md-12">
+                            <button ng-if="coverage.default" class="btn btn-info  margin-bottom-10" name="button" ng-click="vm.makeDefaultCoverage(coverage)" type="button">Desactivar</button>
+                            <button ng-if="!coverage.default" class="btn btn-primary  margin-bottom-10" name="button" ng-click="vm.makeDefaultCoverage(coverage)" type="button">Activar</button>
+                            <button ng-disabled="coverage.default" class="btn btn-danger  margin-bottom-10" name="button" type="button"  ng-click="vm.deleteCoverage(coverage,$index)" >Eliminar</button>
+                            <button  class="btn btn-warning  margin-bottom-10" name="button" type="button" ng-click="vm.editCoverage(coverage,$index)" >Editar</button>
+                            </div>
+                          </td>
+                        </div>
+                    </div>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- <button ng-if="vm.test == true && vm.ordenar == false && vm.cobDe == true" class="btn btn-info pull-right margin-bottom-10" name="button" ng-click="vm.ordenarCoberturas(coverage)" type="button">Priorizar / Ordenar coberturas</button> -->
+            </div>
+            <!-- -ññññññññññññññññ- -->
+            <div class="row">
+              <div class="form-group animate panel-body" id="cobertura" ng-if="vm.test == true && vm.ordenar == true && vm.cobDe == false">
+                <table class="table footable table-hover table-bordered" data-filter="#filter" data-page-size="15" ng-if="vm.form.package_paquete && vm.package_covs.length">
+                  <thead>
+                    <th class="footable-visible footable-sortable footable-first-column col-xs-12 col-sm-3 text-align-center width-20p" data-breakpoints="xs">
+                      Cobertura
+                    </th>
+                    <!-- <th class="footable-visible footable-sortable col-xs-12 col-sm-3 text-align-center"  width="5%" data-hide="phone" >
+                      Prioridad / Orden
+                    </th> -->
+                  </thead>
+                  <tbody>
+                    <!-- <tr ng-repeat="coverage in vm.package_covs | orderBy: 'priority' track by coverage.url" foo-repeat-done> -->
+                    <tr ng-repeat="coverage in vm.package_covs track by coverage.url" foo-repeat-done>
+                      <td>{{ coverage.coverage_name }}</td>
+                      <!-- <td><input class="form-control "  width="5%" type="number" name="priority" ng-model="coverage.priority"></td>                       -->
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="col-xs-12 col-sm-12 ">  
+                  <button type="button" class="btn btn-w-m btn-primary pull-right" name="button"  ng-click="vm.saveCovOrden(vm.package_covs)">Guardar orden</button>
+                </div>
+              </div>
+            </div>
+            <!-- -mmmmmmmmmmmmmmmmmmmmmmm- -->
+            </div>
+            <div class="animate" id="editcobertura" ng-if="vm.test == false">
+              <div ng-include="'app/modals/modal.coverage.create.html'">
+              </div>
+              <button  class="btn btn-primary  margin-bottom-10 " name="button" type="button"  ng-click="vm.coberturaTest()" >Ver coberturas</button>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-white pull-right margin-right-10 margin-bottom-10 mt-3" ng-if="vm.test == true && vm.ordenar == false && vm.cobDe == true" ng-click="vm.hideForm2()" type="button" >Cancelar</button>
+              <button  ng-if="vm.test == true && vm.ordenar == true && vm.cobDe == false" class="btn btn-white pull-right margin-right-10 margin-bottom-10 mt-3 black-color" ng-click="vm.hideForm2(2)" type="button" >Cancelar</button>
+              <!--Coberturas Agregar-->
+                <button class="btn btn-info pull-right margin-right-10 mb5 margin-bottom-10 mt-3" name="button" ng-if="vm.form.package_paquete && vm.package_covs.length == 0"  ng-click="vm.toggle(4)">Crear Cobertura</button>
+              <!--Fin coberturas Agregar-->
+              <!--<button class="btn btn-primary pull-right margin-right-10" ng-disabled="personalizar_package.$invalid" type="button" >Personalizar</button>-->
+            </div>
+            <!-- /table -->
+        </div>     
+      </div>
+    <!-- div> -->
+  </div>
+<!--Personalizar paquetes-->
+  <!--Formulario Crear Cobertura-->
+
+<div class="row" ng-if="vm.showForm1">
+<!-- <div class="row" ng-if="vm.showForm == 2 || vm.showForm == 4 || vm.showForm1"> -->
+  <div class="col-lg-12 margin-bottom-10">
+  <!-- <div class="ibox float-e-margins"> -->
+    <div class="ibox-title ">
+        <h5>Creación de cobertura</h5>
+    </div>
+    <div class="ibox-content">
+    <div class="row">
+      <form  method="post" name="form" ng-submit="vm.submit(form.$valid)" novalidate role="form"  >
+          <div class="form-group">
+            <div class="col-md-6">
+              <label class="control-label">Nombre de la cobertura<span class="color-red">*</span></label>
+              <div ng-class="{ 'has-error': form.coverage.$invalid && !form.coverage.$pristine  }">
+                <input class="form-control" name="coverage" ng-model="vm.form.coverage_name" required type="text">
+              </div>
+            </div>
+          </div>
+          <!-- <div class="form-group">
+            <div class="col-md-2">
+              <label class="control-label">Prioridad / Orden</label>
+              <div>
+                <input class="form-control" name="coverage" ng-model="vm.form.priority" type="number">
+              </div>
+            </div>
+          </div> -->
+          <div class="form-group">
+            <div class="col-md-2">
+              <label class="control-label">Suma asegurada</label>
+              <div>
+                <input class="form-control" name="coverage" ng-model="vm.form.sum_insured" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-2">
+              <label class="control-label">Deducible</label>
+              <div>
+                <input class="form-control" name="coverage" ng-model="vm.form.deductible" type="text">
+              </div>
+            </div>
+          </div>
+           <div class="form-group" ng-if="inputCoverage">
+            <div class="col-md-2">
+              <label class="control-label">Coaseguro</label>
+              <div>
+                <input class="form-control" name="coverage" ng-model="vm.form.coinsurance" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+              <label class="control-label">Proveedor<span class="color-red">*</span></label>
+              <div ng-class="{ 'has-error': form.coverage_provider.$invalid && !form.coverage_provider.$pristine  }">
+              <select class="form-control m-b" ng-options="prov as prov.compania for prov in vm.providers" name="coverage_provider" ng-model="vm.form.coverage_provider" ng-change="vm.changeCoverageProvider(vm.form.coverage_provider)" required>
+                <option value="">Selecciona un proveedor</option>
+              </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+              <label class="control-label">Ramo<span class="color-red">*</span></label>
+              <div ng-class="{ 'has-error': form.coverage_ramo.$invalid && !form.coverage_ramo.$pristine  }">
+              <select class="form-control m-b" ng-options="ramo.ramo_name for ramo in vm.coverage_ramos track by ramo.url" name="coverage_ramo" ng-model="vm.form.coverage_ramo" ng-change="vm.changeCoverageRamo(vm.form.coverage_ramo)" required>
+                <option value="">Selecciona un ramo</option>
+              </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+              <label class="control-label">Subramo<span class="color-red">*</span></label>
+              <div ng-class="{ 'has-error': form.coverage_subramo.$invalid && !form.coverage_subramo.$pristine  }">
+              <select class="form-control m-b" ng-options="subramo.subramo_name for subramo in vm.coverage_subramos track by subramo.url" name="coverage_subramo" ng-model="vm.form.coverage_subramo" ng-change="vm.changeCoverageSubramo(vm.form.coverage_subramo)" required>
+                <option value="">Selecciona un subramo</option>
+              </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+              <label class="control-label">Paquete<span class="color-red">*</span></label>
+              <div ng-class="{ 'has-error': form.coverage_paquete.$invalid && !form.coverage_paquete.$pristine  }">
+              <select class="form-control m-b" ng-options="paquete.package_name for paquete in vm.coverage_paquetes track by paquete.url" name="coverage_paquete" ng-model="vm.form.coverage_paquete" required>
+                <option value="">Selecciona un paquete</option>
+              </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-6">
+                    <!-- <button class="btn btn-white" type="button">Cancelar</button> -->
+                <button class="btn btn-white pull-right margin-right-10 margin-top-15 " ng-click="vm.hideForm1()" type="button" >Cancelar</button>
+                <button class="btn btn-primary pull-right margin-right-10 margin-top-15" ng-disabled="form.$invalid" type="button" ng-click="vm.createCoverage()">Asignar cobertura</button>
+             
+            </div>
+          </div>
+        </form>
+        </div>
+    </div>
+
+      <!-- </div> -->
+  </div>
+</div>
+ <!--Formulario Crear Cobertura-->
+
+<!--Información de paquetes-->
+
+  <div class="ibox-content col-xs-12 ">
+    <div class="col-xs-12 form-group">
+      <label>Paquete</label>
+      <div class="col-xs-12 input-group">
+        <input type="text" class="form-control" id="filter" placeholder="Buscar" ng-enter="vm.search(cadena)" ng-model="cadena">
+        <div class="input-group-btn">
+          <button class="btn btn-success margin-left-17" ng-click="vm.activate()">Mostrar todo</button>
+        </div>
+      </div>
+    </div>
+
+<div class="col-lg-12">
+    <div class="row" ng-if="vm.totalPackages.length">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Información de paquetes</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+         
+            <table class="table table-stripped hidden-xs hidden-sm" ng-if="!vm.show_binnacle">
+              <thead>
+                <tr>
+                  <!-- <th> Paquetes  </th>
+                  <th >  Aseguradora</th>
+                  <th> Ramos</th>
+                  <th >Subramos </th>
+                  <th >Opciones</th>
+                  <th > Acciones</th> -->
+                  <th ng-model="vm.table.headers[0]"> {{vm.table.headers[0]}} </th>
+                  <th ng-model="vm.table.headers[1]"> {{vm.table.headers[1]}} </th>
+                  <th ng-model="vm.table.headers[2]"> {{vm.table.headers[2]}} </th>
+                  <th ng-model="vm.table.headers[3]"> {{vm.table.headers[3]}} </th>
+                  <th ng-model="vm.table.headers[4]"> {{vm.table.headers[4]}} </th>
+                  <th ng-model="vm.table.headers[5]"> {{vm.table.headers[5]}} </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="pack in vm.totalPackages | orderBy: '-id' track by $index" >
+                  <td>{{pack.package_name}}</td>
+                  <td>{{pack.provider}}</td>
+                  <td>{{pack.ramo}}</td>
+                  <td>{{pack.subramo}}</td>
+                  <td>
+                    <div class="col-xs-12 col-sm-6 ">  
+                      <button type="button" class="btn btn-w-m btn-warning " ng-if="vm.user.permiso.editar" name="button"  ng-click="vm.goToPackageEditor(pack)"><!-- <i class="fa fa-pencil-square-o" aria-hidden="true"></i> --> Editar</button>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 "> 
+                      <button type="button" class="btn btn-w-m btn-danger " ng-if="vm.user.permiso.eliminar" ng-click="vm.deletePackagesw(pack,$index)"><!-- <i class="fa fa-trash" aria-hidden="true"> </i>  -->Eliminar</button>
+                    </div>
+                  </td>
+                  <td ng-click="$event.stopPropagation();">
+                      <!-- comments -->
+                      <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(pack)">
+                        <i class="fa fa-comment" aria-hidden="true"></i>
+                      </a>
+                  </td>
+                </tr>
+             </tbody>
+            </table>
+            <div ng-if="vm.show_pagination_pack && !vm.show_binnacle" class="text-center hidden-xs hidden-sm">
+                <pagination config="vm.config_pagination" model="vm.totalPackages"></pagination>
+            </div>
+            <br>
+            <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="pack in vm.totalPackages track by $index">
+              <div class="ibox-title">
+                <h5> {{ vm.table.headers[0] }}:{{pack.package_name}} </h5>
+                <div ibox-tools></div>
+              </div>
+              <div class="ibox-content" style="display: none">
+                <table class="table-flex">
+                  <tr class="table-row" >
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[0] }} </label>
+                      <p>{{pack.package_name}}</p>
+                    </div>
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[1] }} </label>
+                        <p>{{pack.provider}} </p>
+                    </div>
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[2] }} </label>
+                      <p >{{pack.ramo}}</p>
+                    </div>
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[3] }} </label>
+                      <p>{{pack.subramo}}</p>
+                    </div>
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[4] }} </label>
+                      <p> 
+                          <button type="button" class="btn btn-w-m btn-warning " ng-if="vm.user.permiso.editar" name="button"  ng-click="vm.goToPackageEditor(pack)"><!-- <i class="fa fa-pencil-square-o" aria-hidden="true"></i> --> Editar</button>
+                        
+                          <button type="button" class="btn btn-w-m btn-danger " ng-if="vm.user.permiso.eliminar" ng-click="vm.deletePackagesw(pack)"><!-- <i class="fa fa-trash" aria-hidden="true"> </i>  -->Eliminar</button>
+                       
+                      </p>
+                    </div>
+                    <div class="table-cell col-xs-12 col-sm-6">
+                      <label> {{ vm.table.headers[5] }} </label>
+                      <p ng-click="$event.stopPropagation();">
+                        <!-- comments -->
+                        <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(pack)">
+                          <i class="fa fa-comment" aria-hidden="true"></i>
+                        </a>
+                      </p>
+                    </div>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div ng-if="vm.show_pagination_pack && !vm.show_binnacle" class="text-center visible-xs-block visible-sm-block">
+                <pagination config="vm.config_pagination" model="vm.totalPackages"></pagination>
+            </div>
+            <br>
+
+
+
+            <div ng-if="vm.totalPackages.length && vm.buttonReport == false && !vm.show_binnacle">
+              <button ng-model="vm.buttonReport" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 btn btn-primary btn-ef btn-ef-3 btn-ef-3c mb-10 ladda-button" ng-click="exportData()">
+                Generar reporte
+              </button>
+            </div>
+            <div ng-if="vm.buttonReport == true && !vm.show_binnacle">
+              <button ng-model="vm.buttonReport" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 btn btn-primary btn-ef btn-ef-3 btn-ef-3c mb-10 ladda-button" ng-click="exportDataSeeker(1)">
+                Generar reporte
+              </button>
+            </div>
+     
+          <!-- Bitácora acceso rápido PACKAGES -->
+          <div class="animate" ng-if="vm.show_binnacle">                     
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+              <button class="col-xs-12 btn btn-info" ng-click="returnToPackage()"><span class="fa fa-reply"></span> Regresar</button>
+            </div>
+            <div class="col-xs-12">
+              <div class="row margin-bottom-10">
+                <div class="col-xs-12 text-right">
+                  <!-- El botón lo provee la directiva exportable -->
+                </div>
+              </div>
+              <comments datasource="vm.comments_data" typemodel="9" config="vm.comments_config" idmodel="vm.package_id" exportable="true"></comments>
+            </div>
+          </div>
+        </div>
+
+        <!--<div class="ibox-content">
+          <div class="table-responsive">
+            <table datatable="ng" class="table table-striped table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Paquetes</th>
+                  <th>Aseguradora</th>
+                  <th>Ramos</th>
+                  <th>Subramos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="pack in vm.totalPackages track by $index" ng-click="vm.goToPackageEditor(pack)">
+                  <td>{{pack.package_name}}</td>
+                  <td>{{pack.provider}}</td>
+                  <td>{{pack.ramo}}</td>
+                  <td>{{pack.subramo}}</td>
+                </tr>
+                  <td><a ui-sref="contratantes.edit({type: 'morales', contratanteId: '3'})" type="button" class="btn btn-w-m btn-info" name="button">Editar</button></td> 
+              </tbody>
+            </table>
+          </div>
+        </div>-->
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>

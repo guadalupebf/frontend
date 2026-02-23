@@ -1,0 +1,222 @@
+<toaster-container></toaster-container>
+<!-- <script src="components/angular-dragdrop/src/angular-dragdrop.min.js"></script> -->
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Tablero</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <a ui-sref="polizas.table">Tablero OT</a>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content">
+        <div class="row">
+          <div class="container-fluid text-right">
+            <div class="col-xs-12 form-group">
+                <span ng-if="cargando">
+                    <div class="sk-spinner sk-spinner-rotating-plane margin-top-45p"></div>
+                </span>   
+            </div>
+            <div class="row">
+                <div class="col-xs-6 col-sm-3 form-group">
+                    <button ng-click="filtrosSubramos()" class="btn btn-outline btn-default dim btn-block btn-sm">
+                        <i class="fa fa-cog" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="col-xs-6 col-sm-3 form-group">
+                    <button class="btn btn-primary ladda-button2" ng-click="addContainer(principal)">
+                        Añadir estado <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+          </div>
+        
+          <!-- ------------------ -->
+          <div class="col-xs-12">
+            <!-- <div class="row"> -->
+              <!-- <div class="ibox" title="Configuración de filtro por Subramo(s)">
+                <button ng-if="!has_sr_conf" ng-click="filtrosSubramos()" class="btn btn-outline btn-block btn-default dim btn-sm"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                <button ng-if="has_sr_conf" ng-click="filtrosSubramos()" class="btn btn-outline btn-block btn-primary dim btn-sm"><i class="fa fa-cog" aria-hidden="true"></i></button>
+              </div> -->
+            <!-- </div> -->
+            <div class="row" ng-if="newcontainer || editcontainer">
+            <!-- <div class="row"> -->
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <label>Nombre del contenedor: <span class="color-red">*</span></label>
+                <input class="form-control" type="text" name="" ng-model="container.tablero" required/>
+              </div> 
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <label>Color: <span class="color-red">*</span></label>
+                <div >
+                  <select class="form-control" ng-options="color.value as color.name for color in colorArray1" ng-change="vm.saveColor(colorSelected)" ng-model="colorSelected">
+                  </select>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="newcontainer && !editcontainer">
+                <button class="btn btn-success col-xs-12 m-t ladda-button2" ng-click="saveContainer(principal,container)" ng-if="!filtrado">Guardar estado</button>
+                <button class="btn btn-success col-xs-12 m-t ladda-button2" ng-click="saveContainerFilter(principal,container)" ng-if="filtrado">Guardar estado</button>
+              </div>   
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="editcontainer">
+                <button class="btn btn-success col-xs-12 m-t ladda-button2" ng-click="saveEditContainer(principal,container)" ng-if="!filtrado">Guardar cambios</button>
+                <button class="btn btn-success col-xs-12 m-t ladda-button2" ng-click="saveEditContainerFilter(principal,container)" ng-if="filtrado">Guardar cambios</button>
+              </div>             
+              <div class="row" ng-if="container.tablero">
+                <div class="col-xs-12 col-sm-4 col-sm-offset-4 form-group">
+                  <div class="box-title" style="background-color: {{container.color}}">
+                    <a class="btn btn-white btn-sm pull-right"><i class="fa fa-pencil" aria-hidden="true"></i></a> 
+                    <!-- <a class="btn btn-white btn-sm pull-right" ng-if="(container.tipo !=0 || container.tipo!='0') && (container.data.length ==0 || !container.data)"><i class="fa fa-trash" aria-hidden="true"></i></a>  -->
+                    <label class="label-tablero">{{container.tablero}}</label> 
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-12 table-tablero">
+                <table class="table" ng-if="!filtrado">
+                  <!-- <label>Completo</label> -->
+                  <thead>
+                    <tr>
+                      <th ng-repeat="container in principal.contenedores track by $index">
+                        <div class="col-xs-12 box-title" style="background-color: {{container.color}}">
+                          <a class="btn btn-white btn-sm pull-right" ng-click="vm.editContainer(container,$index)" ><i class="fa fa-pencil" aria-hidden="true"></i></a> 
+                          <!-- <a class="btn btn-white btn-sm pull-right" ng-click="vm.deleteContainer(container,principal,$index)" ng-if="(container.tipo !=0 || container.tipo!='0') && (container.data.length ==0 || !container.data)"><i class="fa fa-trash" aria-hidden="true"></i></a>  -->
+                          <label class="label-tablero">{{container.tablero}}</label> 
+                          <span class="label-number">OT Póliza(s): {{container.details_polizas.length}} // OT Endoso(s): {{container.details_endoso.length}}</span>
+                        </div>
+                        <div class="caption">
+                          <div ng-repeat="dp in container.details_polizas track by $index" >
+                            <div class="col-xs-12 box-content">
+                              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                              <b>OT PÓLIZA: {{dp.internal_number}} - {{dp.contractor}}</b><h6> {{dp.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{dp.end_of_validity | date: 'dd/MM/yyyy' : 'UTC'}}</h6>
+                              <h6><b>{{dp.ramo}}</b></h6>
+                              <h6><b>{{dp.subramo}}</b></h6>
+                              <h6 class="pull-right"><b>Hace {{dp.antiguedad}}d.</b></h6>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(dp,container,$index,1)"><i class="fa fa-info" aria-hidden="true"></i> Ir</a></li>
+                                <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                                  <a>Mover a</a>
+                                  <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="disabled" ng-if="principal.contenedores">
+                                      <a class="disabled">Estados</a>
+                                    </li>
+                                    <li ng-if="principal.contenedores" ng-repeat="newcontainer in principal.contenedores track by $index" >
+                                      <a ng-click="vm.moveOTState(dp,container,newcontainer,principal,1)" ng-if="newcontainer.tablero != container.tablero"> {{newcontainer.tablero}} </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li><a ng-click="vm.getPDF(dp.id)" class="">Ver PDF</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                          <div ng-repeat="de in container.details_endoso track by $index" >
+                            <div class="col-xs-12 box-content">
+                              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                              <b>OT ENDOSO: {{de.internal_number}} - {{de.policy.contractor}}</b><h6> {{de.init_date | date: 'dd/MM/yyyy' : 'UTC'}} - {{de.end_date | date: 'dd/MM/yyyy' : 'UTC'}}</h6>
+                              <h6><b>{{de.policy.ramo}}</b></h6>
+                              <h6><b>{{de.policy.subramo}}</b></h6>
+                              <h6 class="pull-right"><b>Hace {{de.antiguedad}}d.</b></h6>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(de,container,$index,2)"><i class="fa fa-info" aria-hidden="true"></i> Ir</a></li>
+                                <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                                  <a>Mover a</a>
+                                  <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="disabled" ng-if="principal.contenedores">
+                                      <a class="disabled">Estados</a>
+                                    </li>
+                                    <li ng-if="principal.contenedores" ng-repeat="newcontainer in principal.contenedores track by $index" >
+                                      <a ng-click="vm.moveOTState(de,container,newcontainer,principal,2)" ng-if="newcontainer.tablero != container.tablero"> {{newcontainer.tablero}} </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li><a ng-click="getPDFE(de)" class="">Ver PDF</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+                <!-- oooooooooooooooo -->                
+                <table class="table" ng-if="filtrado">
+                  <!-- <label>Filtrado</label> -->
+                  <thead>
+                    <tr>
+                      <th ng-repeat="filter_cn in resultsFilter track by $index" ng-if="resultsFilter.length>0 && filter_cn.tablero">
+                        <div class="col-xs-12 box-title" style="background-color: {{filter_cn.color}}">
+                          <a class="btn btn-white btn-sm pull-right" ng-click="vm.editContainer(filter_cn,$index)" ><i class="fa fa-pencil" aria-hidden="true"></i></a> 
+                          <!-- <a class="btn btn-white btn-sm pull-right" ng-click="vm.deleteContainer(filter_cn,principal,$index)" ng-if="(filter_cn.tipo !=0 || filter_cn.tipo!='0') && (filter_cn.data.length ==0 || !filter_cn.data)"><i class="fa fa-trash" aria-hidden="true"></i></a>  -->
+                          <label class="label-tablero">{{filter_cn.tablero}}</label> 
+                          <span class="label-number">OT Póliza(s): {{filter_cn.details_polizas.length}} // OT Endoso(s): {{filter_cn.details_endoso.length}}</span>
+                        </div>
+                        <div class="caption">
+                          <div ng-repeat="dpf in filter_cn.details_polizas track by $index">
+                            <div class="col-xs-12 box-content">
+                              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                              <b>OT PÓLIZA: {{dpf.internal_number}} - {{dpf.contractor}}</b><h6> {{dpf.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{dpf.end_of_validity | date: 'dd/MM/yyyy' : 'UTC'}}</h6>
+                              <h6><b>{{dpf.ramo}}</b></h6>
+                              <h6><b>{{dpf.subramo}}</b></h6>
+                              <h6 class="pull-right"><b>Hace {{dpf.antiguedad}}d.</b></h6>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(dpf,filter_cn,$index,1)"><i class="fa fa-info" aria-hidden="true"></i> Ir</a></li>
+                                <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                                  <a>Mover a</a>
+                                  <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="disabled" ng-if="principal.contenedores">
+                                      <a class="disabled">Estados</a>
+                                    </li>
+                                    <li ng-if="principal.contenedores" ng-repeat="newcontainer in principal.contenedores track by $index" >
+                                      <a ng-click="vm.moveOTStateFilter(dpf,filter_cn,newcontainer,principal,1)" ng-if="newcontainer.tablero != filter_cn.tablero"> {{newcontainer.tablero}} </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li><a ng-click="vm.getPDF(dpf.id)" class="">Ver PDF</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                          <div ng-repeat="def in filter_cn.details_endoso track by $index">
+                            <div class="col-xs-12 box-content">
+                              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                              <b>OT ENDOSO: {{def.internal_number}} - {{def.policy.contractor}}</b><h6> {{def.init_date | date: 'dd/MM/yyyy' : 'UTC'}} - {{def.end_date | date: 'dd/MM/yyyy' : 'UTC'}}</h6>
+                              <h6><b>{{def.policy.ramo}}</b></h6>
+                              <h6><b>{{def.policy.subramo}}</b></h6>
+                              <h6 class="pull-right"><b>Hace {{def.antiguedad}}d.</b></h6>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a class="btn btn-white btn-sm" ng-click="gotToInfo(def,filter_cn,$index,2)"><i class="fa fa-info" aria-hidden="true"></i> Ir</a></li>
+                                <li class="dropdown-submenu" ng-if="principal.contenedores.length">
+                                  <a>Mover a</a>
+                                  <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="disabled" ng-if="principal.contenedores">
+                                      <a class="disabled">Estados</a>
+                                    </li>
+                                    <li ng-if="principal.contenedores" ng-repeat="newcontainer in principal.contenedores track by $index" >
+                                      <a ng-click="vm.moveOTStateFilter(def,filter_cn,newcontainer,principal,2)" ng-if="newcontainer.tablero != filter_cn.tablero"> {{newcontainer.tablero}} </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li><a ng-click="getPDFE(def)" class="">Ver PDF</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+                <!-- uuuuuuuuuuuuuuuu -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

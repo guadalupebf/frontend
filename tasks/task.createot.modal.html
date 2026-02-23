@@ -1,0 +1,135 @@
+<div class="inmodal" id="modal_in">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">{{title}} Completa Ligar a OT</h4>
+  </div>
+  <div class="modal-body">
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7">
+      <!-- <button class="btn btn-primary" ng-click="goToRegis()">Regresar {{ origin_task }}</button> -->
+      <button class="btn btn-primary" ng-click="goToRegis()">Regresar </button>
+    </div>
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7">
+      <p> {{track_task_id}}</p>
+    </div>
+    <div class="col-xs-4 form-group" ng-if="vm.form.model != 7">
+      <p> {{track_task_entity_number}}</p>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 form-group">
+        <label>Título <span class="red-color">*</span></label>
+        <input class="form-control" name="title" ng-model="vm.form.title" disabled/>
+      </div>
+    	<div class="col-xs-6 form-group">
+        <label>Asignar a: <span class="red-color">*</span></label>
+        <select class="form-control" disabled ng-model="vm.form.assigned" data-ng-options="vendedor.first_name + ' ' + vendedor.last_name for vendedor in users | orderBy: 'first_name' track by vendedor.url" ng-change="vm.changeAssigned(vm.form.assigned)">
+          <option value="">Seleccione</option>
+        </select>
+      </div>
+    	<div class="col-xs-6 form-group">
+        <label>Fecha compromiso<span class="red-color">*</span></label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input disabled type="text" name="" class="form-control width-100 text-align-center" ng-model="vm.form.compromiso" value="{{vm.form.compromiso}}" data-date-format="dd/mm/yyyy" required />
+         	<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+	    </div>
+    	<div class="col-xs-6 form-group"> 
+        <label> Involucrados</label>  
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>          
+        <div class="col-xs-12">
+          <select disabled id="select_user" style="width: 100%;" class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="select_user" data-ng-options="user.first_name + ' ' + user.last_name for user in users | orderBy: 'first_name' track by user.url" ng-change="selectUser(select_user)">
+            <option value=""></option>
+          </select>
+        </div>       
+      </div> 
+      <div class="col-xs-6 form-group">
+        <label>Concepto <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.concept" disabled
+            data-ng-options="concept.name for concept in concepts | orderBy: 'name' track by concept.id"
+            ng-change="vm.changeConcept(vm.form.concept)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>   
+    	<div class="col-xs-12 form-group">
+    	  <label>Descripción <span class="red-color">*</span></label>
+    	  <textarea disabled type="text" class="form-control" ng-model="vm.form.descrip"></textarea>
+    	</div>
+      <div class="col-xs-12 form-group" ng-if="ticket1.concept ==2">
+        <label>Tipo de OT <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.tipo_ot"
+            data-ng-options="tipo_ot.name for tipo_ot in selectedOTOptions | orderBy: 'name' track by tipo_ot.id"
+            ng-change="vm.changeOTSelected(vm.form.tipo_ot)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>  
+      <div class="text-align-center col-xs-12 form-group" ng-if="ticket1.concept ==1">
+        <label class="color-blue">Formulario de Cotización</label>
+      </div>   
+      <div class="text-align-center col-xs-12 form-group" ng-if="ticket1.concept ==3">
+        <label class="color-blue">Formulario de Endoso (A)</label>
+        <label>Tipo de Póliza <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.tipo_ot_p"
+            data-ng-options="tipo_ot_p.name for tipo_ot_p in selectedEndosoOptions | orderBy: 'name' track by tipo_ot_p.id"
+            ng-change="vm.changeOTSelected(vm.form.tipo_ot_p)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div> 
+      <div class="text-align-center col-xs-12 form-group" ng-if="ticket1.concept ==10">
+        <label class="color-blue">Formulario de Endoso (B)</label>
+        <label>Tipo de Póliza <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.tipo_ot_p"
+            data-ng-options="tipo_ot_p.name for tipo_ot_p in selectedEndosoOptions | orderBy: 'name' track by tipo_ot_p.id"
+            ng-change="vm.changeOTSelected(vm.form.tipo_ot_p)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>
+      <div class="text-align-center col-xs-12 form-group" ng-if="ticket1.concept ==11">
+        <label class="color-blue">Formulario de Endoso (D)</label>
+        <label>Tipo de Póliza <span class="red-color">*</span></label>
+        <select class="form-control" ng-model="vm.form.tipo_ot_p"
+            data-ng-options="tipo_ot_p.name for tipo_ot_p in selectedEndosoOptions | orderBy: 'name' track by tipo_ot_p.id"
+            ng-change="vm.changeOTSelected(vm.form.tipo_ot_p)"
+            >
+            <option value="">Seleccione</option>
+        </select>
+      </div>
+    </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-if="vm.form.id" ng-click="goToCapture(vm.form)">Ir a capturar OT</button>
+  <button type="button" class="btn btn-white" ng-click="close()">Cerrar</button>
+</div>
+<script type="text/javascript">
+	$('#select_user').select2({
+        dropdownParent: $('#modal_in')
+    });
+  $('#select_email_system').select2({
+        dropdownParent: $('#modal_in')
+    });
+  $('#select_email_manual').select2({
+        dropdownParent: $('#modal_in'),
+    });
+  $(".js-example-tokenizer").select2({
+      tags: true,
+      tokenSeparators: [',', ' ']
+  })
+
+  $('#select_email_manual').select2({
+       tags: true,
+       multiple: true,
+       tokenSeparators: [",", " "],       
+       placeholder: {
+          // id: -1,
+          text: "example@some,",
+       }
+  });
+</script>
+<script type="text/javascript">  
+  // $(window).load(function() { $("#state").select2(); });
+  // angular.element(document).ready(function(){
+  //   $('.js-example-basic-multiple').select2();
+  // });
+</script>

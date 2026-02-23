@@ -1,0 +1,274 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Compartir {{tipopoliza}}</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+          <!-- <div class="ibox-content"> -->
+            
+          <div class="ibox-content">
+            <div class="row" ng-if="!vm.show_binnacle">
+              <div class="col-lg-12">
+                <div class="tabs-container" >
+                  <uib-tabset>
+                    <uib-tab heading="Compartir a la App" id="app" ng-if="soloEmail">
+                      <div class="panel-body">
+                        <div>
+                          <h4>Por favor ingrese el correo electrónico a quien se desea asignar:</h4>
+                          <div class="form-group">
+                            <label>Correo electrónico<span class="color-red">*</span></label>
+                            <input class="form-control" name="email_assign" ng-model="email_assign" type="email" required>
+                            <input class="btn btn-white btn-mt" type="button" name="" value="{{email}}" ng-show="owner_exist" ng-click="showEmailInInput(email)">
+                            <div ng-repeat="em in emailscontractor track by $index">
+                              <input class="btn btn-white btn-mt" type="button" name="" value="{{em.correo}}" ng-show="owner_exist" ng-click="showEmailInInput(em.correo,0)">
+                            </div>
+                            <div ng-show="owner_exist">
+                              <input type="checkbox" name="is_owner" ng-model="vmm.is_owner"> 
+                              <label>Es el usuario principal?</label>
+                              <br>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <br><label>Compartido con:</label>
+                            <table class="table table-bordered">
+                              <thead>
+                                <th width="80%">Correo electrónico</th>
+                                <th width="20%">Acciones</th>
+                              </thead>
+                              <tr ng-repeat="people in people_assigned">
+                                <td>{{people.email}}{{people.user}}<span ng-if="people.is_owner" class="label ng-binding label-success" >Asegurado</span></td>
+                                <!-- <td><button ng-click="deleteEmail(people)">Eliminar</button></td> -->
+                                <!-- <td><input class="btn btn-danger" ng-click="deleteEmail(people)" type="button" value="Eliminar" name=""></td> -->
+                                <td><span class="label ng-binding label-danger" style="cursor: pointer;" ng-click="deleteEmail(people)">Eliminar</span></td>
+                              </tr>
+                            </table>
+                          </div>
+                          <table class="table table-bordered" ng-if="permiso_administrar_adjuntos">
+                            <br>
+                            <h3><span><i>Archivos a compartir</i></span></h3>
+                            <thead>
+                              <tr>
+                                <th>Archivo</th>
+                                <th width="400px">Opciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="file in files track by $index">
+                                <td ng-if="file.origin=='P'">
+                                  <strong ng-bind="file.nombre" disabled></strong>
+                                  <input class="form-control display-none" ng-model="file.nombre" onblur="blurArchivoCargado()" ng-blur="vmFiles.rename(file)">
+                                </td>
+                                <td ng-if="file.origin=='P'">
+                                  <div class="col-md-4">
+                                    <input type="checkbox" ng-model="file.shared" ng-change="shareFile(file)">
+                                    <label>Compartir</label>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <a class="btn btn-primary" href="{{file.arch}}" target="_blank">Ver</a>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <div>
+                            <!-- <button class="btn btn-primary pull-right ladda-button" ng-click="assignPolicy(email_assign)" ng-disabled="!email_assign || email_assign.length == 0">Compartir a la App</button> -->
+                            <button class="btn btn-primary pull-right ladda-button" ng-click="assignPolicy(email_assign)" >Compartir a la App</button>
+                          </div>
+                        </div>
+                      </div>
+                    </uib-tab>
+                    <!-- compartir por correo -->
+                    <uib-tab heading="Compartir por Email" id="email" ng-click="getTemplate(true)">
+                      <div class="panel-body">
+                        <div>
+                          <h4>Por favor ingrese el o los correo(s) electrónico(s) a quien se desea enviar un email:</h4>
+                          <div class="form-group">
+                            <div class="row">
+                              <div class="col-xs-12 form-group">
+                                <label>Correo electrónico<span class="color-red">*</span></label>
+                                <div class="col-xs-12 input-group">
+                                  <input class="form-control" type="email" name="email_assign_mail" ng-model="vmm.email_assign_mail" required>
+                                  <div class="input-group-btn">
+                                    <button class="btn btn-success" type="button" ng-click="addEmail(vmm.email_assign_mail)">Agregar</button>
+                                  </div>
+                                </div>
+                                <input class="btn btn-white btn-mt" type="button" name="" value="{{email}}" ng-show="owner_exist" ng-click="addEmail(email)">
+                                <input class="btn btn-white btn-mt"  ng-repeat="correo in vmm.correos" type="button" name="" value="{{correo.correo}}"  ng-click="addEmail(correo.correo)">
+                              </div>
+                            </div>
+                            <div class="col-xs-12 form-group" ng-if="contratanteInfo.description">
+                              <span class="blue-color">Observaciones del contratante:</span>
+                              <div class="row">
+                                <div class="col-xs-12" ng-if="contratanteInfo.description">
+                                  <span>{{ contratanteInfo.description }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <table ng-if="files && files.length && permiso_administrar_adjuntos" class="table table-bordered">
+                            <br>
+                            <h3><span><i>Seleccione los archivos que desea compartir:</i></span></h3>
+                            <thead>
+                              <tr>
+                                <th>Archivo</th>
+                                <th>Opciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="file in files track by $index">
+                                <td>
+                                  <strong ng-bind="file.nombre" disabled></strong><br>
+                                  <span ng-if="parseMb(file.size) >= maxShareMb" class="color-red">Archivo demasiado grande para ser compartido</span>
+                                </td>
+                                <td>
+                                  <div class="col-md-4">
+                                    <input type="checkbox" ng-model="file.shared_email" ng-change="shareFileEmail(file)" ng-disabled="parseMb(file.size) >= maxShareMb">
+                                    <label>Compartir</label>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <a class="btn btn-primary pull-right" href="{{file.arch}}" target="_blank">Ver</a>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                            <div class="form-group">
+                              <br><label>Se enviara a:</label>
+                              <table class="table table-bordered">
+                                <thead>
+                                  <th>Correo electrónico</th>
+                                  <th>Acciones</th>
+                                </thead>
+                                <tr ng-repeat="email in emails track by $index">
+                                  <td>{{email}}</td>
+                                  <td><button class="btn btn-danger" ng-click=remove_email($index) ><i class="fa fa-trash"></i></button></td>
+                                </tr>
+                              </table>
+                            </div>
+                            <!-- <div class="row">
+                              <div class="form-group col-xs-12">
+                                <label>Asunto:</label>
+                                <input class="col-xs-12 form-control" type="text" name="" ng-model="subjectEmail">
+                              </div>
+                              <div class="form-group col-xs-12">
+                                <label>Mensaje:</label>
+                                <div>
+                                  <input type="checkbox" name="custom_mail" ng-model="custom_email" ng-change="getTemplate(custom_email,'email')">
+                                  <label>Personalizar</label>
+                                  <br>
+                                </div>
+                                <textarea ng-if="!custom_email" class="col-xs-12 form-control textarea-modal" ng-model="vm.messageEmail"></textarea>
+                                <div ng-if="custom_email" text-angular ng-model="vm.first_comment" name=""></div>
+                                <br/>
+                                <div ng-if="custom_email" ng-bind-html="body" name="body"></div>
+                                <div ng-if="custom_email" text-angular  ng-model="vm.second_comment"></div>
+                                <br/>
+                                <br/>
+                                <label ng-if="(signature && !custom_email) || (signature_edith)">Firma</label>
+                                <div ng-if="!signature_edith && !custom_email" ng-bind-html="signature" name="signature"></div>
+                                <div ng-if="signature_edith" text-angular  ng-model="vm.signature"></div>
+                                <button ng-if="signature_edith" class="btn btn-primary" type="button" ng-click="setSignature()" title="Guardar Firma">Guardar</button>
+                                <button ng-if="signature_edith" class="btn btn-danger" type="button" ng-click="cancelEdithSignature()" title="Guardar Firma">Cancelar</button>
+                                <button ng-if="!signature_edith" class="btn btn-default" type="button" ng-click="edithSignature()" title="Editar Firma">Editar Firma</button>
+                                <br/>
+                                <form ng-if="banner_edith">
+                                  <label>* Estos archivos seran modificados para todas las cuentas de la organizacion</label>
+                                  <div class="form-group col-xs-12">
+                                    <label>Banner Superior :</label>
+                                    <input class="col-xs-12 form-control" type="file" onchange="angular.element(this).scope().addFile('header',this.files)" ng-model="vm.b_super">
+                                  </div>
+                                  <div class="form-group col-xs-12">
+                                    <label>Banner Inferior:</label>
+                                    <input class="col-xs-12 form-control" type="file" onchange="angular.element(this).scope().addFile('footer',this.files)" ng-model="vm.b_infer">
+                                  </div>
+                                </form>
+                    
+                                <button ng-if="banner_edith" class="btn btn-primary" type="button" ng-click="saveFilesHF()" title="Guardar Firma">Guardar</button>
+                                <button ng-if="banner_edith" class="btn btn-danger" type="button" ng-click="CancelEdithBanner()" title="Guardar Firma">Cancelar</button>
+                                <button ng-if="!banner_edith" class="btn btn-default" type="button" ng-click="edithBanner()" title="Editar Banner">Editar Banner</button>
+                              </div> -->
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <label>Plantillas de Póliza:</label>
+                              <select class="form-control" ng-options="item.name for item in plantillas" ng-change="changePlantilla(plantilla)" ng-model="plantilla">
+                                <option value="">Selecciona una plantilla</option>
+                              </select>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <!-- <input type="checkbox" ng-model="vmm.custom_email" ng-change="getTemplate(vmm.custom_email)" checked> 
+                              <label>Personalizar</label> -->
+                              <br>
+                            </div>
+                            <div class="form-group col-xs-12" ng-if="vmm.custom_email">
+                              <div class="form-group col-xs-12">
+                                <label>Asunto:</label>
+                                <input class="col-xs-12 form-control" type="text" name="" ng-model="vmm.subjectEmail" ng-blur="emptySubject(vmm.subjectEmail)">
+                              </div>
+                              <!-- <div class="form-group col-xs-12">
+                                <label ng-if="!vmm.subjectEmail">Asunto a enviarse:</label>
+                                <input class="col-xs-12 form-control" type="text" name="" ng-if="!vmm.subjectEmail" ng-model="vmm.subjectDefault">
+                              </div> -->
+                              <!-- <div ng-bind-html="vmm.head" sname="head"></div> -->
+                              <div text-angular ng-model="vmm.first_comment" name="first_comment"></div>
+                              <br/>
+                              <div ng-bind-html="vmm.body" name="body"></div>
+                              <div text-angular ng-model="vmm.second_comment" name="second_comment"></div>
+                              <br/>
+                              <div ng-bind-html="vmm.footer" name="footer"></div>
+                              
+                            </div>
+                            <div>
+                              <button class="btn btn-primary pull-right ladda-button" ng-disabled="!emails.length > 0 || !send" ng-click="sendEmail(people_assigned)">Compartir por Email</button>
+                            </div>
+                          </div>
+                        </div>
+                      </uib-tab>
+                    </uib-tabset>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            
+
+
+            <!-- </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <!-- <button type="button" class="btn btn-success" ng-click="assignPolicy()" ng-hide="!email_assign || email_assign.length == 0">Guardar</button> -->
+    <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+  </div>
+</div>
+
+
+  <script>
+    function renombrarArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target).parent().parent().find("td input");
+
+      strongTag.hide();
+      inputTag.show();
+      inputTag.focus();
+    }
+
+    function blurArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target);
+
+      strongTag.show();
+      inputTag.hide();
+    }
+  </script>
+
+<style type="text/css">
+  .to_send = {
+    background-color: red;
+  }
+</style>
