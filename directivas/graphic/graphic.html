@@ -1,0 +1,101 @@
+<ul class="stat-list col-xs-12">
+  <li class="col-xs-12" ng-click="getItems('green','0','0')" ng-if="data.green.percent > 0">
+      <div class="row">
+        <div class="col-xs-12 no-padding" title="{{data.green.title}}">
+          <h3 style="color: #17A45D;" class="no-margins">{{data.green.status}}</h3>
+          <p class="small">{{data.green.label}}</p> 
+        </div>
+      </div>
+      <div class="row">
+        <div class="progress progress-mini">
+          <div style="width: {{data.green.percent}}%; background: #17A45D;" class="progress-bar""></div>
+        </div>
+        <!-- <a class="pull-right" ng-if="data.green.prima_total" ng-click="$event.stopPropagation()" title="{{data.green.prima_total}}&#10;{{data.green.prima_total_nota}}&#10;{{data.green.prima_total_dolares}}&#10;{{data.green.prima_total_nota_dolares}}"><i class="fa fa-question-circle"></i></a> -->
+        <!-- <p style="color: #000000;" ng-if="data.green.prima_total" class="no-margins small pull-right">{{data.green.prima_total}}</p>
+        <p style="color: #000000;" ng-if="data.green.prima_total_nota" class="no-margins small pull-right">{{data.green.prima_total_nota}}</p> -->
+        <div ng-if="data.green.prima_total">
+          <p class="no-margins small pull-right" title="Total prima total">MXN {{ data.green.prima_total }} | USD {{ data.green.prima_total_dolares }}</p>
+          <br>
+          <p class="no-margins small pull-right" title="Total notas de crédito">MXN {{ data.green.prima_total_nota }} | USD {{ data.green.prima_total_nota_dolares }}</p>
+        </div>
+      </div>
+  </li>
+  <li class="col-xs-12" ng-click="getItems('yellow','0','0')" ng-if="data.yellow.percent > 0">
+      <div class="row">
+        <div class="col-xs-9 no-padding" title="{{data.yellow.title}}">
+          <h3 style="color: #F5CD21;" class="no-margins">{{data.yellow.status}}</h3>
+          <p class="small">{{data.yellow.label}}</p>
+        </div>        
+      </div>
+      <div class="row">
+        <div class="progress progress-mini">
+          <div style="width: {{data.yellow.percent}}%;background: #F5CD21;" class="progress-bar"></div>
+        </div>
+        <!-- <a class="pull-right" ng-if="data.yellow.prima_total" ng-click="$event.stopPropagation()" title="{{data.yellow.prima_total}}&#10;{{data.yellow.prima_total_nota}}&#10;{{data.yellow.prima_total_dolares}}&#10;{{data.yellow.prima_total_nota_dolares}}"><i class="fa fa-question-circle"></i></a> -->
+        <!-- <p style="color: #000000;" ng-if="data.yellow.prima_total" class="no-margins small pull-right">{{data.yellow.prima_total}}</p>
+        <p style="color: #000000;" ng-if="data.yellow.prima_total_nota" class="no-margins small pull-right">{{data.yellow.prima_total_nota}}</p> -->
+        <div ng-if="data.yellow.prima_total">
+          <p class="no-margins small pull-right" title="Total prima total">MXN {{ data.yellow.prima_total }} | USD {{ data.yellow.prima_total_dolares }}</p>
+          <br>
+          <p class="no-margins small pull-right" title="Total notas de crédito">MXN {{ data.yellow.prima_total_nota }} | USD {{ data.yellow.prima_total_nota_dolares }}</p>
+        </div>
+      </div>
+
+  </li>
+  <li class="col-xs-12" ng-click="getItems('orange','0','0')" ng-if="data.orange.percent > 0">
+      <div class="row">
+        <div class="col-xs-10 no-padding" title="{{data.orange.title}}">
+          <h3 style="color: #EA9021;" class="no-margins">{{data.orange.status}}</h3>
+          <p class="small">{{data.orange.label}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="progress progress-mini">
+          <div style="width: {{data.orange.percent}}%;background: #EA9021;" class="progress-bar"></div>
+        </div>
+        <!-- <a class="pull-right" ng-if="data.orange.prima_total" ng-click="$event.stopPropagation()" title="{{data.orange.prima_total}}&#10;{{data.orange.prima_total_nota}}&#10;{{data.orange.prima_total_dolares}}&#10;{{data.orange.prima_total_nota_dolares}}"><i class="fa fa-question-circle"></i></a> -->
+        <!-- <p style="color: #000000;" ng-if="data.orange.prima_total" class="no-margins small pull-right">{{data.orange.prima_total}}</p>
+        <p style="color: #000000;" ng-if="data.orange.prima_total_nota" class="no-margins small pull-right">{{data.orange.prima_total_nota}}</p> -->
+        <div ng-if="data.orange.prima_total">
+          <p class="no-margins small pull-right" title="Total prima total">MXN {{ data.orange.prima_total }} | USD {{ data.orange.prima_total_dolares }}</p>
+          <br>
+          <p class="no-margins small pull-right" title="Total notas de crédito ">MXN {{ data.orange.prima_total_nota }} | USD {{ data.orange.prima_total_nota_dolares }}</p>
+        </div>
+      </div>
+  </li>
+  <li class="col-xs-12" ng-click="getItems('red','0','0')" ng-if="data.red.percent > 0">
+      <div class="row">
+        <div class="col-xs-10 no-padding" title="{{data.red.title}}">
+          <h3 style="color: #EA5121;" class="no-margins">{{data.red.status}}</h3>
+          <p class="no-margins">{{data.red.label}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="progress progress-mini">
+          <div style="width: {{data.red.percent}}%; background: #EA5121;" class="progress-bar"></div>
+        </div>
+        <!-- <a class="pull-right" ng-if="data.red.prima_total" ng-click="$event.stopPropagation()" title="{{data.red.prima_total}}&#10;{{data.red.prima_total_nota}}&#10;{{data.red.prima_total_dolares}}&#10;{{data.red.prima_total_nota_dolares}}"><i class="fa fa-question-circle"></i></a> -->
+        <!-- <p style="color: #000000;" ng-if="data.red.prima_total" class="no-margins small pull-right">{{data.red.prima_total}}</p>
+        <p style="color: #000000;" ng-if="data.red.prima_total_nota" class="no-margins small pull-right">{{data.red.prima_total_nota}}</p> -->
+        <div ng-if="data.red.prima_total">
+          <p class="no-margins small pull-right" title="Total prima total">MXN {{ data.red.prima_total }} | USD {{ data.red.prima_total_dolares }}</p>
+          <br>
+          <p class="no-margins small pull-right" title="Total notas de crédito ">MXN {{ data.red.prima_total_nota }} | USD {{ data.red.prima_total_nota_dolares }}</p>
+        </div>
+      </div>
+  </li>
+  <!-- <li class="col-xs-12" ng-click="getItems('blue','1','1')" ng-if="data.blue.percent > 0">
+      <div class="row">
+        <div class="col-xs-10 no-padding" title="{{data.blue.title}}">
+          <h3 style="color: #0174DF;" class="no-margins">{{data.blue.status}}</h3>
+          <p class="no-margins">{{data.blue.label}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="progress progress-mini">
+          <div style="width: {{data.blue.percent}}%; background: #0174DF;" class="progress-bar"></div>
+        </div>
+        <p style="color: #000000;" ng-if="data.blue.prima_total" class="no-margins small pull-right">{{data.blue.prima_total}}</p>
+      </div>
+  </li> -->
+</ul>

@@ -1,0 +1,84 @@
+<div>
+  <div>
+    <div>
+      <div>
+        <div ng-if="type == 'contactos'" class="col-xs-12 comment-container">
+          <div class="box box-widget">
+            <div class="box-header with-border">
+              <div class="user-block"><img src="images/contact-icon-green.png"/>
+                <div class="username">{{data.name}}</div>
+                <div class="description">{{data.contactDate | date: 'medium'}}</div>
+              </div>
+            </div>
+            <div class="box-body">
+              <p ng-if="!isHidden($index)" class="col-xs-10">{{data.comments}}</p>
+              <p ng-if="isHidden($index)" class="col-xs-12">{{data.comments}}</p>
+              <button ng-click=" asignParent(data.id, data.id); hideThis($index)" ng-hide="isHidden($index)" class="btn btn-asegura pull-right">Responder</button>
+            </div>
+            <div class="box-footer box-comments">
+              <div ng-repeat="item in comentarios | orderBy : 'created': true" ng-if="item.comment_id == data.id &amp;&amp; item.parent" class="box-comment"><img src="images/contact-icon-blue.png"/>
+                <div class="comment-text"><span class="username">{{ item.username }}<span style="color:gray;" class="text-muted pull-right">{{ item.created | date: 'medium' }}</span></span>
+                  <div ng-repeat="child in comentarios" ng-if="child.id == item.parent"></div>
+                  <div>{{item.content}}</div>
+                </div>
+              </div>
+            </div>
+            <div ng-show="commentElement == data.id" class="box-footer">
+              <form>
+                <div class="col-xs-10">
+                  <input type="text" ng-model="textResponse" placeholder="Escribe una respuesta...." required="required" class="form-control comment-control"/>
+                </div>
+                <div class="col-xs-2"><span class="inut-group-btn">
+                    <button ng-click="addResponse(textResponse)" ng-disabled="childComment.$invalid" class="btn btn-asegura">Enviar</button></span></div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div ng-repeat="response in comentarios" ng-if="response.parent == null" class="col-xs-12 comment-container">
+          <div class="col-xs-12">
+            <div class="box box-widget">
+              <div class="box-header with-border">
+                <div class="user-block"><img src="images/contact-icon-green.png"/>
+                  <div class="username">{{response.username}}</div>
+                  <div class="description">{{ response.created | date: 'medium' }}</div>
+                </div>
+              </div>
+              <div class="box-body">
+                <p ng-if="!isHidden($index)" class="col-xs-10">{{response.content}}</p>
+                <p ng-if="isHidden($index)" class="col-xs-12">{{response.content}}</p>
+                <button ng-click=" asignParent(response.id, response.id); hideThis($index)" ng-hide="isHidden($index)" class="btn btn-asegura pull-right">Responder</button>
+              </div>
+              <div ng-if="response.content" class="box-footer box-comments">
+                <div ng-repeat="item in comentarios | orderBy : 'created': true" ng-if="item.comment_id == response.id" class="box-comment response-item"><img src="images/contact-icon-blue.png"/>
+                  <div ng-if="item.parent" class="comment-text"><span class="username">{{ item.username }}</span><span style="color:gray;" class="text-muted pull-right">{{ item.created | date: 'medium' }}</span>
+                    <div ng-repeat="child in comentarios" ng-if="child.id == item.parent">{{item.content}}</div>
+                  </div>
+                </div>
+              </div>
+              <div ng-show="commentElement == response.id" class="box-footer">
+                <form name="childComment">
+                  <div class="col-xs-10">
+                    <input type="text" ng-model="newTextResponse" placeholder="Escribe una respuesta...." required="required" class="form-control comment-control"/>
+                  </div>
+                  <div class="col-xs-2"><span class="inut-group-btn">
+                      <button ng-click="addResponse(newTextResponse)" ng-disabled="childComment.$invalid" class="btn btn-asegura">Enviar</button></span></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 comment-container">
+        <hr/>
+        <form name="requestComment" class="form-group">
+          <div class="col-xs-10">
+            <input type="text" placeholder="Nuevo comentario... " ng-model="newComment" required="required" class="form-control comment-control"/>
+          </div>
+          <div class="col-xs-2">
+            <button ng-click="addResponse(newComment, 'comment')" ng-disabled="requestComment.$invalid" class="btn btn-asegura pull-right">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

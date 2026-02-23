@@ -1,0 +1,71 @@
+<div class="binacle-content" id="binaclecontent">
+    <!-- <pre>{{config | json}}</pre> -->
+    <div ng-if="config.count > 10 && config.next" class="text-center">
+        <a ng-click="showMore()">Ver más</a>
+    </div>
+
+    <div class="social-feed-box" ng-repeat="item in datasource | orderBy: 'created_at'" ng-if="!item.is_child" ng-init="scrollDown();">
+        
+        <div class="social-avatar">
+            <a href="" class="pull-left">
+                <!-- <img alt="image" ng-src="{{ item.image }}"> -->
+                <span>{{ item.user }} &nbsp; &nbsp; &nbsp;</span>
+            </a>
+            <div class="media-body">
+                <a>
+                    {{item.user_info}}
+                </a>
+                <small class="text-muted">{{ item.created_at | date: 'shortTime' }} - {{ item.created_at | date: 'dd/MM/yyyy' }}</small>
+            </div>
+        </div>
+        <div class="social-body">
+            <p>
+                {{item.content}} 
+            </p>
+        </div>
+        <div class="social-footer">
+            <div class="social-comment" ng-repeat="child in item.comment_child">
+                <a href="" class="pull-left">
+                    <!-- <img alt="image" ng-src="{{ child.image }}"> -->
+                    <span>{{ child.user }}</span>
+                </a>
+                <br>
+                <div class="media-body">
+                    <a>
+                        {{child.user_info}}
+                    </a>
+                    {{child.content}}
+                    <br>
+                    <small class="text-muted">{{ item.created_at | date: 'shortTime' }} - {{ child.created_at | date: 'dd/MM/yyyy' }}</small>
+
+                </div>
+            </div>
+
+            <div class="social-comment">
+                <a href="" class="pull-left">
+                    <!-- <img alt="image" src="img/a3.jpg"> -->
+
+                </a>
+                <div class="media-body" ng-init="child.response = false">
+                    <span class="label label-success pull-right" ng-click="child.response = true" ng-if="child.response == false">Responder</span>
+                    <textarea ng-if="child.response == true" class="form-control" ng-model="child.content" placeholder="Escriba un comentario..."></textarea>
+                    <input type="checkbox" name="">Convertir a tarea?
+                    <button ng-if="child.response == true" class="btn btn-success pull-right margin-top-10" ng-click="saveChild(child, item);" ng-disabled="!child.content">Responder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="col-xs-12 form-group">
+        <div class="row">
+            <textarea class="form-control" ng-model="simple_comment" placeholder="Escriba un comentario..."></textarea>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3 form-group pull-right">
+        <div class="row">
+        <input type="checkbox" name="">Convertir a tarea?
+            <a class="col-xs-12 btn btn-success pull-right margin-top-10" ng-click="saveComment()">Enviar comentario</a>
+        </div>
+    </div>
+</div>

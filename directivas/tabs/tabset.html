@@ -1,0 +1,23 @@
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+       <li role="presentation"  
+       ng-class="{'active':tab.active, 'disabled':tab.disabled}"
+       ng-repeat="tab in tabset.tabs track by $index">    
+       <a href=""
+         role="tab"
+         ng-click="tabset.select(tab)">{{tab.heading}} <span ng-if="tabset.tabs.length > 1" style="margin-left: 20px; padding: 12px 12px"  ng-mousedown="$event.stopPropagation();" ng-click="tabset.delete_tab($index)">x</span></a>
+       
+         <!-- <button ng-if="tabset.tabs.length > 1 " ng-click="tabset.delete_tab($index)"> x </button> -->
+       </li>
+       
+       <li role="presentation"  
+       ng-click="tabset.add_tab()"
+        ng-class="{'active':tab.active, 'disabled':tab.disabled}">
+        <a href=""
+        role=""
+        >+</a>
+       </li>
+    </ul>
+    <ng-transclude>
+    </ng-transclude>
+</div>

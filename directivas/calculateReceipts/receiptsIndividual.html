@@ -1,0 +1,286 @@
+<div>
+	<div class="row">
+		<div class="col-xs-12 form-group">
+			<legend class="legend-title" align="center">Primas</legend>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 form-group">
+			<label>Configuración: <span class="color-red">*</span></label>
+			<select class="form-control" ng-model="comision_seleccion" ng-options="item as ('Nombre Comisión: ' + item.nombre + ', Comisión Prima: ' + item.comission + '%, Fecha Efectividad: '+ item.efective_date) for item in form.comisiones " ng-change="asignarValores(comision_seleccion)" ng-focus="verComisiones()">
+				<option value="" disabled>Seleccione una Configuración:</option>
+			</select>
+		</div>
+		<div class="col-xs-12 form-group" ng-if="comision_seleccion && editar">
+			<div class="alert alert-info alert-dismissible">
+				<a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>Información:</strong> Al selecionar los valores de comisión, se recalculan de nuevo las primas con los vaores predeterminados.
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Prima Neta: <span class="color-red">*</span></label>
+			<input class="form-control" type="number" ng-model="datareceipt.primaNeta" ng-change="calcularTotales();validarPrimaNeta()" ng-disabled="!comision_seleccion">
+			<span>&nbsp;</span>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Descuento: </label>
+			<div class="col-xs-12">
+				<select class="col-xs-2 form-control" ng-model="tipo_descuento" ng-options="valor.name for valor in option_descuento" ng-change="calcularTotales(tipo_descuento)" ng-disabled="!comision_seleccion" style="width: 30%;">
+				</select>
+				<input class="form-control" type="number" ng-model="datareceipt.descuento" ng-change="calcularTotales()" ng-disabled="!comision_seleccion" style="width: 70%;">
+			</div>
+			<div class="ml-16">
+				<span ng-if="tipo_descuento.value == 2 && datareceipt.descuento">{{ descuentoPesos | currency }}</span>
+				<span ng-if="tipo_descuento.value == 1 && datareceipt.descuento">{{ descuentoPorcentaje }}%</span>
+				<span title="Para aplicar el descuento tienes que seleccionar la casilla de Calcular con descuento."> <i class="fa fa-question-circle"></i> </span><br>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Recargo por Pago Fraccionado: </label>
+			<div class="col-xs-12">
+				<select class="col-xs-2 form-control" ng-model="tipo_rpf" ng-options="valor.name for valor in option_rpf" ng-change="calcularTotales()" ng-disabled="!comision_seleccion" style="width: 30%;">
+				</select>
+				<input class="form-control" type="number" ng-model="datareceipt.rpf" ng-change="calcularTotales()" ng-disabled="!comision_seleccion" style="width: 70%;">
+			</div>
+			<div class="ml-16">
+				<span ng-if="tipo_rpf.value == 2 && datareceipt.rpf">{{ rpfPesos | currency }}</span>
+				<span ng-if="tipo_rpf.value == 1 && datareceipt.rpf">{{ rpfPorcentaje }}%</span>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Derecho de póliza: </label>
+			<div class="input-group">
+				<span class="input-group-addon">$</span>
+				<input class="form-control" type="number" ng-model="datareceipt.derecho" ng-change="calcularTotales()" ng-disabled="!comision_seleccion">
+
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Sub Total: </label>
+			<input class="form-control" type="text" ng-model="datareceipt.subTotal" ng-change="calcularTotales()" format-as-currency step="0.01" ng-value="0.00" disabled>
+			<span>&nbsp;</span>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>IVA: </label>
+			<div class="col-xs-12">
+				<select class="col-xs-2 form-control" ng-model="tipo_iva" ng-options="valor.name for valor in option_iva" ng-change="calcularTotales()" ng-disabled="!comision_seleccion" style="width: 30%;">
+				</select>
+				<input class="form-control" type="number" ng-model="datareceipt.iva" ng-change="calcularTotales('',datareceipt.iva)" ng-disabled="!comision_seleccion" style="width: 70%;">
+			</div>
+			<div class="ml-16">
+				<span ng-if="tipo_iva.value == 2 && datareceipt.iva">{{ ivaPesos | currency }}</span>
+				<span ng-if="tipo_iva.value == 1 && datareceipt.iva">{{ ivaPorcentaje }}%</span>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Prima Total: </label>
+			<input class="form-control" type="text" ng-model="datareceipt.primaTotal" ng-disabled="!comision_seleccion" format-as-currency step="0.01" ng-value="0.00">
+			<span>&nbsp;</span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Recargo por Pago Fraccionado: </label>
+			<div class="checkbox margin-left-10">
+			    <label>
+			    	<input type="checkbox" ng-model="datareceipt.aplicarRpf"> Aplicar solo en el primer recibo
+			    </label>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Derecho de póliza: </label>
+			<div class="checkbox margin-left-10">
+			    <label>
+			    	<input type="checkbox" ng-model="datareceipt.aplicarDerecho"> Aplicar solo en el primer recibo
+			    </label>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>&nbsp;</label>
+			<div class="checkbox margin-left-10">
+			    <label>
+			    	<input type="checkbox" ng-model="datareceipt.aplicarDescuento" ng-change="calcularTotales()"> Calcular con descuento
+			    </label>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="form.policy_days_duration > 367">
+			<div class="checkbox margin-left-10">
+			    <label>
+			    	<input type="checkbox" ng-model="datareceipt.fy"> Generar sólo el primer año
+			    </label>
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-if="comision_seleccion">
+		<div class="col-xs-12 form-group">
+			<div class="alert alert-info alert-dismissible">
+				<a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>Información:</strong> Las comisiones son referencia para el cálculo de los recibos, los cambios que se hagan en ellas sólo se incluirán en esta póliza.
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Comisión Prima Neta: </label>
+			<div class="input-group">
+				<input class="form-control" type="number" ng-model="datareceipt.prima_comision" limit-to-decimals ng-change="calcularTotales()">
+				<span class="input-group-addon">%</span>
+			</div>
+			<span>{{ valor_prima_comision | currency }}</span>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Comisión Recargo Pago Fraccionado: </label>
+			<div class="input-group">
+				<input class="form-control" type="number" ng-model="datareceipt.rpf_comision" ng-change="calcularTotales()">
+				<span class="input-group-addon">%</span>
+			</div>
+			<span>{{ valor_rpf_comision | currency }}</span>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Comisión Derecho: </label>
+			<div class="input-group">
+				<input class="form-control" type="number" ng-model="datareceipt.derecho_comision" ng-change="calcularTotales()">
+				<span class="input-group-addon">%</span>
+			</div>
+			<span>{{ valor_derecho_comision | currency }}</span>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<label>Comisión Total: </label>
+			<div class="input-group">
+				<span class="input-group-addon">$</span>
+				<input class="form-control" type="number" ng-model="datareceipt.comision" ng-change="calcularComision()">
+			</div>
+			<span>{{ comisionPorcentaje }}%</span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<button class="col-xs-12 btn btn-success" ng-click="calcularPrimerRecibo()"><i class="fa fa-calculator" aria-hidden="true"></i> Generar Primer Recibo</button>
+		</div>
+	</div>
+	<div class="row" ng-if="mostrarPrimerRecibo">
+		<div class="col-xs-12 form-group">
+			<legend class="legend-title" align="center">Primer recibo</legend>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Serie: </label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].recibo_numero" disabled>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Prima Neta: <span class="color-red">*</span></label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].prima_neta" ng-change="calcularTotalPrimerRecibo()">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>RPF: </label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].rpf" ng-change="calcularTotalPrimerRecibo()">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Derecho: </label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].derecho" ng-change="calcularTotalPrimerRecibo()">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>IVA: </label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].iva" ng-change="calcularTotalPrimerRecibo()">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Prima Total: </label>
+			<input class="form-control" type="number" ng-model="datareceipt.receipts[0].prima_total" ng-change="calcularNetaPrimerRecibo()">
+		</div>
+	</div>
+	<div class="row" ng-if="mostrarPrimerRecibo">
+		<div class="col-xs-12 col-sm-6 col-md-3 form-group">
+			<button class="btn btn-success m-t" ng-click="calcularSiguientesRecibos()"><i class="fa fa-calculator" aria-hidden="true"></i> Calcular y Generar Recibos</button>
+		</div>
+	</div>
+	<div class="row" ng-if="mostrarTodosRecibo">
+		<legend class="legend-title" align="center">Recibos Generados</legend>
+	</div>
+	<div class="row" ng-if="mostrarTodosRecibo && editar">
+		<div class="col-xs-12 form-group">
+			<div class="alert alert-info alert-dismissible">
+				<a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>Información:</strong> Los recibos no se pueden modificar desde la edición de la póliza, solo se podrán hacer desde la información de la póliza.
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-repeat="receipt in datareceipt.receipts | orderBy : 'id'" ng-if="mostrarTodosRecibo">
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Serie</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.recibo_numero }} / {{ numeroRecibos }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.recibo_numero" disabled>
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Inicio Vigencia</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.fecha_inicio }}</span>
+			<input ng-if="editar_recibos" data-provide="datepicker" class="form-control width-100 text-align-center" type="text" ng-model="receipt.fecha_inicio" ng-change="validarFechaInicio(receipt, $index)" value="{{receipt.fecha_inicio}}">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Fin Vigencia</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.fecha_fin }}</span>
+			<input ng-if="editar_recibos" data-provide="datepicker" class="form-control width-100 text-align-center" type="text" ng-model="receipt.fecha_fin" ng-change="validarFechaFin(receipt, $index)" value="{{receipt.fecha_fin}}">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Prima Neta</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.prima_neta | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.prima_neta" ng-change="recalcularRecibo($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>RPF</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.rpf | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.rpf" ng-change="recalcularRecibo($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Derecho</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.derecho | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.derecho" ng-change="recalcularRecibo($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Iva</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.iva | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.iva" ng-change="recalcularRecibo($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Prima Total</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.prima_total | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.prima_total" ng-change="recalcularTotal($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group" ng-show="permiso_comisiones || form.is_edit == false">
+			<label>Comisión</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.comision | currency }}</span>
+			<input ng-if="editar_recibos" class="form-control" type="number" ng-model="receipt.comision" ng-change="recalcularComision($index)">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Vencimiento</label>
+			<br>
+			<span ng-if="!editar_recibos">{{ receipt.vencimiento }}</span>
+			<input ng-if="editar_recibos" data-provide="datepicker" class="form-control width-100 text-align-center" type="text" ng-model="receipt.vencimiento">
+		</div>
+		<div class="col-xs-12 col-sm-6 col-md-2 form-group">
+			<label>Entregado</label>
+			<br>
+			<input type="checkbox" ng-model="receipt.delivered" />
+		</div>
+		<div class="col-xs-12 form-group">
+			<legend class="legend-title" align="center"></legend>
+		</div>
+	</div>
+	<div class="row" ng-if="mostrarTodosRecibo && recalcular">
+		<div class="col-xs-12 col-sm-6 col-md-3 pull-right form-group">
+			<button class="col-xs-12 btn btn-primary" ng-if="!editar_recibos" ng-click="editarRecibos()"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar Recibos</button>
+			<button class="col-xs-12 btn btn-primary" ng-if="editar_recibos" ng-click="guardarRecibos()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar Recibos</button>
+		</div>
+	</div>
+</div>

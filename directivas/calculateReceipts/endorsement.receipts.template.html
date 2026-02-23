@@ -1,0 +1,173 @@
+<div>
+	<div class="form-group col-xs-12">
+    <legend class="legend-title" align="center">Recibos del endoso</legend>
+    <!-- <div id="divConfigIVA" class="checkbox">
+      <label><input type="checkbox" ng-model="vmm.statusIva" ng-change="vmm.changeIva(vmm.statusIva)">IVA - Generar el endoso con IVA.</label>
+    </div> -->
+  </div>
+	<div>
+		<div class="form-group col-xs-12 col-md-3 col-sm-6">
+      <h5>Prima Neta: <span class="color-red">*</span></h5>
+      <input value="" class="form-control" id="prima-neta" ng-model="endoso.primaNeta" ng-change="calculateInputs(endoso,1)">
+    </div>
+    <div class="form-group col-xs-12 col-md-3 col-sm-6">
+      <h5>RPF: </h5>
+      <input value="" class="form-control" id="rpf" ng-model="endoso.rpf" ng-change="calculateInputs(endoso,3)">
+    </div>
+    <div class="form-group col-xs-12 col-md-3 col-sm-6">
+      <h5>Derecho: <span class="color-red">*</span></h5>
+      <input value="" type="text" class="form-control" id="derecho" ng-model="endoso.derecho" ng-change="calculateInputs(endoso,4)">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6 col-md-3">
+      <h5>Sub-Total: </h5>
+      <input value="" class="form-control" id="sub-total" ng-model="endoso.subTotal" placeholder="" disabled format-as-currency>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6 col-md-3">
+      <h5>IVA: </h5>
+      <input value="" class="form-control" id="sub-total" ng-model="endoso.iva" ng-change="editIva('iva');" placeholder="" format-as-currency>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6 col-md-3">
+      <h5>Prima Total:</h5>
+      <input value="" class="form-control" id="prima-total" ng-model="endoso.primaTotal" placeholder="" ng-change="editPTotal()">
+    </div>
+    <hr>
+    <div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+      <h5>Derecho</h5>
+      <div class="checkbox margin-top-10 margin-left-10">
+        <label>
+          <input id="configDerechoEndoso" ng-model="endoso.configDerecho" type="checkbox" />
+          Cargos sólo al primer recibo
+        </label>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+      <h5>Recargo por Pago Fraccionado</h5>
+      <div class="checkbox margin-top-10 margin-left-10">
+        <label>
+          <input id="configRPFEndoso" type="checkbox"  ng-model="endoso.configRPF" />
+          Cargos sólo al primer recibo
+        </label>
+      </div>
+    </div>
+    <div class="col-xs-12 form-group">
+      <div ng-if="!noRecalculateReceipts">
+        <button class="col-xs-12 col-sm-4 col-lg-3 btn btn-success pull-right" ng-disabled="!endoso.primaNeta || !endoso.derecho" ng-click="calculate(endoso)" id="calcularB" type="button"><i class="fa fa-calculator" aria-hidden="true"></i> Calcular y generar recibos</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- TABLA DE RECIBOS -->
+  <div>
+    <!-- <div ng-if="showInput" class="form-group text-align-center">
+      <button class="btn btn-success" ng-click="add_receipt()" >Agregar Recibo</button>
+      <br>
+    </div> -->
+    <div ng-repeat="receipt in receipts track by $index">
+      <div class="form-group col-xs-2">
+        <label>Recibo</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}</span>
+        <input ng-if="showInput" class="form-control" step="any" ng-model="receipt.recibo_numero" value="{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}" type="text"/>
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Inicio Vigencia</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.startDate | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+        <div class="datepicker-me" ng-if="showInput">
+          <input
+          type="text"
+          class="width-100 text-align-center form-control"
+          data-provide="datepicker"
+          ng-model="receipt.startDate"
+          value="{{receipt.startDate}}"
+          />
+        </div>
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Fin Vigencia</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.endingDate | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+        <div class="datepicker-me" ng-if="showInput">
+          <input
+          type="text"
+          class="width-100 text-align-center form-control"
+          data-provide="datepicker"
+          ng-model="receipt.endingDate"
+          value="{{receipt.endingDate}}"
+          />
+        </div>
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Prima Neta</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.prima | currency}}</span>
+        <input ng-model="receipt.prima" ng-if="showInput" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 1)" ng-change="recalc_receipt(receipt, $index)">
+      </div>
+      <div class="form-group col-xs-2">
+        <label>RPF</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.rpf | currency}}</span>
+        <input ng-model="receipt.rpf" ng-if="showInput" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 2)" ng-change="recalc_receipt(receipt, $index)">
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Derecho</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.derecho | currency}}</span>
+        <input ng-model="receipt.derecho" ng-if="showInput" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 3)" ng-change="recalc_receipt(receipt, $index)">
+      </div>
+      <div class="form-group col-xs-2">
+        <label>IVA</label>
+        <br>
+        <span ng-if="poliza.iva;!showInput" >{{ receipt.iva  | currency}}</span>
+        <input ng-if="poliza.iva; showInput" ng-model="receipt.iva" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 4)" >
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Prima Total</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.total | currency}}</span>
+        <input ng-model="receipt.total" ng-if="showInput" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 5)" >
+      </div>
+      <div class="form-group col-xs-2" ng-show="permiso_comisiones">
+        <label>Comisión</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.comision | currency}}</span>
+        <input ng-model="receipt.comision" ng-if="showInput" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 6)" ng-change="recalc_receipt(receipt, $index)" />
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Vencimiento</label>
+        <br>
+        <span ng-if="!showInput">{{receipt.vencimiento | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+        <div class="datepicker-me" ng-if="showInput">
+          <input
+          type="text"
+          class="width-100 text-align-center form-control"
+          data-provide="datepicker"
+          ng-model="receipt.vencimiento"
+          ng-change="checkVenDate(receipt)"
+          />
+        </div>
+      </div>
+      <div class="form-group col-xs-2">
+        <label>Entregado</label>
+        <br>
+        <input type="checkbox" ng-model="receipt.delivered" /> 
+      </div>
+      <!-- <div class="form-group col-xs-2" ng-if="showInput">
+        <label>Eliminar</label>
+        <br>
+        <button class="btn btn-danger" ng-click="delete_receipt($event, receipt, $index)"><i class="fa fa-trash"></i></button>
+      </div> -->
+      <div class="form-group col-xs-12">
+        <legend class="legend-title" align="center"</legend>
+      </div>
+    </div>
+    <div ng-if="receipts.length > 0">
+      <div ng-if="!noRecalculateReceipts">
+        <div class="col-xs-12">
+          <button ng-if="receipts.length; !showInput" type="button" class="btn btn-primary btn-shadow pull-right" ng-click="editTable()"><i class="fa fa-pencil-square-o btn-shadow" aria-hidden="true"></i> Editar Recibo</button>
+          <button ng-if="receipts.length; showInput" type="button" class="btn btn-success btn-shadow pull-right" ng-click="editTable('save')"><i class="fa fa-floppy-o btn-shadow" aria-hidden="true"></i> Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

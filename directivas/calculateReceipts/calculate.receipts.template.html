@@ -1,0 +1,342 @@
+<fieldset>
+	<legend class="legend-title" align="center">Primas de Pólizas</legend>
+	<div class="ibox float-e-margins">
+		<form name="receiptsForm">
+	    	<div class="row">
+	    		<div class="col-xs-12">
+	    			<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label class="control-label">Prima Neta <span class="color-red">*</span></label>
+						<input ng-model="poliza.primaNeta" id="number" format-as-currency  step="0.01" ng-value="0.00"
+						ng-blur="calculateComision()" ng-change="calculateInputs('primaNeta',1)" class="col-md-2 form-control">
+
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label class="control-label">% Descuento</label>
+						<input ng-model="poliza.descuento" type="text"  ng-blur="calculateComision()" ng-change="calculateInputs('descuento',2)" min="0" maxlength="5" class="form-control">
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label class="control-label" for="rpf" ng-if="type == 1">Recargo por Pago Fraccionado</label>
+						<label class="control-label" for="rpf" ng-if="type == 2">Gastos de expedición</label>
+						<!--<label class="control-label" for="rpf" ng-if="type == 2">Gastos de trámite</label>-->
+					  	<input ng-model="poliza.rpf" id="rpf"  ng-value="0.00" class="form-control" ng-change="calculateInputs('rpf',3)" >
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label for="derecho" ng-if="type == 1">Derecho de Póliza</label>
+						<label for="derecho" ng-if="type == 2">Derechos</label>
+					  	<input ng-model="poliza.derecho" id="derecho" ng-value="0.00" class="form-control" ng-change="calculateInputs('derecho',4)" >
+					</div>
+	    			<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+					  	<label for="sub-total">Sub-Total</label>
+						<input ng-model="poliza.subTotal" id="subTotal" class="form-control" disabled>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label for="prima-total">IVA de póliza</label>
+					  	<input ng-model="poliza.iva" class="form-control" ng-value="0.00" ng-change="editIva('iva'); checkValue([$index], $event, 'iva', 1)">
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+					  	<label for="prima-total">Prima Total</label>
+						<input ng-model="poliza.primaTotal"  class="form-control" ng-value="0.00" ng-change="editPTotal(); checkValue([$index], $event, 'primaTotal', 1)">
+					</div >
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group" ng-if="type == 2 && permiso_comisiones">
+					  	<label for="prima-total">Comision póliza</label>
+						<input ng-model="poliza.comision_insurance"  class="form-control" disabled>
+					</div >
+	    		</div>
+				<div class="col-xs-12">
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group" ng-if="type == 1">
+						<label class="control-label margin-bottom-0" for="">Derecho</label>
+						<div class="checkbox margin-top-10 margin-left-10">
+					    	<label>
+					      		<input ng-model="poliza.configDerecho" type="checkbox" ng-disabled="edit == false"/>
+					      		Cargos sólo al primer recibo
+					      	</label>
+					  	</div>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group" ng-if="type == 1">
+						<label class="control-label margin-bottom-0" for="">Recargo por Pago Fraccionado</label>
+					  	<div class="checkbox margin-top-10 margin-left-10">
+					    	<label>
+					      		<input ng-model="poliza.configRPF" type="checkbox" ng-disabled="edit == false"/>
+					      		Cargos sólo al primer recibo
+					      	</label>
+					  	</div>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group">
+						<label class="control-label margin-bottom-0" for=""> &nbsp;</label>
+					  	<div class="checkbox margin-top-10 margin-left-10">
+					    	<label>
+					      		<input ng-model="poliza.aplicarDescuento" ng-change="activarDescuento(poliza.aplicarDescuento)" type="checkbox"/>
+					      		Calcular con descuento
+					      	</label>
+					  	</div>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group" ng-if="type == 1">
+						<label class="control-label margin-bottom-0" for=""> &nbsp;</label>
+					  	<div class="checkbox margin-top-10 margin-left-10">
+					    	<label>
+					      		<input ng-model="poliza.fy" ng-change="firstYear(poliza.fy)" type="checkbox"/>
+					      		Sólo el primer año
+					      	</label>
+					  	</div>
+					  	<input ng-if="poliza.pp" type="text" class="form-control" ng-model="poliza.pp_percent_comision" name="pp_percent_comision">
+					</div>
+					<div class="col-xs-12 col-sm-4 col-lg-3 form-group" ng-if="type == 2">
+						<label class="control-label margin-bottom-0" for=""> &nbsp;</label>
+					  	<div class="checkbox margin-top-10 margin-left-10">
+					    	<label>
+					      		<input ng-model="poliza.pp" ng-change="activarPP(poliza.pp)" type="checkbox"/>
+					      		PP
+					      	</label>
+					  	</div>
+					  	<input ng-if="poliza.pp" type="text" class="form-control" ng-model="poliza.pp_percent_comision" name="pp_percent_comision">
+					</div>
+					<!-- <pre>editar {{noRecalculateReceipts | json}}</pre> -->
+					<div class="col-xs-12 col-sm-4 col-lg-3 form- m-t">
+						<!-- Es edición 14/06/2019 noRecalculateReceipts-->
+						<div ng-if="!noRecalculateReceipts">
+						<!-- Es edición 14/06/2019 -->
+							<button class="col-xs-12 btn btn-success btn-shadow" ng-if="!recibo_liquidado_conciliado"  ng-click="calculate(poliza)" ng-disabled="!poliza.primaNeta || !active_calculate" >Calcular y generar recibos</button>
+
+				    	</div>
+	    			</div>
+	    		</div>
+	    	</div>
+		</form>
+		<!-- <div class="row">
+			<div ng-if="showreceipts" class="col-xs-12">
+					<div ng-if="receipts.length" ng-init="checkReceipts(receipts)">
+						<div ng-if="showInput" class="text-align-center">
+					      <button class="btn btn-success" ng-click="add_receipt()" >Agregar Recibo</button>
+					      <br>
+					    </div>
+				  		<table  class="table table-stripped">
+					  		<thead>
+		                        <tr>
+		                          <th class="text-align-center">Recibo</th>
+		                          <th class="text-align-center">Inicio de Vigencia</th>
+		                          <th class="text-align-center">Fin de Vigencia</th>
+		                          <th class="text-align-center">Prima Neta</th>
+		                          <th class="text-align-center">Recargo por Pago Fraccionado</th>
+		                          <th class="text-align-center">Derecho</th>
+		                          <th class="text-align-center">IVA</th>
+		                          <th class="text-align-center">Prima Total</th>
+		                          <th class="text-align-center">Comisión</th>
+		                          <th class="text-align-center">Fecha de Vencimiento</th>
+		                          <th class="text-align-center">Entregado</th>
+		                          <th class="text-align-center" ng-if="showInput">Eliminar</th>
+		                        </tr>
+                      		</thead>
+				  			<tbody>
+				  				<tr ng-repeat="receipt in receipts track by $index">
+				  					<td class="text-align-center" >
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">
+				  							{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}
+				  						</span>
+				  						<input  ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt" step="any" ng-model="receipt.recibo_numero" value="{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}" ng-change="checkValue([$index], $event, 'recibo_numero', 2)" type="text"/>
+				  					</td>
+				  					<td class="text-align-center" >
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.startDate | date: 'dd-MM-yyyy'}} </span>
+				  						<div class="datepicker-me field-receipt" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status">
+				  							<input
+				  							type="text"
+				  							class="width-100 text-align-center form-control field-receipt"
+					  						data-provide="datepicker"
+					  						ng-model="receipt.startDate"
+					  						value="{{receipt.startDate}}"
+					  						ng-change="checkValue([$index], $event, 'startDate', 2)"
+					  						/>
+			  							</div>
+				  					</td>
+				  					<td class="text-align-center" >
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">
+				  							{{receipt.endingDate | date: 'dd-MM-yyyy'}}
+				  						</span>
+				  						<div class="datepicker-me" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status">
+				  							<input
+				  							type="text"
+				  							class="width-100 text-align-center form-control field-receipt"
+					  						data-provide="datepicker"
+					  						ng-model="receipt.endingDate"
+					  						value="{{receipt.endingDate}}"
+					  						ng-change="checkValue([$index], $event, 'endingDate', 2)"
+					  						/>
+				  						</div>
+				  					</td>
+			  						<td class="text-align-center">
+			  							<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.prima | currency}} </span>
+			  							<input ng-model="receipt.prima" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt" ng-keypress="validateFloatKeyPress($event, receipt, $index, 1)" ng-change="recalc_receipt(receipt, $index); checkValue([$index], $event, 'prima', 2)">
+			  						</td>
+				  					<td class="text-align-center" >
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.rpf | currency}} </span>
+				  						<input ng-model="receipt.rpf" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt" ng-keypress="validateFloatKeyPress($event, receipt, $index, 2)" ng-change="recalc_receipt(receipt, $index); checkValue([$index], $event, 'rpf', 2)">
+
+				  					</td>
+				  					<td class="text-align-center">
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.derecho | currency}}</span>
+				  						<input ng-model="receipt.derecho" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt" ng-keypress="validateFloatKeyPress($event, receipt, $index, 3)" ng-change="recalc_receipt(receipt, $index); checkValue([$index], $event, 'derecho', 2)">
+				  					</td>
+				  					<td class="text-align-center">
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{ receipt.iva  | currency}}</span>
+				  						<div ng-if="poliza.iva; showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status">
+				  							<input ng-model="receipt.iva" class="form-control field-receipt" ng-keypress="validateFloatKeyPress($event, receipt, $index, 4)" ng-change="checkValue([$index], $event, 'iva', 2)">
+				  						</div>
+				  					</td>
+			  						<td class="text-align-center" >
+			  							<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.total | currency}} </span>
+			  							<input ng-model="receipt.total" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt" ng-keypress="validateFloatKeyPress($event, receipt, $index, 5)" ng-change="checkValue([$index], $event, 'total', 2)">
+			  						</td>
+				  					<td  class="text-align-center">
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.comision | currency}}</span>
+				  						<input ng-model="receipt.comision" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status" class="form-control field-receipt"  ng-change="recalc_receipt(receipt, $index); checkValue([$index], $event, 'comision', 2)">
+				  					</td>
+				  					<td  class="text-align-center" >
+				  						<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.vencimiento | date: 'dd-MM-yyyy'}} </span>
+				  						<div class="datepicker-me" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4  || showInput && !receipt.status">
+				  							<input
+				  							type="text"
+				  							class="width-100 text-align-center form-control field-receipt"
+					  						data-provide="datepicker"
+					  						ng-model="receipt.vencimiento"
+					  						ng-change="checkValue([$index], $event, 'vencimiento', 2)"
+					  						/>
+			  							</div>
+				  					</td>
+				  					<td class="text-align-center">
+				  						<input type="checkbox" ng-model="receipt.delivered" >
+				  					</td>
+				  					<td class="text-align-center" ng-if="showInput">
+						              <button class="btn btn-danger" ng-click="delete_receipt($event, receipt, $index)">
+						                <i class="fa fa-trash"></i>
+						              </button>
+						            </td>
+				  				</tr>
+				  			</tbody>
+				  		</table>
+						 <div class="pull-right" ng-if="edit !== false">
+							 <button ng-if="receipts.length; !showInput" type="button" class="btn btn-primary btn-shadow" ng-click="editTable()"><i class="fa fa-pencil-square-o btn-shadow" aria-hidden="true"></i> Editar Recibo</button>
+							<button ng-if="receipts.length; showInput" type="button" class="btn btn-success btn-shadow" ng-click="editTable('save')"><i class="fa fa-floppy-o btn-shadow" aria-hidden="true"></i> Guardar cambios</button>
+						</div>
+				  	</div>
+			</div>
+		</div> -->
+		<div class="row">
+			<div class="col-xs-12" ng-if="receipts.length > 0">
+				<h3 class="legend-title" align="center">Recibos Generados</h3>
+				<hr>
+			</div>
+			<!-- <div ng-if="showInput" class="col-xs-12 text-align-center">
+				<button class="btn btn-success" ng-click="add_receipt()">Agregar Recibo</button>
+			</div> -->
+		</div>
+		<div class="row" ng-repeat="receipt in receipts track by $index" ng-if="receipt.status !=0 || receipt.status == 'Desactivado'">
+			<div class="form-group col-xs-2">
+				<label>Recibo</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" class="form-control" step="any" ng-model="receipt.recibo_numero" value="{{receipt.recibo_numero ? receipt.recibo_numero : $index + 1}}" type="text"/>
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Inicio Vigencia</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.startDate | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+				<div class="datepicker-me" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status">
+					<input
+					type="text"
+					class="width-100 text-align-center form-control"
+					data-provide="datepicker"
+					ng-model="receipt.startDate"
+					value="{{receipt.startDate}}"
+					/>
+				</div>
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Fin Vigencia</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.endingDate | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+				<div class="datepicker-me" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status">
+					<input
+					type="text"
+					class="width-100 text-align-center form-control"
+					data-provide="datepicker"
+					ng-model="receipt.endingDate"
+					value="{{receipt.endingDate}}"
+					/>
+				</div>
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Prima Neta</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.prima | currency}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.prima" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 1)" ng-change="recalc_receipt(receipt, $index)">
+			</div>
+			<div class="form-group col-xs-2">
+				<label>RPF</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.rpf | currency}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.rpf" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 2)" ng-change="recalc_receipt(receipt, $index)">
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Derecho</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.derecho | currency}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.derecho" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 3)" ng-change="recalc_receipt(receipt, $index)">
+			</div>
+			<div class="form-group col-xs-2">
+				<label>IVA</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{ receipt.iva  | currency}}</span>
+				<input ng-if="poliza.iva; showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.iva" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 4)" >
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Prima Total</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.total | currency}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.total" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 5)" >
+			</div>
+			<div class="form-group col-xs-2" ng-if="permiso_comisiones">
+				<label>Comisión</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.comision | currency}}</span>
+				<input ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status" ng-model="receipt.comision" class="form-control" ng-keypress="validateFloatKeyPress($event, receipt, $index, 6)" ng-change="recalc_receipt(receipt, $index)" />
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Vencimiento</label>
+				<br>
+				<span ng-if="receipt.status && receipt.status !== 3 && receipt.status !== 4 && showInput || !showInput">{{receipt.vencimiento | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+				<div class="datepicker-me" ng-if="showInput && receipt.status == 3 || showInput && receipt.status == 4 || showInput && !receipt.status">
+					<input
+					type="text"
+					class="width-100 text-align-center form-control"
+					data-provide="datepicker"
+					ng-model="receipt.vencimiento"
+					ng-change="checkVenDate(receipt)"
+					/>
+				</div>
+			</div>
+			<div class="form-group col-xs-2">
+				<label>Entregado</label>
+				<br>
+				<input type="checkbox" ng-model="receipt.delivered" />
+			</div>
+			<div class="form-group col-xs-2" ng-if="showInput && canDeleteReceipts">
+				<label>Eliminar</label>
+				<br>
+				<button class="btn btn-danger" ng-click="delete_receipt($event, receipt, $index,poliza)"><i class="fa fa-trash"></i></button>
+			</div>
+			<div class="form-group col-xs-12">
+				<legend class="legend-title" align="center"</legend>
+			</div>
+		</div>
+		<div class="row" ng-if="receipts.length > 0">
+			<!-- Es edición 14/06/2019 -->
+			<div ng-if="!noRecalculateReceipts">
+	    		<div class="col-xs-12">
+	        		<button ng-if="receipts.length; !showInput" type="button" class="btn btn-primary btn-shadow pull-right" ng-click="editTable()"><i class="fa fa-pencil-square-o btn-shadow" aria-hidden="true"></i> Editar Recibo</button>
+	        		<button ng-if="receipts.length; showInput" type="button" class="btn btn-success btn-shadow pull-right" ng-click="editTable('save')"><i class="fa fa-floppy-o btn-shadow" aria-hidden="true"></i> Guardar cambios</button>
+	    		</div>
+	    		<!-- Es edición 14/06/2019 -->
+	    	</div>
+    	</div>
+	</div>
+
+</fieldset>

@@ -1,0 +1,185 @@
+<link href="bower_components/angular-bootstrap-calendar/dist/css/angular-bootstrap-calendar.min.css" rel="stylesheet">
+<script src="bower_components/angular-bootstrap-calendar/dist/js/angular-bootstrap-calendar-tpls.min.js"></script>
+
+
+<div class="binacle-content" id="binaclecontent">
+    <!-- <pre>{{config | json}}</pre> -->
+    <div ng-if="config.count > 10 && config.next" class="text-center">
+        <a ng-click="showMore()">Ver más</a>
+    </div>
+     <div class="text-right" ng-if="showExportButton">
+        <button class="btn btn-success btn-xs" ng-disabled="commentsExportLoading || !datasource.length" ng-click="exportComments()" style="
+    margin-bottom: 10px;
+">
+            <i class="fa fa-file-excel-o"></i> Exportar bitácora
+        </button>
+    </div>
+
+
+    <div class="social-feed-box" ng-repeat="item in datasource | orderBy: 'created_at' track by $index" ng-if="!item.is_child" ng-init="scrollDown(); getPicture(item);index = $index">
+        <div class="social-avatar">
+            <a href="" class="pull-left">
+                <img alt="image" ng-src="{{ item.image }}" style="border-radius: 50%;">
+                <span class="blue-color"><b>{{ item.user_info }}</b></span>
+            </a>
+            <div class="media-body">
+                <div class='input-group date pull-right' id='datetimepicker5'>
+                    <span  ng-if="!item.isReminder" title="Hacer recordatorio" ng-click="makeReminder(item)">
+                        <i class="fa fa-clock-o" aria-hidden="true" style="font-size: 20px"></i>
+                    </span>
+                    <span ng-if="item.isReminder">
+                        <p class="input-group" style="max-width: 250px">
+                            <input
+                              type="text"
+                              class="form-control"
+                              readonly
+                              uib-datepicker-popup="dd MMMM yyyy"
+                              ng-model="item.event.startsAt"
+                              is-open="item.event.startOpen"
+                              close-text="Close" >
+                            <span class="input-group-btn">
+                                <button
+                                type="button"
+                                class="btn btn-default"
+                                ng-click="toggle($event, 'startOpen', item.event)">
+                                <i class="glyphicon glyphicon-calendar"></i>
+                                </button>
+                            </span>
+                        </p>
+                        <div
+                            uib-timepicker
+                            ng-model="item.event.startsAt"
+                            hour-step="1"
+                            minute-step="1"
+                            show-meridian="true">
+                        </div>
+                        <div class="col-md-6">
+                            <button class="col-xs-12 btn btn-white" ng-click="closeReminder(item)">Cancelar</button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="col-xs-12 btn btn-success" ng-click="saveReminder(item, $index)">Guardar Recordatorio</button>  
+                          </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="social-body">
+            <hr>
+            <div>
+                <p>{{ item.content }}</p>
+            </div>
+            <div>
+                <small class="text-muted tree-parent-item">{{ item.created_at | date: 'dd/MM/yyyy h:mm a' }}</small>
+                <br ng-if="item.has_reminder">
+                <small ng-if="item.has_reminder" class="text-muted tree-parent-item"><b>Recordatorio</b>: {{ item.reminder_date | date: 'dd/MM/yyyy h:mm a' }}</small>
+            </div>
+        </div>
+        <div class="social-footer">
+            <div class="social-comment" ng-repeat="child in item.comment_child track by $index" ng-init="getPicture(child);index2 = $index">
+                <a href="" class="pull-left">
+                    <img alt="image" ng-src="{{ child.image }}" style="border-radius: 50%;">
+                    <!-- <span class="blue-color"><b>{{ item.user_info }}</b></span> -->
+                    <span class="blue-color"><b>{{child.user_info}}</b></span>
+                </a>
+                <div class="media-body">
+                    <br>
+                    <hr>
+                    <div>
+                        <p>{{ child.content }}</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">{{ child.created_at | date: 'dd/MM/yyyy h:mm a' }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-comment">
+                <button class="button button-default pull-left col-xs-3" ng-if="item.has_email" ng-click="show_mail(item.id);"><i class="fa fa-envelope"></i></button>
+                <br>
+
+                <div class="media-body" ng-init="child.response = false">
+
+                    <span class="label label-success pull-right" ng-click="child.response = true;child.content=''" ng-if="child.response == false">Responder comentario</span>
+
+                    
+                    <textarea ng-show="child.response == true" id="commentInputChild" class="form-control" ng-model="child.content" 
+                    ng-keyup="checkForMentionChild($event,child)" placeholder="Escriba una respuesta..."></textarea>
+                    <ul ng-show="showUserListChild" class="user-list-child">
+                        <li ng-repeat="user in child.filteredUsersC" ng-click="addMentionChild(user,child)">
+                        {{ user.name }}
+                        </li>
+                    </ul>
+                    <button ng-if="child.response == true" class="btn btn-success pull-right margin-top-10" ng-click="saveChild(child, item);" ng-disabled="!child.content">Responder</button>
+
+                    <br>
+                    <hr>
+                    <div ng-if="item.comment_tasks && item.comment_tasks.length > 0 && item.comment_tasks[0].id" class="col-xs-12 form-group">
+                        <h3>Este comentario contiene una tarea:</h3>
+                        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                            <span class="blue-color">Título:</span>
+                            <div>
+                              <span>{{ item.comment_tasks[0].title }}</span>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                            <span class="blue-color">Asignado:</span>
+                            <div>
+                              <span>{{ item.comment_tasks[0].assigned.first_name }} {{ item.comment_tasks[0].assigned.last_name }}</span>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                            <span ng-if ="item.comment_tasks[0].involved_task && item.comment_tasks[0].involved_task.length > 0" class="blue-color">Involucrados:</span>
+                            <div ng-if ="item.comment_tasks[0].involved_task && item.comment_tasks[0].involved_task.length > 0">
+                              <ul>
+                                  <li ng-repeat="involved in item.comment_tasks[0].involved_task">
+                                      {{ involved.person.first_name }} {{involved.person.last_name}}
+                                  </li>
+                              </ul>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 form-group">
+                            <span class="blue-color">Descripción:</span>
+                            <div>
+                              <span>{{ item.comment_tasks[0].descrip }}</span>
+                            </div>
+                        </div>
+                        <div>
+                          <button class="btn btn-primary btn-sm" ng-click="editTask(item, $index)">Editar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div >
+    <div class="col-xs-12 form-group">
+        <div class="row">
+            <textarea class="form-control" id="commentInput" ng-model="simple_comment" ng-keyup="checkForMention($event)" placeholder="Escriba un comentario..."></textarea>
+            <ul ng-show="showUserList" class="user-list">
+                <li ng-repeat="user in filteredUsers" ng-click="addMention(user)">
+                  {{ user.name }}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3 form-group pull-right">
+       
+        <div class="row">       
+            <span class="ng-click-active" title="Realice una tarea desde este comentario." ng-if="show_main == true">
+                <input  ng-click="change_converter(converter_task,1)" ng-model="converter_task" type="checkbox" > ¿Convertir a tarea?
+                <br>
+                <label ng-if="converter_task" for="select_resp">Asignar a:</label>
+                <select id="select_resp" class="form-control" ng-change="changeSelect(user_assigned)" ng-if="converter_task" ng-model="user_assigned">
+                    <option ng-repeat="user in users track by $index" value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+                </select>
+            </span>
+
+            <!-- <a class="col-xs-12 btn btn-success pull-right margin-top-10 ladda-button" ng-disabled="!simple_comment || yaguardado" ng-click="saveComment()">Enviar comentario</a> -->
+            <a class="col-xs-12 btn btn-success pull-right margin-top-10 ladda-button" ng-disabled="!simple_comment || yaguardado" ng-click="saveComment($event)">
+                Enviar comentario
+            </a>
+        </div>
+    </div>
+</div>
