@@ -1,0 +1,665 @@
+<toaster-container></toaster-container>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Contratantes Programa de Proveedores</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+
+      <li>
+        <a ui-sref="fianzas.pprovlist">Contratantes Programa de Proveedores</a>
+      </li>
+
+      <li class="active">
+        <strong>Información</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="row wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="pull-right option_button m-b">
+        <div class="btn-group" ng-if="vm.form.url">
+          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-bolt" aria-hidden="true"></i> Opciones
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li ng-if="vm.acceso_adm_cont"><a ng-click="vm.goToContractorEdit(vm.form)">Editar</a></li>
+
+            <li ng-if="vm.acceso_adm_cont"><a ng-click="vm.deleteContractor(vm.form.id, 2, natural)">Eliminar</a></li>
+
+            <li class="dropdown-submenu" ng-if="vm.files.length" ng-if="vm.permiso_archivos">
+              <a>Ver adjuntos</a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li class="disabled">
+                  <a class="disabled"> Archivos adjuntos </a>
+                </li>
+                <li ng-if="vm.files" ng-repeat="file in vm.files track by $index">
+                  <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+                </li>
+              </ul>
+            </li>
+
+            <!-- <li><a ng-click="">Generar resumen</a></li> -->
+          </ul>
+        </div>
+
+        <div class="btn-group" ng-if="vm.juridicalForm.url">
+          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-bolt" aria-hidden="true"></i> Opciones
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li ng-if="vm.acceso_adm_cont"><a ng-click="vm.goToContractorEdit(vm.juridicalForm)">Editar</a></li>
+
+            <li ng-if="vm.acceso_adm_cont"><a ng-click="vm.deleteContractor(vm.juridicalForm.id, 1, moral)">Eliminar</a></li>
+
+            <li class="dropdown-submenu" ng-if="vm.files.length">
+              <a>Ver adjuntos</a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li class="disabled">
+                  <a class="disabled"> Archivos adjuntos </a>
+                </li>
+                <li ng-if="vm.files" ng-repeat="file in vm.files track by $index">
+                  <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox float-e-margins animate" ng-if="vm.form.url && vm.showInfo">
+    <div class="ibox-title">
+      <h5>Información del contratante</h5>
+      <button class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="getLog()">
+        <i class="fa fa-history"></i> <span>Log</span>
+      </button>
+      <!-- <div ibox-tools></div> -->
+    </div>
+
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6">
+          <legend class="legend-title" align="center">Datos personales</legend>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Nombre:</span>
+            <div>
+              <span>{{vm.form.first_name}} {{vm.form.last_name}} {{vm.form.second_last_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">Fecha de Nacimiento:</span>
+            <div>
+              <span>{{ vm.form.birth_date.replace('Z', '') | date: 'dd/MM/yyyy': 'UTC'}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">RFC:</span>
+            <div>
+              <span>{{vm.form.rfc}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">Género:</span>
+            <div>
+              <span ng-if="vm.form.sex== 'F'">FEMENINO</span>
+              <span ng-if="vm.form.sex== 'M'">MASCULINO</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">Grupo:</span>
+            <div>
+              <span>{{vm.form.group.group_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.group.subgroup_name">
+            <span class="blue-color">Subgrupo:</span>
+            <div>
+              <span>{{vm.form.group.subgroup_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.group.subsubgroup_name">
+            <span class="blue-color">Subsubgrupo:</span>
+            <div>
+              <span>{{vm.form.group.subsubgroup_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Correo Electrónico:</span>
+            <div class="row">
+              <div class="col-xs-12 col-sm-6" ng-if="vm.form.email">
+                <span class="fa fa-user" aria-hidden="true"></span>
+                <span>{{vm.form.email}}</span>
+              </div>
+              <div class="col-xs-12" ng-repeat="email in vm.form.email_natural">
+                <span ng-if="email.email_type == 1" class="fa fa-user" aria-hidden="true"></span>
+                <span ng-if="email.email_type == 2" class="fa fa-building" aria-hidden="true"></span>
+                <span ng-if="email.email_type == 3" class="fa fa-at" aria-hidden="true"></span>
+                <span> {{email.correo}} </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Teléfono:</span>
+            <div class="row">
+              <div class="col-xs-12" ng-if="vm.form.phone_number">
+                <span class="fa fa-home" aria-hidden="true"></span>
+                <span>{{vm.form.phone_number | phonenumber}}</span>
+              </div>
+              <div class="col-xs-12" ng-repeat="phone_number in vm.form.phone_natural">
+                <span ng-if="phone_number.phone_type == 1" class="fa fa-home" aria-hidden="true"></span>
+                <span ng-if="phone_number.phone_type == 2" class="fa fa-building" aria-hidden="true"></span>
+                <span ng-if="phone_number.phone_type == 3" class="fa fa-mobile" aria-hidden="true"></span>
+                <span> {{phone_number.phone | phonenumber}} </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <input type="checkbox" name="" ng-change="change_vip(vm.form.url, vm.form.vip)" ng-model="vm.form.vip">
+            <span class="blue-color">VIP</span>
+          </div>
+          
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="infoFisicoc.classification_name">
+            <span class="blue-color">Clasificación:</span>
+            <div>
+              <span>{{infoFisicoc.classification_name}}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="infoFisicocel.celula_name">
+            <span class="blue-color">Célula:</span>
+            <div>
+              <span>{{infoFisicocel.celula_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.grouping_level.group_name">
+            <span class="blue-color">Nivel Agrupación:</span>
+            <div>
+              <span>{{vm.form.grouping_level.group_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.grouping_level.subgroup_name">
+            <span class="blue-color">Nivel Subagrupación:</span>
+            <div>
+              <span>{{vm.form.grouping_level.subgroup_name}}</span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.grouping_level.subsubgroup_name">
+            <span class="blue-color">Nivel Subsubagrupación:</span>
+            <div>
+              <span>{{vm.form.grouping_level.subsubgroup_name}}</span>
+            </div>
+          </div>
+
+          <div ng-if ="vm.form.only_sureties" class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color"><b>Tipo de contratante:</b></span>
+            <div>
+              <span><u>Solo para fianzas</u></span><br>
+              <span><b>Programa de Proveedores</b></span>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-sm-6 col-md-6">
+            <span class="blue-color"><b> Sucursal</b>:</span>
+            <div >
+              <span> {{vm.form.sucursal.sucursal_name}} </span>
+            </div>
+          </div><br>
+
+          <div ng-if ="vm.form.vendor" class="col-xs-12 col-sm-6 col-md-3">
+            <span class="blue-color"><b>Referenciador</b>:</span>
+              <div>
+                <span>{{vm.form.vendor.first_name}} {{vm.form.vendor.last_name}}</span>
+              </div>
+          </div><br>
+
+          <div ng-if="vm.form.resp_contractor" class="col-xs-12 col-sm-6 col-md-6">
+            <span class="blue-color"><i class="fa fa-star yellow"></i><b> Responsables</b>:</span>
+            <div class="col-xs-12" ng-repeat="resp in vm.form.resp_contractor">
+              <span>{{resp.responsable_name}} </span>
+            </div>
+          </div><br>
+          <div ng-if ="vm.form.responsable" class="col-xs-12 col-sm-6 col-md-3">
+            <span class="blue-color"><i class="fa fa-star yellow"></i><b> Responsable</b>:</span>
+              <div>
+                <span>{{vm.form.responsable.first_name}} {{vm.form.responsable.last_name}}</span>
+              </div>
+          </div><br>
+          <!-- <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+            <span class="blue-color"><b>Descripción:</b></span>
+            <div>
+              <span>{{vm.form.description}}</span>
+            </div>
+          </div> --><br>
+          <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+            <span class="blue-color"><b>Antigüedad:</b></span>
+            <div>
+              <span>{{ vm.form.antiguedad }} días</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+            <span class="blue-color">Obligado(s) Solidario(s):</span>
+            <div class="row" ng-repeat="sols in solidarios">
+              <span align="center">{{ sols.full_name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-md-6">
+          <div class="row" ng-repeat="address in vm.form.address_natural">
+            <legend class="legend-title" align="center">
+              Dirección #{{ $index + 1 }}
+            </legend>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Calle:</span>
+              <div>
+                <span>{{address.route}}</span>
+                <span class="hidden-xs hidden-sm">&nbsp;</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Número Ext.:</span>
+              <div>
+                <span>{{address.street_number}}</span>
+                <span class="hidden-xs hidden-sm">&nbsp;</span>
+              </div>
+            </div>
+
+            <div ng-if="address.street_number_int" class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Número Int.:</span>
+              <div>
+                <span>{{address.street_number_int}}</span>
+                <span class="hidden-xs hidden-sm">&nbsp;</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Colonia:</span>
+              <div>
+                <span>{{address.sublocality}}</span>
+                <span class="hidden-xs hidden-sm">&nbsp;</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Municipio:</span>
+              <div>
+                <span ng-if="!address.administrative_area_level_2.state">{{address.administrative_area_level_2}}</span>
+                <span ng-if="address.administrative_area_level_2.city != null">{{address.administrative_area_level_2.city}}</span>
+                <!-- <span ng-if="address.administrative_area_level_2.city == null">Sin Municipio</span> -->
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Estado:</span>
+              <div>
+                <span ng-if="!address.administrative_area_level_1.state">{{address.administrative_area_level_1}}</span>
+                <span ng-if="address.administrative_area_level_1.state != null">{{address.administrative_area_level_1.state}}</span>
+                <!-- <span ng-if="address.administrative_area_level_1.state == null">Sin Estado</span> -->
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Código Postal:</span>
+              <div>
+                <span>{{address.postal_code}}</span>
+                <span class="hidden-xs hidden-sm">&nbsp;</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+              <span class="blue-color">Tipo de dirección:</span>
+              <div>
+                <span>{{address.tipo}}</span>
+              </div>
+            </div>
+
+            <div ng-if="address.details" class="col-xs-12 form-group">
+              <span class="blue-color">Referencia:</span>
+              <div>
+                <span>{{address.details}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" ng-if="vm.form && vm.showInfo">
+        <div class="col-xs-12">
+          <legend class="legend-title" align="center">Documentos</legend>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+            <span class="blue-color">Identificación Oficial:</span>
+            <div>
+              <span ng-if="vm.form.card_official_identification"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.card_official_identification"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+            <span class="blue-color">CURP:</span>
+            <div>
+              <span ng-if="vm.form.CURP"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.CURP"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+            <span class="blue-color">Comprobante de Inscripción de Firma Electrónica:</span>
+            <div>
+              <span ng-if="vm.form.voucher_efirm"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.voucher_efirm"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+            <span class="blue-color">Comprobante de Domicilio:</span>
+            <div>
+              <span ng-if="vm.form.voucher_of_address"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.voucher_of_address"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+            <span class="blue-color">Formato de Identificación de Cliente Firmado:</span>
+            <div>
+              <span ng-if="vm.form.signed_format_ic"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.signed_format_ic"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-sm-4 form-group" ng-if="vm.org_name !='ancora'">
+            <span class="blue-color">Poder:</span>
+            <div>
+              <span ng-if="vm.form.fiscal_power"><i class="fa fa-check"></i> Entregado</span>
+              <span ng-if="!vm.form.fiscal_power"><i class="fa fa-times"></i> No Entregado</span>
+            </div>
+          </div>
+          <div ng-if ="vm.form.only_sureties">            
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Carta nombramiento:</span>
+              <div>
+                <span ng-if="vm.form.carta_nombramiento"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.carta_nombramiento"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Currículo:</span>
+              <div>
+                <span ng-if="vm.form.curriculo"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.curriculo"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Contrato multiple de la afianzadora:</span>
+              <div>
+                <span ng-if="vm.form.contrato_multiple_afianzadora"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.contrato_multiple_afianzadora"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Carta buro:</span>
+              <div>
+                <span ng-if="vm.form.carta_buro"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.carta_buro"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Entrevista con la afianzadora:</span>
+              <div>
+                <span ng-if="vm.form.entrevista_afianzadora"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.entrevista_afianzadora"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">RFC:</span>
+              <div>
+                <span ng-if="vm.form.rfc_document"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.rfc_document"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Alta ante hacienda o alta electrónica:</span>
+              <div>
+                <span ng-if="vm.form.alta_hacienda"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.alta_hacienda"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Recibos de nómina:</span>
+              <div>
+                <span ng-if="vm.form.recibos_nomina"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.recibos_nomina"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Declaración anual completa con cadena de los últimos dos años inmediatos anteriores:</span>
+              <div>
+                <span ng-if="vm.form.declaracion_anual"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.declaracion_anual"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Estados financieros anuales del año inmediato anterior:</span>
+              <div>
+                <span ng-if="vm.form.estados_financieros_anuales"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.estados_financieros_anuales"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Estados financieros parciales, los mas recientes, con una antigüedad no mayor a 2 años:</span>
+              <div>
+                <span ng-if="vm.form.estados_financieros_parciales"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.estados_financieros_parciales"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div> 
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Escritura de inmueble</span>
+              <div>
+                <span ng-if="vm.form.escritura_inmueble"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.escritura_inmueble"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>  
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Boleta parcial o avaluó</span>
+              <div>
+                <span ng-if="vm.form.boleta_predial"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.boleta_predial"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>      
+            <div class="col-xs-12 col-md-6 col-sm-4 form-group">
+              <span class="blue-color">Certificado de libertad de gravamen </span>
+              <div>
+                <span ng-if="vm.form.certificado_gravamen"><i class="fa fa-check"></i> Entregado</span>
+                <span ng-if="!vm.form.certificado_gravamen"><i class="fa fa-times"></i> No Entregado</span>
+              </div>
+            </div>       
+          </div>
+        </div> 
+        <div class="col-xs-12 col-md-6" ng-if="vm.form.contact_natural.length > 0">
+          <legend class="legend-title" align="center">Contacto</legend>
+          <div class="col-xs-12 form-group">
+            <div class="row">
+              <div class="col-xs-6" ng-repeat="contact in vm.form.contact_natural track by $index">
+                <legend class="legend-title" align="center">Contacto #{{ $index + 1 }}</legend>
+                <div class="col-xs-12 form-group">
+                  <span class="blue-color">Nombre:</span>
+                  <div>
+                    <span> {{contact.name }} </span>
+                  </div>
+                </div>
+                <div class="col-xs-12 form-group">
+                  <span class="blue-color">Correo Electrónico:</span>
+                  <div>
+                    <span> {{contact.email}} </span>
+                  </div>
+                </div>
+                <div class="col-xs-12 form-group">
+                  <span class="blue-color">Téléfono:</span>
+                  <div>
+                    <span> {{contact.phone_number | phonenumber}} </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="col-xs-12 m-b" ng-if="!vm.notasFlag">
+        <table>
+          <tr>
+            <td>
+              <div class="">
+                <button type="button" class="btn btn-info m-r-sm" ng-click="vm.showNotas()" ng-disabled="vm.notas.length == 0">{{vm.notas.length}}</button> <a>Notas de crédito</a>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <div class="col-xs-12 form-group" style="margin-bottom: 40px;">
+          <h4>Observaciones:</h4>
+          <textarea disabled type="text" class="form-control" ng-model="vm.form.description"></textarea>
+        </div>
+      </div>
+
+      <div class="ibox float-e-margins animate" ng-if="vm.notasFlag">
+        <div class="ibox-title">
+          <h5>Notas de crédito</h5>
+          <div ibox-tools></div>
+        </div>
+
+        <div class="ibox-content">
+           <button class="col-xs-12 col-sm-4 col-md-3 btn btn-info m-b" ng-click="vm.notasFlag = false"><span class="fa fa-arrow-left"></span> Regresar</button>
+          <table class="table">
+            <thead>
+              <th>Folio</th>
+              <th>Número de póliza</th>
+              <th>Número de endoso</th>
+              <th>Fecha de emisión</th>
+              <th>Prima total</th>
+              <th>Estatus</th>
+            </thead>
+            <tr ng-repeat="nota in vm.notas" ng-click="vm.NotasModal(nota)">
+              <td>{{nota.folio}}</td>
+              <td>{{nota.disease_endorsement.policy.poliza_number}} {{nota.damages_endorsement.policy.poliza_number}} {{nota.auto_endorsement.policy.poliza_number}} {{nota.life_endorsement.policy.poliza_number}}</td>
+              <td>{{nota.disease_endorsement.number_endorsement}} {{nota.damages_endorsement.number_endorsement}} {{nota.auto_endorsement.number_endorsement}} {{nota.life_endorsement.number_endorsement}}</td>
+              <td>{{nota.fecha_emision | date:'dd/MM/yyyy': 'UTC'}}</td>
+              <td>{{nota.prima_total}}</td>
+              <td ng-if="nota.status == 1">Pendiente</td>
+              <td ng-if="nota.status == 2">Cerrada</td>
+            </tr>
+          </table>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox float-e-margins animate" ng-if="vm.juridicalForm.url && vm.showInfo">
+    <div class="ibox-title">
+      <h5>Información del contratante</h5>
+      <button class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="getLog()">
+        <i class="fa fa-history"></i> <span>Log</span>
+      </button>
+      <!-- <div ibox-tools></div> -->
+    </div>
+
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6">
+          <legend class="legend-title" align="center">Datos personales</legend>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Nombre:</span>
+            <div>
+              <span>{{vm.juridicalForm.full_name}}</span> 
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">Grupo:</span>
+            <div>
+              <span>{{vm.juridicalForm.group.group_name}}</span>
+              <!--<span>{{vm.aux_contractor.grupoId}}</span>-->
+            </div>
+          </div>      
+          
+          <div ng-if="vm.juridicalForm.only_sureties" class="col-xs-12 col-sm-6 form-group">
+            <span class="blue-color">Tipo de contratante:</span>
+            <div>
+              <span>Solo para fianzas</span><br>
+              <span><b>Programa de Proveedores</b></span>
+            </div>
+          </div>          
+      </div>
+      <div class="col-xs-12 form-group" style="margin-bottom: 40px;">
+        <h4>Observaciones:</h4>
+        <textarea disabled type="text" class="form-control" ng-model="vm.juridicalForm.description"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox float-e-margins animate" ng-if="vm.activityLog">
+    <div class="ibox-title">
+      <h5>Registro de Actividad</h5>
+      <div ibox-tools></div>
+    </div>
+
+    <div class="ibox-content">
+      <button class="btn btn-info" ng-click="vm.showInfo = true; vm.activityLog = false"><span class="fa fa-reply"></span> Regresar</button>
+      <br>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="block-log">
+            <div ng-repeat="item in log_info">
+              <span><b>{{ item.date | date: 'dd/MM/yyyy hh:mm:ss a': 'UTC' }}</b></span>
+              <span>{{ item.msj }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" ng-if="vm.permiso_archivos">
+    <div class="col-xs-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Archivos</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="row" ng-include="'templates/show-files.html'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Bitácora</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="col-xs-12">
+            <div class="row">
+              <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="2" idmodel="vm.contratanteId" exportable="true"></comments>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

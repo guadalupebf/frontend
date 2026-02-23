@@ -1,0 +1,87 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Contratantes</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="fianzas.pprovlist">Contratantes</a>
+      </li>
+      <li class="active">
+        <strong>Editar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Información</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div>
+            <form class="col-xs-12" method="post" name="form2" ng-submit="vm.submitJuridical(form2.$valid)" novalidate role="form">
+              <div class="data-container">
+                <div class="col-xs-12 nopadding form-group" ng-class="{ 'has-error': form2.j_name.$invalid && !form2.j_name.$pristine }">
+                  <label>
+                    Nombre de la empresa
+                    <span class="color-red">*</span>
+                  </label>
+
+                  <input class="form-control" name="j_name" ng-model="vm.juridicalForm.j_name" required type="text">
+                </div>  
+
+              </div>
+
+              <div>
+                <input type="hidden" name="type_person" ng-model="vm.juridicalForm.type" value="">
+              </div>
+            </div>
+
+            </form>
+          </div>
+        </div>
+
+        <div class="row" ng-if="vm.permiso_archivos">
+          <div class="col-xs-12">
+            <div class="ibox float-e-margins">
+              <div class="ibox-title">
+                <h5>Archivos</h5>
+                <div ibox-tools></div>
+              </div>
+              <div class="ibox-content">
+                <div class="row" ng-include="'templates/upload.html'" ng-if="vm.user.permiso.crear && vm.user.permiso.editar"></div>
+
+                <div class="col-xs-12 col-sm-4 col-md-3 pull-right form-group">
+                  <button class="col-xs-12 btn btn-primary" type="button" ng-click="vm.uploadImages()" ng-if="vm.user.permiso.crear && vm.user.permiso.editar">Subir archivos</button>
+                </div>
+
+                <div ng-include="'templates/show-files.html'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+            <button class="col-xs-12 btn btn-primary ladda-button" ng-click="vm.save_moral()" ng-if="vm.user.permiso.editar">
+              Guardar cambios
+            </button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+            <button class="col-xs-12 btn btn-danger" ng-click="vm.cancel()" type="button">
+              Cancelar
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

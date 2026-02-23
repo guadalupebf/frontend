@@ -1,0 +1,114 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Filtro por Usuario</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a>Filtro por Usuario</a>
+      </li>
+      <li class="active">
+        <strong>Compartir</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Filtro por Usuario</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="col-xs-12 form-group"> 
+          <div class="col-xs-12 col-sm-6" align="center">
+            <label>&nbsp;</label>
+            <div class="checkbox" >
+              <label ng-class="{'receipts-select': selectUser == 'usuario'}">
+                <input type="radio" ng-model="selectUser" value="usuario" ng-click="valueUser = ''; showTable = false;">
+                Usuario
+              </label>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6" align="center">
+            <label>&nbsp;</label>
+            <div class="checkbox" >
+              <label ng-class="{'receipts-select': selectUser == 'grupo'}">
+                <input type="radio" ng-model="selectUser" value="grupo" ng-click="valueUser = ''; showTable = false;">
+                Grupo de Usuarios
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 input-group">
+          <autocomplete datasource="autocompleteData" model="valueUser" change="findUser(valueUser)"></autocomplete>
+          <div class="input-group-btn">            
+            <button type="button" ng-click="userSelect(valueUser)" class="btn btn-success">Buscar</button>
+          </div>
+        </div>
+        <div ng-if="showTable">
+          <div class="col-xs-12 form-group" ng-if="selectUser == 'usuario'">
+            <legend class="legend-title" align="center"">Usuario: {{ userSelected.first_name }} {{ userSelected.last_name }}</legend>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="selectUser == 'grupo'">
+            <legend class="legend-title" align="center">Grupo de Usuarios: {{ valueUser.value }} </legend>
+            <ul class="row address_components" style="padding-top: 10px;">
+              <li class="col-xs-12 col-sm-6 col-md-4" ng-repeat="user in groupsList">{{ user.first_name }} {{ user.last_name }}</li>
+            </ul>
+          </div>
+          <div class="row address-container" ng-repeat="shared in shareds track by $index">
+            <div class="col-xs-12 legend-gray">
+              <legend class="legend-title legend-flex" align="center">
+                <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="deleteShared($index)" ng-disabled="shareds.length <= 1">
+                  Quitar Asignación
+                </button>
+                <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="deleteShared($index)">
+                  <i class="glyphicon glyphicon-minus"></i>
+                </button>
+                <span>
+                  Asignación #{{$index + 1}}
+                </span>
+                <button class="btn btn-success pull-right hidden-xs" ng-click="addShared()" type="button">
+                  Agregar Asignación
+                </button>
+                <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addShared()" type="button">
+                  <i class="glyphicon glyphicon-plus"></i>
+                </button>
+              </legend>
+            </div>
+
+            <div class="col-xs-12 address_components">
+              <div class="col-xs-12 col-sm-4 form-group">
+                <label>Aseguradora</label>
+                <select class="form-control" ng-options="aseguradora.alias for aseguradora in providers | orderBy: 'alias' track by aseguradora.url" ng-model="shared.aseguradora">
+                  <option value="">Selecciona un proveedor</option>
+                </select>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group">
+                <label>Contratante</label>
+                <autocomplete datasource="contractors_data" id="contractors" model="shared.contratante" change="matchesContractors(shared.contratante)"></autocomplete>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group">
+                <label>Fianza</label>
+                <autocomplete datasource="fianza_data" id="fianzas" model="shared.fianza" change="matchesFianzas(shared.fianza)"></autocomplete>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group">
+                <label>Grupo</label>
+                <autocomplete datasource="groups_data" id="groups" model="shared.grupo" change="matchesGroup(shared.grupo)"></autocomplete>
+              </div>
+              <div class="col-xs-12 col-sm-4 form-group">
+                <label>Póliza</label>
+                <autocomplete datasource="policies_data" id="polizas" model="shared.poliza" change="matchesPolicies(shared.poliza)"></autocomplete>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <button class="btn btn-primary pull-right" ng-click="saveShared()">Compartir al usuario</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

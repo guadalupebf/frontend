@@ -1,0 +1,64 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Cancelar fianza</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="form-group col-xs-12">
+        <label for="datecancel">Fecha de cancelación: <span class="color-red">*</span></label>
+        <div class="datepicker-me input-group date" data-provide="datepicker" >
+          <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="vmm.surety.fecha_cancelacion" value="{{date_cancel}}" data-date-format="mm/dd/yyyy" >
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+      <div class="form-group col-xs-12">
+        <label for="motivo">Monto de cancelación: <span class="color-red">*</span></label>
+        <input type="number" name="motivo" ng-model="vmm.surety.monto_cancelacion" class="form-control">
+      </div>
+        <!-- <div class="ibox float-e-margins">
+          <div class="ibox-content">
+            <div class="row" ng-if="!vm.show_binnacle">
+              <div class="col-lg-12">
+                <div class="panel-body">
+                  <div>
+                    <h4>Por favor adjunte los archivos de cancelación</h4>
+                    <div>
+                      <div class="row">
+                        <div ng-include="'templates/upload.html'"></div>
+                      </div>
+                      <div class="row">
+                        <div ng-include="'templates/show-files.html'"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> -->
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-white" ng-click="close()">Cerrar</button>
+    <button class="btn btn-primary pull-right ladda-button" ng-click="cancelSurety()">Cancelar</button>
+  </div>
+</div>
+
+  <script>
+    function renombrarArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target).parent().parent().find("td input");
+
+      strongTag.hide();
+      inputTag.show();
+      inputTag.focus();
+    }
+
+    function blurArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target);
+
+      strongTag.show();
+      inputTag.hide();
+    }
+  </script>

@@ -1,0 +1,314 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Reclamaciones</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="breadcrumb">
+        <a ui-sref="fianzas.reclist">Fianzas</a>
+      </li>
+      <li class="active">
+        <strong>Reclamaciones</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="btn-group pull-right m-b option_button">
+  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="fa fa-bolt"></span> Opciones
+  </button>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li ng-if="vm.acceso_ver_fia && vm.insurance.poliza.status != 1 && vm.insurance.poliza.status !=2"><a ui-sref="fianzas.info({polizaId: vm.insurance.poliza.id})">Ver fianza</a></li>
+    <li ng-if="vm.acceso_ver_ot && (vm.insurance.poliza.status == 1 || vm.insurance.poliza.status ==2)"><a ui-sref="fianzas.info({polizaId: vm.insurance.poliza.id})">Ver OT</a></li>
+    <li ng-if="vm.acceso_adm_ot && (vm.insurance.status != 11 || vm.insurance.status !=8)"><a ui-sref="reclamacion.edit({reclId: vm.insurance.id})">Editar</a></li> 
+
+    <li ng-if="vm.acceso_elim_fia"><a ng-click="deleteFianza(vm.insurance)">Eliminar</a></li>
+
+    <!-- <li><a ng-click="vm.getPDF(vm.insurance.id)">Ver PDF</a></li> -->
+
+    <!-- <li><a ng-click="sendProvider(vm.insurance)">Enviar PDF a la compañia</a></li> -->
+
+    <li class="dropdown-submenu" ng-if="files.length">
+      <a>Ver adjuntos</a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li class="disabled" ng-if="!files">
+          <a class="disabled"> No hay archivos adjuntos </a>
+        </li>
+        <li class="disabled" ng-if="files">
+          <a class="disabled"> Archivos adjuntos </a>
+        </li>
+        <li ng-if="files" ng-repeat="file in files track by $index">
+          <a href="{{file.arch}}" target="_blank"> {{file.nombre}} </a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu" ng-if="vm.cartas.length  && view_cartas">
+      <a>Ver carta</a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li ng-if="vm.cartas" ng-repeat="carta in vm.cartas track by $index">
+          <a ng-click="vm.viewCarta(vm.insurance.id, carta.id)"> {{carta.name}} </a>
+        </li>
+        <li><a ng-click="vm.getPDF(vm.insurance.id)" >Resumen PDF</a></li>
+      </ul>
+    </li>
+    </ul>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5 ng-if="vm.insurance.number_endorsement">Información de la reclamación</h5>
+        <button class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="getLog()">
+          <i class="fa fa-history"> Log</i>
+        </button>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="col-xs-12 col-sm-4">
+            <legend class="legend-title" align="center">Fianza</legend>
+            
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Afianzadora:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.aseguradora  }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Fiado</span>
+              <div>
+                <span>{{ vm.insurance.poliza.contractor.full_name}}
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Número de fianza:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.poliza_number }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Subramo:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.subramo }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Tipo:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.fianza_type.type_name }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Monto afianzado:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.contract_poliza.guarantee_amount | currency}}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Vigencia:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{ vm.insurance.poliza.end_of_validity | date: 'dd/MM/yyyy': 'UTC' }}</span>
+              </div>
+            </div>
+
+
+            <div class="col-xs-12 col-md-6 form-group">
+              <span class="blue-color">Creada por:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.owner  }}</span>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-xs-12 col-sm-8 border-left">
+            <legend class="legend-title" align="center">Reclamación
+              <div class="btn-group m-b pull-right" ng-if="vm.acceso_adm_fia">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Cambiar estatus
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li><a ng-click="changeStatus(1)" ng-if="vm.insurance.status != 1">Presentación</a></li>
+                  <li><a ng-click="changeStatus(2)" ng-if="vm.insurance.status != 2">En integración</a></li>
+                  <li><a ng-click="changeStatus(3)" ng-if="vm.insurance.status != 3">Reclamo Formal</a></li>
+                  <li><a ng-click="changeStatus(4)" ng-if="vm.insurance.status != 4">Respuesta afianzadora</a></li>
+                  <li><a ng-click="changeStatus(5)" ng-if="vm.insurance.status != 5">Respuesta cliente</a></li>
+                  <li><a ng-click="changeStatus(6)" ng-if="vm.insurance.status != 6">Reconsideración</a></li>
+                  <li><a ng-click="changeStatus(7)" ng-if="vm.insurance.status != 7">Rechazada</a></li>
+                  <li><a ng-click="changeStatus(8)" ng-if="vm.insurance.status != 8">Pagada</a></li>
+                  <li><a ng-click="changeStatus(9)" ng-if="vm.insurance.status != 9">Desistimiento</a></li>
+                  <li><a ng-click="changeStatus(10)" ng-if="vm.insurance.status != 11">Recuperación</a></li>
+                  <li><a ng-click="changeStatus(11)" ng-if="vm.insurance.status != 11">Cerrada</a></li>
+
+                  </ul>
+              </div>
+            </legend>
+
+            <div class="col-xs-12 col-sm-3 form-group" style="word-wrap: break-word;">
+              <span class="blue-color">Número de reclamación</span>
+              <div>
+                <span>{{ vm.insurance.number }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-3 form-group" style="word-wrap: break-word;">
+              <span class="blue-color">Tipo</span>
+              <div>
+                <span>{{ type(vm.insurance.claim_type) }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 form-group" style="word-wrap: break-word;">
+              <span class="blue-color">Motivo:</span>
+              <div>
+                <span>{{ vm.insurance.reason }}</span>
+                <span ng-if="vm.insurance.other_desc">- {{ vm.insurance.other_desc }}</span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 form-group">
+              <span class="blue-color">Fecha presentación:</span>
+              <div>
+                <span>{{ vm.insurance.introduction_date | date: 'dd/MM/yyyy' : 'UTC'}}<span>
+              </div>
+            </div>
+
+
+            <div class="col-xs-12 col-sm-4 form-group">
+              <span class="blue-color">Subramo:</span>
+              <div>
+                <span>{{ vm.insurance.poliza.subramo }}<span>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-2 form-group">
+              <h4><b>Estatus:</b></h4>
+              <div class="label" ng-class="{'label-success': vm.insurance.status == 2, 'label-info' : vm.insurance.status == 5,'label-primary' : vm.insurance.status == 1, 'label-warning' : vm.insurance.status == 3 || vm.insurance.status == 4}" style="float: left; margin-right: 10px"> {{ status(vm.insurance.status) }}
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-6 form-group">
+              <span class="blue-color">Observaciones:</span>
+              <div>{{ vm.insurance.observations}}</div>
+            </div>
+            <div class="col-xs-12">
+              <hr>
+            </div>   
+                       
+            <div ng-if="vm.insurance.status == 2">
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+                <span class="blue-color">Prima Neta:</span>
+                <div>{{ vm.insurance.p_neta | currency}}</div>
+              </div>
+
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group" ng-if="vm.insurance.endorsement_type == 'A'">
+                <span class="blue-color">Derecho:</span>
+                <div>{{ vm.insurance.derecho | currency}}</div>
+              </div>
+
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+                <span class="blue-color">RPF:</span>
+                <div>{{ vm.insurance.rpf | currency}}</div>
+              </div>
+              
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+                <span class="blue-color">Iva:</span>
+                <div>{{ vm.insurance.iva | currency}}</div>
+              </div>
+
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+                <span class="blue-color">Comisión:</span>
+                <div>{{ vm.insurance.comision | currency}}</div>
+              </div>
+
+              <div class="col-xs-12 col-sm-4 col-md-3 form-group">
+                <span class="blue-color">Prima Total:</span>
+                <div>{{ vm.insurance.p_total | currency}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Archivos</h5>
+        <div ibox-tools></div>
+      </div>      
+      <div class="col-xs-12 form-group">
+        <div ng-include="'templates/upload.html'"></div>
+        <div class="col-xs-12 text-right form-group">
+          <button class="btn btn-primary" ng-click="saveFiles(vm.insurance)"> <i class="fa fa-save" aria-hidden="true"></i> Guardar Archivos</button>
+        </div>
+      </div>
+      <div class="ibox-content">
+        <div class="row" ng-include="'templates/show-files.html'"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-xs-12">
+  <div class="ibox float-e-margins">
+    <div class="ibox-title">
+      <h5>Bitácora</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12">
+          <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="10" idmodel="vm.endosoId" exportable="true"></comments>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <script type="text/javascript">
+
+    function renombrarArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target).parent().parent().find("td input");
+
+      var btnTag = $(event.target).parent().parent().find("button");
+      var dummy = $(event.target).parent().parent().find("td span");
+
+      btnTag.addClass('display-none');
+      dummy.removeClass('display-none');
+
+
+      inputTag.removeClass('display-none');
+      strongTag.addClass('display-none');
+
+      inputTag.focus();
+    }
+
+    function blurArchivoCargado(){
+      var strongTag = $(event.target).parent().parent().find("td strong");
+      var inputTag = $(event.target);
+      var btnTag = $(event.target).parent().parent().find("button");
+      var dummy = $(event.target).parent().parent().find("td span");
+
+      // btnTag.prop('onclick',null).off('click');
+
+      btnTag.removeClass('display-none');
+      dummy.addClass('display-none');
+
+
+      inputTag.addClass('display-none');
+      strongTag.removeClass('display-none');
+    }
+  </script>
+</div>

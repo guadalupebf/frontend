@@ -1,0 +1,34 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Rehabilitar de Fianza</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-12 form-group" align="center">  
+        <label ng-if="ann.suretyInfo.poliza_number">Fianza Colectiva {{ann.suretyInfo.poliza_number}}</label>
+        <label ng-if="!ann.suretyInfo.poliza_number">Proyecto de Fianza {{ann.suretyInfo.internal_number}}</label>
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">                  
+        <label>Inicio Vigencia:</label>
+        <input class="form-control" type="text" name="startValidity" ng-model="ann.suretyInfo.startValidity" disabled> 
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">  
+        <label>Fin Vigencia:</label>                
+        <input class="form-control" type="text" name="endValidity" ng-model="ann.suretyInfo.endValidity" disabled>
+      </div>
+      <div class="col-xs-12 form-group">  
+        <label>Contratante:</label> <input ng-if="ann.suretyInfo.contractor" class="form-control" type="text" name="contractor.full_name" ng-model="ann.suretyInfo.contractor.full_name" disabled>              
+        <!-- <input ng-if="ann.suretyInfo.natural" class="form-control" type="text" name="natural" ng-model="ann.suretyInfo.natural.full_name" disabled>
+        <input ng-if="ann.suretyInfo.juridical" class="form-control" type="text" name="juridical.j_name" ng-model="ann.suretyInfo.juridical.j_name" disabled> -->
+      </div>
+      <div class="col-xs-12">
+        <label>Razón de Rehabilitación: <span class="color-red">*</span></label>
+        <textarea class="form-control" name="reason" ng-model="ann.suretyInfo.reason_rehabilitate"></textarea>
+      </div>                 
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" ng-click="savesuretyAnnulment(ann.suretyInfo)"><i class="fa fa-save" aria-hidden="true"></i> Guardar Cambios</button>
+    <button type="button" class="btn btn-white" ng-click="cancel()"><i class="fa fa-close" aria-hidden="true"></i> Cerrar</button>
+  </div>
+</div>

@@ -1,0 +1,138 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Filtro por Usuario</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a>Filtro por Usuario</a>
+      </li>
+      <li class="active">
+        <strong>Asignar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Grupos de Usuarios</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <div class="col-xs-12 col-sm-6 col-md-3">
+            <button class="col-xs-12 btn btn-info m-t" ng-click="createGroupUser(true)">Crear Grupo de Usuarios</button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3">
+            <button class="col-xs-12 btn btn-primary m-t" ng-click="asignUsers(true)">Agregar Usuarios a un Grupo</button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3">
+            <button class="col-xs-12 btn btn-success m-t" ng-click="editGroupUsers(true)">Editar un Grupo de Usuarios</button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3">
+            <button class="col-xs-12 btn btn-white m-t" ng-click="eliminarGroupUsers(true)">Eliminar un Grupo de Usuarios</button>
+          </div>
+          <div class="col-xs-12 address_components" ng-show="showGroupUser">
+            <legend class="legend-title" align="center">Nuevo Grupo de Usuario</legend>
+            <div class="col-xs-12 col-sm-6 form-group">
+              <label>Nombre del Grupo: <span class="color-red">*</span></label>
+              <input class="form-control" type="text" name="name" ng-model="vm.form.name" required>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-info" ng-disabled="!vm.form.name" ng-click="saveGroupUser(vm.form, 1)">Crear Grupo</button>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-white" ng-click="createGroupUser(false)">Cancelar</button>
+            </div>
+          </div>
+          <div class="col-xs-12" ng-show="showListGroupUser">
+            <legend class="legend-title" align="center">Grupos de Usuario</legend>
+            <div>
+              <div class="col-xs-12 form-group" align="center">
+                <span class="blue-color">Nombre del Grupo</span>
+                <div>
+                    <span>{{ groupsUsers.name }}<span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 address_components" ng-show="addUsersToGroup">
+            <legend class="legend-title" align="center">Asignación de Usuarios a un Grupo</legend>
+            <div class="col-xs-12 col-sm-6 form-group">
+              <label>Grupo: <span class="color-red">*</span></label>
+              <select class="form-control" ng-options="gu as gu.name for gu in groupsUsersList | orderBy:'name' track by gu.url" ng-change="changeGroup();" name="group" ng-model="group.name" >
+                <option value="">Selecciona un grupo</option>
+              </select>
+            </div>
+            <div class="col-xs-12 col-sm-6 form-group"> 
+              <label>Usuarios:</label>   
+              <select class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="select_user" data-ng-options="users.first_name + ' '+users.last_name for users in vm.users | orderBy: 'username' track by users.url" ng-change="selectUser(select_user)">
+              </select>   
+              <span><span class="color-red">*</span> Asigne sólo los usuarios que no estén dentro del grupo</span> 
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-primary" ng-disabled="!group.name" ng-click="saveUserinGroup(group,1)">Asignar</button>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-white" ng-click="createGroupUser(false)">Cancelar</button>
+            </div>
+          </div>
+          <div class="col-xs-12 address_components" ng-show="editGroupUser">
+            <legend class="legend-title" align="center">Editar Grupo de Usuarios</legend>
+            <!-- <div class="col-xs-12 col-sm-6 col-md-4 input-group">
+              <autocomplete datasource="autocompleteData" model="valueUser" change="findGroup(valueUser)"></autocomplete>
+              <div class="input-group-btn">            
+                <button type="button" ng-click="userSelect(valueUser)" class="btn btn-success">Buscar</button>
+              </div>
+            </div>  -->
+            <div class="col-xs-12 col-sm-6 form-group">
+              <label>Grupo:</label>
+              <select class="form-control" ng-options="gu as gu.name for gu in groupsUsersList | orderBy:'name' track by gu.url" ng-change="groupSelect(group.name);" name="group" ng-model="group.name" >
+                <option value="">Selecciona un grupo</option>
+              </select>
+            </div>
+            <div ng-if="showChangeNameGroup">
+              <div class="col-xs-12 col-sm-6 form-group">              
+                <label>Nombre del Grupo:</label>
+                <input class="form-control" type="text" ng-model="groupName.name">
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">  
+                <button type="button" ng-click="saveEditGroupName(groupName)" ng-disabled="!group.name" class="col-xs-12 btn btn-success">Guardar</button>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">        
+                <button type="button" ng-click="editGroupUsers()" class="col-xs-12 btn btn-white">Cancelar</button>
+              </div>           
+            </div>
+          </div>   
+          <div class="col-xs-12 address_components" ng-show="delUsersToGroup">
+            <legend class="legend-title" align="center">Eliminar Grupo de Usuarios</legend>
+            <div class="col-xs-12 col-sm-6 form-group">
+              <label>Grupo <span class="color-red">*</span></label>
+                <div >
+                  <select class="form-control"
+                    ng-options="gu as gu.name for gu in groupsUsersList | orderBy:'name' track by gu.url" ng-change="getUsers(group);" name="group" ng-model="group.name" >
+                    <option value="">Selecciona un grupo</option>
+                  </select>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 form-group" ng-if="groupsList.length > 0"> 
+              <label>Usuarios</label>   
+              <ul class="row" ng-if="groupsList.length > 0">
+                <li class="col-xs-12 col-sm-6" ng-repeat="user in groupsList">{{ user.first_name }} {{ user.last_name }}</li>
+              </ul>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-primary" ng-disabled="!group.name" ng-click="delGroupAll(group,1)">Eliminar Grupo</button>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right m-t">
+              <button class="col-xs-12 btn btn-white" ng-click="eliminarGroupUsers(false)">Cancelar</button>
+            </div>
+          </div>       
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

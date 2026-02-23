@@ -1,0 +1,87 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Completar datos de Fianza</h4>
+  </div>
+
+  <div class="modal-body">
+    <div class="row">
+      <form class="quoteForm" name="otpolicy" novalidate>
+        <div class="form-group col-xs-6">
+          <label for="">Folio de Fianza </label>
+           <input class="form-control" ng-model="vmm.form.folio">
+        </div>
+        <div class="form-group col-xs-6" ng-hide="order.show.ot">
+          <label>Número de Fianza<span class="color-red">*</span></label>
+          <div ng-class="{ 'has-error': form.fianza.$invalid && !form.fianza.$pristine  }">
+          <input class="form-control" ng-blur="changeNoPoliza(vmm.form.fianza)" name="fianza" ng-model="vmm.form.fianza" type="text" ng-trim="false"  required />
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.status != 1">
+            <label>Fecha de emisión de Fianza</label>
+            <div class="datepicker-me input-group date" data-provide="datepicker">
+                <input type="text" name="endingDate" class="width-100 text-align-center form-control" ng-model="vmm.form.emision_date" value="{{vm.form.emision_date}}" data-date-format="dd/mm/yyyy" ng-change="vm.checkDate('emision_date')" ng-init="vm.checkDate('emision_date')">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+        </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-xs-12 col-sm-4 form-group" >
+            <label>Fecha de emisión de la Factura</label>
+            <div class="datepicker-me input-group date" data-provide="datepicker">
+                <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vmm.form.date_emision_factura" data-date-format="mm/dd/yyyy" ng-change="checkFechaFactura(vmm.form.date_emision_factura)" ng-init="vmm.checkFechaFactura(vmm.form.date_emision_factura)">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+        </div>    
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group" >
+            <label for="SelectMontEmision">Mes de Emisión de Factura</label>
+            <select id="SelectMontEmision" class="form-control" ng-options="month.value as month.label for month in vmm.form.month.options" ng-model="vmm.form.month.month_selected" ng-init="vmm.form.month.month_selected = 0" ng-change="changemonth()">
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group" >
+            <label for="year">Año Factura</label>
+            <select class="form-control" ng-options="year for year in years track by year" ng-model="vmm.form.year_factura" ng-change="changeyaer(vmm.form.year_factura)">
+              <option value=""></option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group" >
+            <label for="folio-fact">Folio Factura</label>
+            <input class="form-control" name="folio-fact" type="text" value="{{vmm.form.folio_factura}}" ng-model="vmm.form.folio_factura"/>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group" >
+            <label for="folio-fact">Maquila</label>
+            <input class="form-control" name="maquila" type="number" value="{{vmm.form.maquila}}" ng-model="vmm.form.maquila"/>
+        </div>
+        <div class="col-xs-12 col-sm-4 form-group" >
+            <label>Fecha de Maquila</label>
+            <div class="datepicker-me input-group date" data-provide="datepicker">
+                <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vmm.form.date_maquila" data-date-format="mm/dd/yyyy" ng-change="vmm.checkFechaMaquila(vmm.form.date_maquila)" ng-init="vmm.checkFechaFactura(vmm.form.date_maquila)">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+        </div>    
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group" >
+            <label for="folio-fact">Tipo Cambio (Captura)</label>
+            <input class="form-control" name="changeType" type="number" value="{{vmm.form.exchange_rate}}" ng-model="vmm.form.exchange_rate"/>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 form-group" ng-if="vm.form.status != 1">
+          <label>Fecha de entrega de la Factura</label>
+          <div class="datepicker-me input-group date" data-provide="datepicker">
+              <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.fecha_entrega" data-date-format="mm/dd/yyyy" ng-change="checkFechaFactura(vm.form.date_emision_factura)" ng-init="vm.checkFechaFactura(vm.form.date_emision_factura)">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+          </div>
+      </div>  
+  
+          <div class="col-xs-12 form-group" ng-hide="order.show.ot">
+            <receipts-endorsement form="vmm.form" tosave="vmm.policyInfo" type="1"></receipts-endorsement>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button class="btn btn-white" ng-click="vmm.options.cancel()" type="button">Cerrar</button>
+    <button class="btn btn-success ladda-button" ng-disabled="otpolicy.$invalid" ng-click="vmm.options.save()" type="button">Crear</button>
+  </div>
+</div>

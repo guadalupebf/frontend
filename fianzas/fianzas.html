@@ -1,0 +1,59 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading" >
+  <div class="col-lg-9">
+    <h2>Fianzas</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li ng-if="!show_contractor">
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active" ng-show="!show_contractor">
+        <strong>Fianzas</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div ng-if="show_contractor" class="animate z-index-9000">
+  <div>
+    <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+  </div>
+</div>
+<br>
+<div class="wrapper wrapper-content animated fadeIn ng-scope" ng-if="!show_contractor" class="animate">
+  <div class="row">
+    <div class="col-lg-12"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-content wizard">
+          <uib-tabset active="activeJustified" justified="true"  ng-if="vm.acceso_proy_fia">
+            <uib-tab index="0" heading="Proyecto de Fianza" ng-click="vm.form.status = 1;activateTab('ot')" ng-if="vm.acceso_proy_fia">
+              <div id="divCOT"  ng-include="'app/fianzas/fianzas.generic.html'" active="activeJustified" ></div>
+            </uib-tab>
+            <uib-tab index="1" heading="Fianza" ng-click="vm.form.status = 10;activateTab('fianza')" >
+              <div  id="divCPoliza"  ng-include="'app/fianzas/fianzas.generic.html'"></div>
+            </uib-tab>
+          </uib-tabset>
+          <uib-tabset active="activeJustified" justified="true"  ng-if="!vm.acceso_proy_fia">
+            <uib-tab index="0" heading="Fianza" ng-click="vm.form.status = 10;activateTab('fianza')" >
+              <div  id="divCPoliza"  ng-include="'app/fianzas/fianzas.generic.html'"></div>
+            </uib-tab>
+          </uib-tabset>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right" ng-if="vm.acceso_adm_fia">
+        <button class="col-xs-12 btn btn-primary ladda-button" ng-click="save()" data-style="expand-right"><span class="ladda-label">Guardar</span></button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+        <button  ng-click="vm.cancel()" class="col-xs-12 btn btn-white" type="button">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <br>
+  <br>
+</div>

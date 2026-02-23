@@ -1,0 +1,530 @@
+<div ng-show="vm.show.firstTab == true">
+    <div class="col-xs-12 form-group">
+        <fieldset>
+            <legend class="legend-title" align="center">Información General</legend>
+            <form name="form" novalidate>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 form-group">
+                      <label>Identificador</label>
+                      <input class="form-control" type="text" disabled ng-model="vm.form.identifier" />
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group" ng-hide="vm.form.status == 1">
+                        <label for="folio-intenero">Folio Interno</label>
+                        <input class="form-control" name="folio-interno" ng-model="vm.form.internal_number" disabled type="text"/>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group" ng-hide="vm.show.ot">
+                        <label>Folio</label>
+                        <input class="form-control" name="folio" ng-model="vm.form.folio" type="text" ng-change="changeFolio(); saveLocalstorange();">
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.status != 1">
+                        <label>Número de Fianza<span class="color-red">*</span></label>
+                        <div ng-class="{ 'has-error': form.poliza.$invalid && !form.poliza.$pristine  }">
+                        <input class="form-control" ng-blur="checkNumFianza(vm.form.poliza_number)" name="poliza" ng-model="vm.form.poliza_number" ng-change="saveLocalstorange()" type="text" ng-trim="false" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.form.status != 1">
+                        <label>Folio</label>
+                        <div ng-class="{ 'has-error': form.poliza.$invalid && !form.poliza.$pristine  }">
+                        <input class="form-control" ng-blur="checkNumFianza(vm.form.folio)" name="poliza" ng-model="vm.form.folio" ng-change="saveLocalstorange()" type="text" ng-trim="false" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 form-group" ng-if="vm.form.status != 1">
+                        <label>Fecha de emisión de Fianza</label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="emision_date" class="width-100 text-align-center form-control" ng-model="vm.form.emision_date" ng-disabled="!vm.form.contratante" data-date-format="mm/dd/yyyy" ng-change="saveLocalstorange()">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Vigencia </label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="start_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.start_of_validity" ng-disabled="!vm.form.contratante" ng-change="vm.checkDate(vm.form.start_of_validity)" data-date-format="mm/dd/yyyy" ng-init="vm.checkDate(vm.form.start_of_validity)" >
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 form-group">
+                        <label>al </label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.end_of_validity" ng-disabled="!vm.form.contratante" data-date-format="mm/dd/yyyy" ng-change="vm.checkEndDate(vm.form.end_of_validity)" ng-init="vm.checkEndDate(vm.form.end_of_validity)">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                        <label>Afianzadora<span class="color-red">*</span></label>
+                        <div  ng-class="{ 'has-error': form.afianzadora.$invalid && !form.afianzadora.$pristine  }">
+                        <select class="form-control" ng-options="aseguradora as aseguradora.alias for aseguradora in vm.defaults.providers | orderBy: 'alias' track by aseguradora.url" ng-change="vm.aseguradoraSelection(); saveLocalstorange();" name="afianzadora" ng-model="vm.form.afianzadora" ng-disabled="!vm.form.contratante">
+                            <option value="">Selecciona un proveedor</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                        <label>Clave de agente<span class="color-red">*</span></label>
+                        <div ng-if="!vm.defaults.claves.length">
+                            <input type="text" placeholder="No hay ninguna clave para esta afianzadora" class="form-control" disabled />
+                        </div>
+                        <div ng-if="vm.defaults.claves.length == 1" ng-init="vm.form.clave = vm.defaults.claves[0]">
+                            <input type="text" name="clave_agente" class="form-control" value="{{vm.defaults.claves[0].clave +' - '+ vm.defaults.claves[0].name}}" disabled />
+                        </div>
+                        <div ng-class="{ 'has-error': form.clave.$invalid && !form.clave.$pristine  }">
+                            <select ng-if="vm.defaults.claves.length > 1" class="form-control" data-ng-options="clave as clave.clave +' - '+ clave.name for clave in vm.defaults.claves | orderBy: 'clave' track by clave.url" ng-change="vm.options.changeClave(vm.form.clave); changeClave(); saveLocalstorange();" name="clave" ng-model="vm.form.clave" ng-disabled="!vm.form.afianzadora">
+                                <option value="" disabled>Selecciona una clave de agente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                        <label>Ramo<span class="color-red">*</span></label>
+                        <div ng-class="{ 'has-error': form.ramo.$invalid && !form.ramo.$pristine  }">
+                            <select class="form-control"
+                                ng-options="ramo as ramo.ramo_name for ramo in vm.defaults.ramos | orderBy:'ramo_name' track by ramo.url"
+                                ng-change="vm.changeRamo(); saveLocalstorange();" name="ramo" ng-model="vm.form.ramo" ng-disabled="!vm.form.afianzadora && !vm.form.clave">
+                                <option value="">Selecciona un ramo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                        <label>Subramos<span class="color-red">*</span></label>
+                        <div ng-class="{ 'has-error': form.subramo.$invalid && !form.subramo.$pristine  }">
+                            <select class="form-control"
+                                ng-options="subramo as subramo.subramo_name for subramo in vm.defaults.subramos | orderBy:'subramo_name' track by subramo.url" ng-change="vm.changeSubramo(vm.form.subramo); saveLocalstorange();" name="subramo" ng-model="vm.form.subramo" ng-disabled="!vm.form.ramo">
+                                <option value="">Selecciona un subramo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.defaults.types.length >0">
+                        <label>Tipo de fianza <span class="color-red">*</span></label>
+                        <div ng-class="{ 'has-error': form.tipo.$invalid && !form.tipo.$pristine  }">
+                            <select class="form-control"
+                                ng-options="type.type_name for type in vm.defaults.types | orderBy:'type_name' track by type.url"
+                                ng-change="vm.changeTipo(); saveLocalstorange();" name="type" ng-model="vm.form.tipo" ng-disabled="!vm.form.subramo">
+                                <option value="">Selecciona un tipo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                        <label for="SelectCurrency">Moneda</label>
+                        <select id="SelectCurrency" class="form-control" ng-options="currency.value as currency.label for currency in vm.form.currency.options" ng-init="vm.form.currency.currency_selected = 1" ng-model="vm.form.currency.currency_selected" ng-change="changeCurrency(); saveLocalstorange();">
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 form-group">
+                      <label>Renovable <span class="color-red">*</span></label>
+                      <div  ng-class="{ 'has-error': form.renewal.$invalid && !form.renewal.$pristine  }">
+                        <select class="form-control"  ng-options="renewal.value as renewal.label for renewal in vm.form.renewal.options" ng-change="renewalSelection(vm.form.renewal.selected); saveLocalstorange();" name="renewal" ng-model="vm.form.renewal.selected"required>
+                        </select>
+                      </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-xs-12 col-sm-6 form-group">
+                        <label>Fiado {{contrac.selected}} <span class="color-red">*</span></label>
+                        <div class="input-group" ng-if="vm.acceso_adm_cont">
+                            <autocomplete datasource="contractors_data" id="contractors" model="vm.form.contratante" change="matchesContractors(vm.form.contratante.val)"></autocomplete>
+                            <span class="input-group-btn">
+                                <button class="btn btn-success btn-add-contractor" ng-click="vm.contratanteCreatorModalEvent()">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="form-group" ng-if="!vm.acceso_adm_cont">
+                            <autocomplete datasource="contractors_data" id="contractors" model="vm.form.contratante" change="matchesContractors(vm.form.contratante.val)"></autocomplete>
+                            <span class="input-group-btn" ng-if="vm.acceso_adm_cont">
+                                <button class="btn btn-success btn-add-contractor" ng-click="vm.contratanteCreatorModalEvent(); show_contractor = true">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group">
+                        <label>Dirección<span class="color-red">*</span></label>
+                        <div  ng-class="{ 'has-error': form.address.$invalid && !form.address.$pristine  }">
+                        <select class="form-control" data-ng-options="address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in vm.defaults.address track by address.url" ng-change="vm.options.changeAddress(vm.form.address)" name="address" ng-model="vm.form.address" ng-disabled="!vm.form.contratante">
+                            <option value="" disabled>Selecciona una dirección</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group">
+                        <label>Correo electrónico </label>
+                        <input class="form-control" disabled name="correo" ng-blur="validarEmail(vm.form.contratante.email)" ng-model="vm.form.contratante.email" type="email"/>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 form-group" >
+                        <label>Teléfono</label>
+                            <phonenumber-directive  disabledfield="true" model="vm.form.contratante.phone_number"  class="ng-isolate-scope">
+                                <input ng-model="inputValue"   type="tel" class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" maxlength="25"
+                                            placeholder="" title="Phonenumber (Format: (999) 9999-9999)" aria-invalid="false" style="" >
+                            </phonenumber-directive>
+                    </div>
+
+
+                    <div class="row col-xs-12 col-sm-6 col-md-6 nopadding form-group">
+                        <label>Referenciadores <span class="color-red" ng-if="vm.acceso_obligatorio_ref">*</span></label>
+                        <div class="nopadding form-group" ng-repeat="item in vm.form.referenciadores track by $index">
+                            <div class="col-xs-12 input-group form-group">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-danger" name="button" ng-click="deleteReferenciador($index, 1)" ng-disabled="vm.form.referenciadores.length <= 1">
+                                        <i class="glyphicon glyphicon-minus"></i>
+                                    </button>
+                                </div>
+
+                                <select class="form-control m-b col-xs-8" name="referenciador_policy" ng-model="item.referenciador" ng-change="saveLocalstorange(); changeReferenciador(item)" ng-options="referenciador_policy.url as referenciador_policy.first_name + ' ' + referenciador_policy.last_name for referenciador_policy in vendors " ng-disabled="!vm.acceso_chng_ref">
+                                    <option value="" disabled="" selected>Seleccione el referenciador</option>
+                                </select>
+
+                                <div class="input-group-btn wb102" ng-init="vm.form.referenciadores[$index].resp_type = 0">
+                                    <input class="form-control m-b col-xs-12 wb102" type="text" name="" placeholder="% Comisión" ng-model="item.comision_vendedor" ng-disabled="!item.referenciador" ng-change="changeComRef(item)" required/>                      
+                                    <button class="btn btn-success" ng-click="addReferenciador(1)" type="button" ng-disabled="!vm.acceso_chng_ref">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    </button>
+                                    <!-- <pre>{{order.poliza.primaTotal | json}}</pre> -->
+                                    <a ng-disabled="!item.referenciador" ng-show="item.selectedRef && vm.form.referenciadores.length > 1 && order.poliza.primaTotal" class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); calculateComision(item, $index)"><i class="fa fa-calculator" aria-hidden="true"></i></a>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12"></div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 nopadding form-group">
+                        <label>Bono Afianzadora: </label>
+                        <div class="input-group">
+                          <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                          <input class="form-control" type="text" ng-model="vm.form.bono_variable" ng-change="saveLocalstorange()" format-as-currency step="0.01" ng-value="0.00">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6 nopadding form-group">
+                        <label>Fecha de Bono</label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.date_bono" data-date-format="mm/dd/yyyy" ng-change="vm.checkFechaBono(vm.form.date_bono)" ng-init="vm.checkFechaBono(vm.form.date_bono)">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+
+    <div class="col-md-12 col-sm-12 form-group">
+       <fieldset>
+          <legend align="right">Detalle de Garantía</legend>
+          <div class="ibox float-e-margins">
+              <form role="form" ng-model="vm.form.subforms">
+                <div class="form-group col-xs-12 col-md-8">
+                    <label>Descripción <span class="color-red">*</span></label>
+                    <input class="form-control" ng-model="vm.form.subforms.contract.description" ng-change="saveLocalstorange()" type="text" />
+                </div>
+                <div class="form-group col-xs-12 col-md-4">
+                    <label>Monto a garantizar <span class="color-red">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                      <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
+                        <!-- <input class="CurrencyInput"> -->
+                      <input class="form-control" ng-model="vm.form.subforms.contract.guarantee_amount" type="text" ng-blur="validateDecimalMontoTotal(vm.form.subforms.contract.guarantee_amount); formatearNumero(vm.form.subforms.contract.guarantee_amount,2); saveLocalstorange();">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 form-group" >
+                    <label>Tarifa aplicable<span class="color-red">* Cantidad hasta 4 decimales</span> </label>
+                    <div class="input-group">
+                      <input class="form-control m-b" type="number" ng-model="vm.form.subforms.contract.rate" ng-change="percentageRange(vm.form.subforms.contract.rate); saveLocalstorange();" value=""/>
+                      <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+
+                <div ng-if="vm.form.ramo.ramo_code == 4 && vm.form.subramo.subramo_code == 15">
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Giro de la empresa <span class="color-red">*</span></label>
+                        <input class="form-control" ng-model="vm.form.subforms.contract.business_activity" ng-change="saveLocalstorange()" type="text" />
+                    </div>
+
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Nombre del empleado <span class="color-red">*</span></label>
+                        <input class="form-control" ng-model="vm.form.subforms.contract.employee_name" ng-change="saveLocalstorange()" type="text" />
+                    </div>
+
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Actividad que realiza <span class="color-red">*</span></label>
+                        <input class="form-control" ng-model="vm.form.subforms.contract.activity" ng-change="saveLocalstorange()" type="text" />
+                    </div>
+                    <div class="col-xs-12 col-sm-4 form-group" >
+                        <label>Deducible<span class="color-red">*</span> </label>
+                        <div class="input-group">
+                          <input class="form-control m-b" type="number" ng-model="vm.form.subforms.contract.deductible_percentage" ng-change="percentageRange(vm.form.subforms.contract.deductible_percentage); saveLocalstorange();" value=""/>
+                          <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div ng-if="vm.form.subramo.subramo_code == 20 || vm.form.subramo.subramo_code == 21">
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Número de contrato <span class="color-red">*</span></label>
+                        <input class="form-control" ng-model="vm.form.subforms.contract.number" ng-change="saveLocalstorange()" type="text" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Plazo del documento fuente del <span class="color-red">*</span></label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="vm.form.subforms.contract.start" data-date-format="mm/dd/yyyy" ng-change="saveLocalstorange()" ng-paste="fechas_upd(vm.form.subforms.contract.start,1,$event)">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 form-group">
+                        <label>al <span class="color-red">*</span></label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="endingDate" class="width-100 text-align-center form-control" ng-model="vm.form.subforms.contract.end" data-date-format="mm/dd/yyyy" ng-change="saveLocalstorange()" ng-paste="fechas_upd(vm.form.subforms.contract.end,2,$event)">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Fecha de firma del contrato <span class="color-red">*</span></label>
+                        <div class="datepicker-me input-group date" data-provide="datepicker">
+                            <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="vm.form.subforms.contract.sign_date" ng-change="saveLocalstorange()" data-date-format="mm/dd/yyyy" ng-paste="fechas_upd(vm.form.subforms.contract.sign_date,3,$event)">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Monto del contrato <span class="color-red">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                          <input class="form-control" ng-model="vm.form.subforms.contract.amount" type="text" ng-blur="validateDecimalMontoTotal(vm.form.subforms.contract.amount); formatearNumero(vm.form.subforms.contract.amount,1); saveLocalstorange();"  >
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-md-4">
+                        <label>Monto del contrato con IVA <span class="color-red">*</span></label>
+                        <div class="input-group">
+                          <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                          <input class="form-control" ng-model="vm.form.subforms.contract.amount_iva" type="text" ng-change="validateDecimalMontoTotal(vm.form.subforms.contract.amount_iva); saveLocalstorange();" disabled="" format-as-currency>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4 form-group" >
+                        <label>Porcentaje a garantizar </label>
+                        <div class="input-group">
+                          <input class="form-control m-b" type="number" ng-model="vm.form.subforms.contract.guarantee_percentage" ng-change="percentageRange(vm.form.subforms.contract.guarantee_percentage); saveLocalstorange();" value=""/>
+                          <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- 
+                
+                <div class="form-group col-xs-12 col-md-4">
+                    <label>Objeto del contrato <span class="color-red">*</span></label>
+                    <input class="form-control" ng-model="vm.form.subforms.contract.contract_object" type="text">
+                </div>
+                
+                <div class="form-group col-xs-12 col-md-4">
+                    <label>Porcentaje de garantía <span class="color-red">*</span></label>
+                    <div class="input-group">
+                        <input class="form-control m-b" ng-model="vm.form.subforms.contract.guarantee_percentage" type="number" ng-change="percentageWarranty(vm.form.subforms.contract.guarantee_percentage)">
+                         <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+                    </div>
+                </div> -->
+              </form>
+          </div>
+      </fieldset>
+    </div>
+
+    <div class="col-md-12 col-sm-12 form-group" id="modal_in">
+        <fieldset>
+            <legend align="right">Beneficiarios</legend>
+
+            <label>Beneficiario existente <span class="color-red">*</span></label>
+            <div class="input-group col-xs-12">
+                <autocomplete datasource="beneficiaries_data" id="beneficiaries" model="vm.form.defaults.benecifiary" change="matchesBeneficiary(vm.form.defaults.benecifiary.val)"></autocomplete>
+                <span class="input-group-btn">
+                    <button class="btn btn-success btn-add-contractor" ng-click="agregarBeneficiario(vm.form.defaults.benecifiary)">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                </span>
+            </div>
+
+            <div ng-repeat="beneficiaries_fianza in vm.form.subforms.beneficiaries_fianza track by $index">
+                <div class="row address-container">
+                  <div class="col-xs-12 legend-gray"> <br>
+                    <br>
+                    <legend class="legend-title legend-flex" align="center">
+                      <button type="button" ng-if="vm.form.subforms.beneficiaries_fianza.length > 1" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="vm.deleteBene($index, vm.form.subforms.beneficiaries_fianza)">
+                        Quitar Beneficiario
+                      </button>
+                      <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="vm.deleteBene($index, beneficiaries_fianza)">
+                        <i class="glyphicon glyphicon-minus"></i>
+                      </button>
+                      <span>
+                        Nuevo Beneficiario #{{$index + 1}}
+                      </span>
+                      <button class="btn btn-success pull-right hidden-xs" ng-click="vm.addBene(beneficiaries_fianza)" type="button">
+                        Agregar Beneficiario
+                      </button>
+                      <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="vm.addBene(beneficiaries_fianza)" type="button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </legend>
+                  </div>
+
+                  <div class="col-xs-12 address_components">
+                    <div class="col-xs-12 m-b">
+                        <button class="btn btn-default col-xs-6" ng-if="beneficiaries_fianza.type_person == 2" ng-click="beneficiaries_fianza.type_person = 1">Física</button>
+                        <button class="btn btn-primary col-xs-6" ng-if="beneficiaries_fianza.type_person == 1" ng-click="beneficiaries_fianza.type_person = 1">Física</button>
+                        <button class="btn btn-default col-xs-6" ng-if="beneficiaries_fianza.type_person == 1" ng-click="beneficiaries_fianza.type_person = 2">Moral</button>
+                        <button class="btn btn-prymary col-xs-6" ng-if="beneficiaries_fianza.type_person == 2" ng-click="beneficiaries_fianza.type_person = 2">Moral</button>
+                    </div>
+
+                    <div ng-if="beneficiaries_fianza.type_person == 1">
+                        <div class="col-xs-12 col-sm-6 form-group">
+
+                          <label for="nombre{{$index}}">Nombre <span class="color-red">*</span></label>
+                          <input id="nombre{{$index}}" name="nombre{{$index}}" class="form-control" ng-model="beneficiaries_fianza.first_name" type="text">
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 form-group">
+                          <label for="last{{$index}}">Apellido Paterno </label>
+                          <input id="last{{$index}}" name="last{{$index}}" class="form-control" ng-model="beneficiaries_fianza.last_name" type="text">
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 form-group">
+                          <label for="secondLast{{$index}}">Apellido Materno</label>
+                          <input id="secondLast{{$index}}" name="secondLast{{$index}}" class="form-control" ng-model="beneficiaries_fianza.second_last_name" type="text">
+                        </div>
+                    </div>
+                    <div ng-if="beneficiaries_fianza.type_person == 2">
+                        <div class="col-xs-12 col-sm-6 form-group">
+                          <label for="nombre{{$index}}">Razón Social<span class="color-red">*</span></label>
+                          <input id="nombre{{$index}}" name="nombre{{$index}}" class="form-control" ng-model="beneficiaries_fianza.j_name" type="text">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 form-group">
+                      <label for="secondLast{{$index}}">RFC</label>
+                      <input id="secondLast{{$index}}" name="secondLast{{$index}}" class="form-control" ng-model="beneficiaries_fianza.rfc" type="text">
+                    </div>
+
+                     <div class="col-xs-12 col-sm-6 form-group">
+                      <label for="secondLast{{$index}}">Email</label>
+                      <input id="secondLast{{$index}}" name="secondLast{{$index}}" class="form-control" ng-model="beneficiaries_fianza.email" type="email" placeholder="example@example.com">
+                    </div>
+
+                     <div class="col-xs-12 col-sm-6 form-group">
+                      <label for="secondLast{{$index}}">Teléfono</label>
+                      <phonenumber-directive model="beneficiaries_fianza.phone_number" class="ng-isolate-scope">
+                        <input ng-model="beneficiaries_fianza.phone_number" type="tel" class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" maxlength="25"
+                                    placeholder="" title="Phonenumber (Format: (999) 9999-9999)" aria-invalid="false" style="" >
+                    </phonenumber-directive>
+                    </div>
+
+
+                  </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 form-group">
+        <h3> 
+            <input type="checkbox" name="" ng-model="showPrograma" ng-change="testCheck(showPrograma)">
+            <span> Pertenece a un Programa de Proveedores</span>
+        </h3>
+    </div>
+    <div class="col-xs-12 col-sm-6 form-group" ng-if="showPrograma">
+        <label>Nombre del Programa</label>
+      <autocomplete datasource="contractors_data" id="contractors" model="vm.contratante" change="matchesShows(vm.contratante.val); saveLocalstorange() "></autocomplete>
+    </div>
+
+    <div class="col-xs-12 form-group">
+        <fieldset>
+            <legend class="legend-title" align="center">Observaciones</legend>
+            <form name="form1">
+            <div class="row">
+                <div class="col-xs-12 form-group" ng-class="{ 'has-error': form1.observations.$invalid && !form1.observations.$pristine  }">
+                    <textarea type ="text" class="form-control" name="observations" ng-model="vm.form.observations" ng-change="saveLocalstorange()"></textarea>
+                </div>
+            </div>
+            </form>
+        </fieldset>
+    </div>
+
+
+    <div class="col-xs-12 form-group">
+        <div class="row">
+            <div ng-include="'templates/upload.html'"></div>
+        </div>
+        <div class="row">
+            <div ng-include="'templates/show-files.html'"></div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-4 form-group" ng-if="vm.form.status != 1">
+        <label>Fecha de emisión de la Factura</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+            <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.date_emision_factura" data-date-format="mm/dd/yyyy" ng-change="checkFechaFactura(vm.form.date_emision_factura)" ng-init="vm.checkFechaFactura(vm.form.date_emision_factura)">
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+    </div>    
+    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.form.status != 1">
+        <label for="SelectMontEmision">Mes de Emisión de Factura</label>
+        <select id="SelectMontEmision" class="form-control" ng-options="month.value as month.label for month in vm.form.month.options" ng-model="vm.form.month_selected" ng-change="saveLocalstorange()">
+        </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.form.status != 1">
+        <label for="year">Año Factura</label>
+        <select class="form-control" ng-options="year for year in years track by year" ng-model="vm.form.year_factura" ng-change="saveLocalstorange()">
+          <option value=""></option>
+        </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.form.status != 1">
+        <label for="folio-fact">Folio Factura</label>
+        <input class="form-control" name="folio-fact" type="text" ng-model="vm.form.folio_factura" ng-change="saveLocalstorange()"/>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.form.status != 1">
+        <label for="folio-fact">Maquila</label>
+        <input class="form-control" name="maquila" type="text" ng-model="vm.form.maquila" ng-change="saveLocalstorange()" format-as-currency step="0.01" ng-value="0.00"/>
+    </div>
+    <div class="col-xs-12 col-sm-4 form-group" ng-if="vm.form.status != 1">
+        <label>Fecha de Maquila</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+            <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.date_maquila" data-date-format="mm/dd/yyyy" ng-change="vm.checkFechaMaquila(vm.form.date_maquila)" ng-init="vm.checkFechaFactura(vm.form.date_maquila)">
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+    </div>    
+    <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="vm.form.status != 1">
+        <label for="folio-fact">Tipo Cambio (Captura)</label>
+        <input class="form-control" name="changeType" type="number" ng-model="vm.form.exchange_rate" ng-change="saveLocalstorange()"/>
+    </div>
+    <div class="col-xs-12 col-sm-4 form-group" ng-if="vm.form.status != 1">
+        <label>Fecha de entrega de la Factura</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+            <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="vm.form.fecha_entrega" data-date-format="mm/dd/yyyy" ng-change="checkFechaFactura(vm.form.date_emision_factura)" ng-init="vm.checkFechaFactura(vm.form.date_emision_factura)">
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+    </div>  
+
+
+    
+    <div ng-if="vm.form.status != 1">
+        <receipts-endorsement form="vm.form" tosave="dataToSave" type="1"></receipts-endorsement>
+    </div>
+
+    
+    <script type="text/javascript">
+    $('#select_user').select2({
+        dropdownParent: $('#modal_in')
+    });
+    $('input.CurrencyInput').on('blur', function() {
+      const value = this.value.replace(/,/g, '');
+      this.value = parseFloat(value).toLocaleString('en-US', {
+        style: 'decimal',
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2
+      });
+    });
+    </script>
+</div>

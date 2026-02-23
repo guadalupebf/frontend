@@ -1,0 +1,242 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Reclamaciones</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="fianzas.list">Fianzas</a>
+      </li>
+      <li class="active">
+        <strong>Reclamaciones</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="row wrapper wrapper-content animated fadeIn ng-scope">
+  <button class="btn btn-info m-b" ui-sref="fianzas.reclamaciones" ng-if="vm.acceso_adm_fia"><i class="fa fa-plus"></i> Nueva reclamación</button>
+  <!-- <div class="ibox float-e-margins">
+    <div class="ibox-title">
+      <h5>Grafica</h5>
+      <div ibox-tools></div>
+    </div>
+    <div class="ibox-content">
+      Aqui va la grafica
+    </div>
+  </div> -->
+
+  <ul id="contextFianzas" class="dropdown-menu" role='menu' z-index ="1000"> 
+    <!-- <li><a ng-click="open_new_tab()">Abrir en nueva pestaña</a></li> -->
+  </ul>
+
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Reclamaciones</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content" >
+          <div class="row">
+            <div class="results-container" ng-if="!vm.show_binnacle_claim">
+              <div class="col-xs-12 panel-body">
+                <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="insurance in claims track by $index">
+                  <div class="ibox-title">
+                    <h5> Fianza: {{ insurance.fianza_number }} </h5>
+                    <div ibox-tools></div>
+                  </div>
+                  <div class="ibox-content" style="display: none" ui-sref="fianzas.info({polizaId: insurance.id})">
+                    <div class="table-flex">
+                      <div class="table-row" >
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Póliza </label>
+                          <p> {{ insurance.poliza_number }} </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Contratante </label>
+                          <p>{{ insurance.contractor.full_name }}
+                              <!-- {{ insurance.natural.first_name }}
+                              {{ insurance.natural.last_name }}
+                              <span ng-if="insurance.natural.second_last_name">{{insurance.natural.second_last_name}}</span>
+                              {{ insurance.juridical.j_name }} -->
+                          </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Aseguradora </label>
+                          <p> {{ insurance.aseguradora }} </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Subramo </label>
+                          <p> {{ insurance.subramo }} </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Forma de pago </label>
+                          <p payment="{{insurance.forma_de_pago}}"></p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Estatus </label>
+                          <p status="{{insurance.status}}"></p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Vigencia </label>
+                          <p> {{ insurance.start_of_validity | date: 'medium': 'UTC'}} </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Antigüedad </label>
+                          <p ng-if="!(insurance.antiguedad > 0)">
+                            0 días
+                          </p>
+                          <p ng-if="insurance.antiguedad > 0">
+                            {{ insurance.antiguedad }} días
+                          </p>
+                        </div>
+
+                        <div class="table-cell col-xs-12 col-sm-6">
+                          <label> Acciones </label>
+                          <p ng-click="$event.stopPropagation();">
+                            <!-- comments -->
+                            <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(insurance)">
+                              <i class="fa fa-comment" aria-hidden="true"></i>
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 form-group">
+                  <label>Estatus:</label>
+                  <select class="form-control" ng-model="searchStatus" data-ng-options="status.name for status in statuses"  required>
+                    <option value="" disabled>Seleccione un estatus</option>
+                  </select>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 form-group">
+                  <label>Fecha de presentación inicio:</label>
+                  <div class="datepicker-me input-group date" data-provide="datepicker">
+                      <input type="text" name="init_date" class="width-100 text-align-center form-control" ng-model="init_date" value="{{init_date}}" ng-change="change_init_date(init_date)" data-date-format="mm/dd/yyyy" >
+                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 form-group">
+                  <label>Fecha de presentación fin:</label>
+                  <div class="datepicker-me input-group date" data-provide="datepicker">
+                      <input type="text" name="end_date" ng-change="change_end_date(end_date)" class="width-100 text-align-center form-control" ng-model="end_date" value="{{end_date}}" data-date-format="mm/dd/yyyy" >
+                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  </div>
+                </div>
+
+                <table class="table table-bordered table-hover hidden-xs hidden-sm">
+                  <thead>
+                    <tr>                        
+                      <th ng-click="vm.changeOrder(1, vm.order_poliza_asc == 1 ? 2 : 1)">Beneficiario <span ng-class="{'fa fa-sort-desc': vm.order_poliza_asc == 1, 'fa fa-sort-asc': vm.order_poliza_asc == 2}"></th>                       
+                      
+                      <th ng-click="vm.changeOrder(2, vm.order_contractor_asc == 1 ? 2 : 1)">Fiado <span ng-class="
+                      {'fa fa-sort-desc': vm.order_contractor_asc == 1, 'fa fa-sort-asc': vm.order_contractor_asc == 2}"></th>
+                      
+                      <th># Reclamación</th>
+                      <th ng-click="vm.changeOrder(3, vm.order_provider_asc == 1 ? 2 : 1)">Fianza <span ng-class="{'fa fa-sort-desc': vm.order_provider_asc == 1, 'fa fa-sort-asc': vm.order_provider_asc == 2}"></th>
+
+                      <th ng-click="vm.changeOrder(3, vm.order_provider_asc == 1 ? 2 : 1)">Afianzadora <span ng-class="{'fa fa-sort-desc': vm.order_provider_asc == 1, 'fa fa-sort-asc': vm.order_provider_asc == 2}"></th>
+
+                      <th ng-click="vm.changeOrder(5, vm.order_subramo_asc == 1 ? 2 : 1)">Subramo <span ng-class="{'fa fa-sort-desc': vm.order_subramo_asc == 1, 'fa fa-sort-asc': vm.order_subramo_asc == 2}"></th>                 
+
+                      <th ng-click="vm.changeOrder(6, vm.order_type_asc == 1 ? 2 : 1)">Tipo <span ng-class="{'fa fa-sort-desc': vm.order_type_asc == 1, 'fa fa-sort-asc': vm.order_type_asc == 2}"></th>
+                      
+                      <th ng-click="vm.changeOrder(7, vm.order_status_asc == 1 ? 2 : 1)">Estatus <span ng-class="{'fa fa-sort-desc': vm.order_status_asc == 1, 'fa fa-sort-asc': vm.order_status_asc == 2}"></th>
+                      
+                      <th ng-click="vm.changeOrder(8, vm.order_vigencia_asc == 1 ? 2 : 1)">Reclamación <span ng-class="{'fa fa-sort-desc': vm.order_vigencia_asc == 1, 'fa fa-sort-asc': vm.order_vigencia_asc == 2}"></th>
+                                            
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="insurance in claims track by $index" ng-click="selectSurety(insurance)" context="contextFianzas" ng-right-click="ShowContextMenu('Información Reclamación', insurance.id)">
+                      <td>{{ insurance.benefited.first_name }} {{ insurance.benefited.last_name }} {{ insurance.benefited.second_last_name }} {{ insurance.benefited.j_name }} </td>
+                      <td>
+                        <span>{{ insurance.poliza.contractor.full_name }}
+                          <!-- {{ insurance.fianza.natural.first_name }}
+                          {{ insurance.fianza.natural.last_name }}
+                          <span ng-if="insurance.fianza.natural.second_last_name">{{insurance.fianza.natural.second_last_name}}</span>
+                          {{ insurance.fianza.juridical.j_name }} -->
+                        </span>
+                      </td>
+                      <td>{{ insurance.number }}</td>
+                      <td><span ng-if="insurance.poliza.poliza_number">{{ insurance.poliza.poliza_number }}</span><span ng-if="insurance.poliza.internal_number">{{ insurance.poliza.internal_number }}</span></td>
+                      <td>{{ insurance.poliza.aseguradora }}</td>
+                      <td>{{ insurance.poliza.subramo }}</td>
+                      <td>{{ insurance.poliza.fianza_type }}</td>
+                      <td>{{status(insurance.status)}}</td>
+                      <td>{{type(insurance.claim_type)}}</td>
+                      <td ng-click="$event.stopPropagation();">
+                        <!-- comments -->
+                        <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(insurance)">
+                          <i class="fa fa-comment" aria-hidden="true"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div ng-if="vm.show_pag_search" class="text-center hidden-xs hidden-sm">
+                  <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                      <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+                        <a class="page-link">
+                          <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                        </a>
+                      </li>
+                      <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+                        <a class="page-link" >{{page}}</a>
+                      </li>
+                      <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+                        <a class="page-link">
+                          <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                        </a>
+                      </li>
+                      <li class="page-item" >
+                        <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                          <span aria-hidden="true">
+                            <i class="fa fa-step-forward" aria-hidden="true"></i>
+                          </span>
+                          <span class="sr-only">Last</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+
+                <button style="margin-left: 10px" ng-if ="claims && claims.length > 0" class="btn btn-info m-b pull-right" ng-click="makeReport(searchStatus)"><i class="fa fa-table"></i> Generar Reporte</button>
+
+                 <button class="btn btn-info m-b pull-right" ng-click="getStatus(searchStatus)"><i class="fa fa-arrow-right"></i> Consultar</button>
+              </div>
+            </div>
+          </div>
+          <div class="row animate" ng-if="vm.show_binnacle_claim">
+            <div>
+              <label>Bitácora de Reclamación Fianza</label>
+            </div>
+            <div class="col-xs-12">
+              <comments datasource="vm.comments_data_claim" typemodel="21" config="vm.comments_config_claim" idmodel="vm.reclamacion_id"></comments>
+              <div class="col-xs-12 col-sm-4 col-md-3">
+                <div class="row">
+                    <a class="col-xs-12 btn btn-primary margin-top-10" ng-click="vm.returnToFianzaR()"><span class="fa fa-arrow-left"></span> Regresar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

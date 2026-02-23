@@ -1,0 +1,237 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Filtro por Usuario</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a>Filtro por Usuario</a>
+      </li>
+      <li class="active">
+        <strong>Lista</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Usuarios</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="col-xs-12">
+          <ul class="list-group">
+            <div ng-repeat="user in users" ng-if="user.usuario__first_name != ''">
+              <div ng-if="user.usuario__first_name != null">
+                <li class="list-group-item" ng-init="user[$index] = false">
+                  <legend class="legend-title" ng-click="user[$index] ? user[$index] = false : user[$index] = true; getInfoUser(user, $index)">{{ user.usuario__first_name }} {{ user.usuario__last_name }}</legend>
+                  <div class="row" ng-if="user[$index] && user_index == $index">
+                    <div class="panel-body table-over-y">
+                      <legend class="legend-title" align="center">Tabla de Asignación</legend>
+                      <div class="dropdown pull-right">
+                        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                          Opciones
+                          <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                          <li><a ng-click="showDeleteShareUser()">Quitar Asignaciones</a></li>
+                        </ul>
+                      </div>
+                      <br><br><br>
+                      <div class="alert alert-info" role="alert">
+                        <b>Nota:</b>
+                        <span>El usuario podrá ver pólizas, contratantes, etc, aunque no esten asignados directamente, la razón es porque están relacionados con alguna asignación.</span>
+                      </div>
+                      <table class="table table-bordered table-hover m-t">
+                        <thead>
+                          <tr>
+                            <th>Módulo</th>
+                            <th>Asignación</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Aseguradoras</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.aseguradoras" ng-if="asignacion.aseguradora__count != 0">
+                                <li>{{ asignacion.aseguradora__compania }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 1)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Contratantes Físicos</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.contratante_fisico" ng-if="asignacion.contratante_fisico__count != 0">
+                                <li>{{ asignacion.contratante_fisico__full_name }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 2)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Contratantes Morales</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.contratante_moral" ng-if="asignacion.contratante_moral__count != 0">
+                                <li>{{ asignacion.contratante_moral__j_name }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 3)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Fianzas</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.fianza" ng-if="asignacion.fianza__count != 0">
+                                <li>{{ asignacion.fianza__fianza_number }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 4)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Grupos</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.grupo_de_contratantes" ng-if="asignacion.grupo_de_contratantes__count != 0">
+                                <li>{{ asignacion.grupo_de_contratantes__group_name }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 5)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Pólizas</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignaciones.info.poliza" ng-if="asignacion.poliza__count != 0">
+                                <li>{{ asignacion.poliza__poliza_number }} <button ng-if="showButtonDeleteShareUser" class="btn" ng-click="deleteShare(user, asignacion, 6)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="col-xs-12">
+                        <button ng-if="showButtonDeleteShareUser" class="btn btn-white pull-right" ng-click="hideDeleteShareUser(false)" title="Cancelar Eliminación de Asignación"> Cancelar</button>
+                      </div>                  
+                    </div>
+                  </div>
+                </li>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>Grupos de Usuarios</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="col-xs-12">
+          <ul class="list-group">
+            <div ng-repeat="group in groups" ng-if="group.grupo__name != ''">
+              <div ng-if="group.grupo__name != null">
+                <li class="list-group-item" ng-init="group[$index] = false">
+                  <legend class="legend-title" ng-click="group[$index] ? group[$index] = false : group[$index] = true; getInfoGroup(group, $index)">{{ group.grupo__name }}</legend>
+                  <div class="row" ng-if="group[$index] && group_index == $index">
+                    <div class="panel-body table-over-y">
+                      <legend class="legend-title" align="center">Tabla de Asignación</legend>
+                      <div class="dropdown pull-right">
+                        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                          Opciones
+                          <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                          <li><a ng-click="showDeleteUser()">Eliminar Usuarios</a></li>
+                          <li><a ng-click="showDeleteShare()">Quitar Asignaciones</a></li>
+                        </ul>
+                      </div>
+                      <br><br>
+                      <table class="table table-bordered table-hover m-t">
+                        <thead>
+                          <tr>
+                            <th>Usuarios</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <ul class="row">
+                                <li class="col-xs-12 col-sm-6 col-md-4" ng-repeat="user in groupsList track by user.id">{{ user.first_name }} {{ user.last_name }}<button ng-if="showButtonDeleteUser" class="btn" ng-click="deleteUser(group ,user)" title="Eliminar Usuario del Grupo"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                              <button ng-if="showButtonDeleteUser" class="btn btn-white m-t" ng-click="hideDeleteUser()">Cancelar</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="alert alert-success" role="alert">
+                        <b>Nota:</b>
+                        <span>Los usuarios podrán ver pólizas, contratantes, etc, aunque no esten asignados directamente, la razón es porque están relacionados con alguna asignación.</span>
+                      </div>
+                      <table class="table table-bordered table-hover m-t">
+                        <thead>
+                          <tr>
+                            <th>Módulo</th>
+                            <th>Asignación</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Aseguradoras</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.aseguradoras" ng-if="asignacion.aseguradora__count != 0">
+                                <li>{{ asignacion.aseguradora__compania }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 1)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Contratantes Físicos</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.contratante_fisico" ng-if="asignacion.contratante_fisico__count != 0">
+                                <li>{{ asignacion.contratante_fisico__full_name }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 2)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Contratantes Morales</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.contratante_moral" ng-if="asignacion.contratante_moral__count != 0">
+                                <li>{{ asignacion.contratante_moral__j_name }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 3)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Fianzas</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.fianza" ng-if="asignacion.fianza__count != 0">
+                                <li>{{ asignacion.fianza__fianza_number }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 4)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Grupos</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.grupo_de_contratantes" ng-if="asignacion.grupo_de_contratantes__count != 0">
+                                <li>{{ asignacion.grupo_de_contratantes__group_name }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 5)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Pólizas</td>
+                            <td>
+                              <ul ng-repeat="asignacion in asignacionesGroup.info.poliza" ng-if="asignacion.poliza__count != 0">
+                                <li>{{ asignacion.poliza__poliza_number }} <button ng-if="showButtonDeleteShare" class="btn" ng-click="deleteShare(group, asignacion, 6)" title="Eliminar Asignación"><i class="fa fa-times-circle" aria-hidden="true"></i></button></li>
+                              </ul>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="col-xs-12">
+                        <button ng-if="showButtonDeleteShare" class="btn btn-white pull-right" ng-click="hideDeleteShare(false)" title="Cancelar Eliminación de Asignación"> Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

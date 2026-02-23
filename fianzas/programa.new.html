@@ -1,0 +1,62 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading" ng-init="type(2)">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Contratantes Programa de Proveedores</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Contratantes</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="row wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div id="addContratantes" class="col-xs-12" ng-init="type(2)">
+      <div class="ibox float-e-margins">
+        <div class="ibox-content wizard">
+          <uib-tabset template-url="app/fianzas/contratantes.tabset.html" active="activeJustified" justified="true"  ng-click="type(2); vm.form.only_sureties = true;onlyFianzas(2)">
+          
+            <uib-tab template-url="app/fianzas/contratantes.tab.html"  active="activeJustified" index="1" heading="Morales" ng-init="type(2);vm.juridicalForm.only_sureties = true;onlyFianzas(2)">
+              <div class="ibox-content">
+                <toaster-container></toaster-container>
+                <div class="row">
+                    <div class="row data-container">
+                      <div class="col-xs-12">
+                        <legend class="col-xs-12 legend-title" align="center">Datos del contratante</legend>
+
+                        <div class="col-xs-12 nopadding form-group" ng-class="{ 'has-error': form2.j_name.$invalid && !form2.j_name.$pristine }">
+                          <label>
+                            Nombre de la empresa
+                            <span class="color-red">*</span>
+                          </label>
+                          <input class="form-control" name="j_name" ng-model="vm.juridicalForm.j_name" ng-change="saveLocalstorange()" required type="text">
+                        </div>                        
+                    </div>  
+                    <div class="row col-xs-12 col-lg-12 nopadding">                  
+                      <div ng-if="vm.permiso_archivos">
+                        <div upload-template></div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+                        <button id="saveButtonMoral" class="col-xs-12 btn btn-primary ladda-button" ng-click="vm.submitFormJuridical1()">Guardar contratante</button>
+                      </div>
+                      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+                        <button id="cancelButtonMoral" class="col-xs-12 btn btn-danger" ng-click="vm.cancel()" type="button">Cancelar</button>
+                      </div>
+                    </div>
+                  <!-- </form> -->
+                </div>
+
+              </div>
+            </uib-tab>
+          </uib-tabset>
+        </div>
+    </div>
+  </div>
+</div>

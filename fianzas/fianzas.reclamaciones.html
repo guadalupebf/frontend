@@ -1,0 +1,220 @@
+<div class="row wrapper border-bottom white-bg page-heading" ng-if="url !== '/index/main'">
+    <div class="col-lg-9">
+        <h2>Fianzas</h2>
+        <ol class="breadcrumb margin-top-15">
+            <li>
+                <a ui-sref="inicio.inicio">Inicio</a>
+            </li>
+            <li class="active">
+                <strong>Fianzas - Reclamaciones</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Reclamación</h5>
+                <div ibox-tools></div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label >Fianza o Cliente: <span class="color-red">*</span></label>
+                        <autocomplete datasource="bens_data" id="autocomplete" model="vm.selected_affect" change="matchBeneficiares(vm.selected_affect.val)"></autocomplete>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label></label>
+                        <button type="button" id="buttonsearch" ng-click="getInfo(vm.selected_affect)" class="btn btn-block btn-success mt4">Buscar</button>
+                    </div>
+                </div>
+                <fieldset>
+                    <legend align="right">Información de la reclamación</legend>
+                    <form name="infoSiniestroForm">
+                        <div class="row">
+                            <div class="col-md-3 form-group" ng-class="{ 'has-error': infoSiniestroForm.numero_de_siniestro.$invalid && !infoSiniestroForm.numero_de_siniestro.$pristine }">
+                                <label >Número de reclamación: <span class="color-red">*</span></label>
+                                <input class="form-control" ng-model="vm.form.number" name="numero_de_siniestro" required="true" ng-change="saveLocalstorange()"/>
+                            </div>
+
+                            <div class="col-md-3 form-group">
+                                <label>Fecha presentación: <span class="color-red">*</span></label>
+                                <div class="datepicker-me input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input
+                                    type="text"
+                                    name="startDate"
+                                    class="width-100 text-align-center form-control"
+                                    data-provide="datepicker"
+                                    ng-model="vm.form.presentacion"
+                                    value="{{order.form.startDate}}"
+                                    ng-change="order.options.checkDate()"
+                                    ng-init="order.options.checkDate('initial')"
+                                    >
+                                </div>
+                            </div>
+                            <div ng-disabled="vm.user.permiso.editar" class="col-md-3 form-group">
+                                <label>Tipo de reclamación</label>
+                                <select  class="select form-control"
+                                    ng-model="vm.form.claim_type"
+                                    ng-change="vm.updateSiniestroStatus(vm.status); saveLocalstorange();"
+                                    ng-options="status.id as status.label for status in types_options">
+                                    <option value="">Seleccione una opción</option>
+                                </select>
+                            </div>
+                            <div ng-disabled="vm.user.permiso.editar" class="col-md-3 form-group">
+                                <label>Estatus</label>
+                                <select  class="select form-control"
+                                    ng-model="vm.form.status"
+                                    ng-change="vm.updateSiniestroStatus(vm.status); saveLocalstorange();"
+                                    ng-options="status.id as status.label for status in status_options">
+                                    <option value="">Seleccione una opción</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 form-group" ng-class="{ 'has-error': infoSiniestroForm.numero_de_siniestro.$invalid && !infoSiniestroForm.numero_de_siniestro.$pristine }">
+                                <label >Motivo: <span class="color-red">*</span></label>
+                                <input class="form-control" ng-model="vm.form.reason" name="numero_de_siniestro" required="true" ng-change="saveLocalstorange()"/>
+                            </div>
+                            <div class="col-xs-12">
+                                <label>Observaciones</label>
+                                <textarea class="form-control" ng-model="vm.form.observations" ng-change="saveLocalstorange()"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </fieldset>
+                <br>
+                <fieldset>
+                    <legend align="right">Información de la fianza</legend>
+                    <form name="infoGral">
+                        <div class="row">
+                            <div class="col-md-3 form-group">
+                                <label >Afianzadora:</label>
+                                <input disabled class="form-control"
+                                    ng-model="fianza.aseguradora.alias"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label >Fiado:<span class="color-red">*</span></label>
+                                <input ng-if="fianza.contractor" disabled  ng-model="fianza.contractor.full_name"
+                                    class="form-control"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label >Número de fianza:</label>
+                                <input disabled ng-model="fianza.poliza_number"
+                                    class="form-control"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label >Subramo</label>
+                                <input disabled class="form-control"
+                                    ng-model="fianza.subramo"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Tipo:</label>
+                                <input  disabled ng-model="fianza.fianza_type"
+                                    class="form-control"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label >Monto afianzado: </label>
+                                <input disabled  ng-model="fianza.contract_poliza.guarantee_amount" format-as-currency
+                                    class="form-control"/>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Inicio de Vigencia: </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input disabled class="form-control"
+                                        date-time ng-model="fianza.start_of_validity"
+                                        format="dd-MM-yyyy"
+                                        view="year"
+                                        min-view="date"
+                                        auto-close="true">
+                                </div>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label >Fin de Vigencia:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input disabled class="form-control"
+                                        date-time ng-model="fianza.end_of_validity"
+                                        format="dd-MM-yyyy"
+                                        view="year"
+                                        min-view="date"
+                                        auto-close="true">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </fieldset>
+                <br>
+                   <!--  <fieldset>
+                        <legend align="right">Contactos</legend>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover table footable table-stripped" data-page-size="25">
+                            <thead>
+                              <tr>
+                                <th class="footable-visible footable-sortable footable-first-column" data-breakpoints="xs">
+                                  Nombre 
+                                </th>
+                                <th class="footable-visible footable-sortable" data-hide="phone">
+                                  Teléfono <span class="color-red">*</span>
+                                </th>
+                                <th class="footable-visible footable-sortable" data-hide="phone"">
+                                  Correo electrónico
+                                </th>
+                                <th data-hide="phone" class="footable-sortable">
+                                  Referencia
+                                </th>
+                                <th data-hide="phone" class="footable-sortable">
+                                  Opciones
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="contact in vm.contacts track by $index" foo-repeat-done>
+                                <td>
+                                  <input class="form-control" type="text" ng-model="contact.first_name" >
+                                </td>
+                                <td>
+                                  <phonenumber-directive placeholder="myPrompt" model="contact.phone" required></phonenumber-directive>
+                                </td>
+                                <td>
+                                  <input class="form-control" type="email" ng-model="contact.email">
+                                </td>
+                                <td>
+                                  <input class="form-control" type="text" ng-model="contact.references">
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-w-m btn-danger" name="button" ng-click="vm.deleteContacts(contact.url,$index)">Eliminar</button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-sm-12">
+                          <button  class="btn btn-success pull-right" ng-click="addContact()" type="button">Agregar contacto</button>
+                        </div>
+                    </fieldset> -->
+                <br>
+                <div upload-template></div>
+				<div ng-include="'templates/show-files.html'"></div>
+
+                <div class="row">
+                  <div class="col-xs-12 form-group btn-mt">
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" >
+                      <button class="col-xs-12 btn btn-primary" type="button" ng-click="saveClaim()">Guardar reclamación</button>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+                      <button class="col-xs-12 btn btn-white" ng-click="vm.cancel()" type="button">Cancelar</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

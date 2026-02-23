@@ -1,0 +1,255 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Contratantes Programa de Proveedores</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="fianzas.pprovlist">Programa de Proveedores</a>
+      </li>
+      <li class="active">
+        <strong>Buscar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="ibox float-e-margins">
+  <div class="ibox-title">
+    <h5>Filtros</h5>
+    <div ibox-tools></div>
+  </div>
+
+  <div class="ibox-content padding-bottom-0">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+        <label>Nombre</label>
+        <input type="text" class="form-control" placeholder="Ingresa un nombre" ng-model="vm.form.contratante">
+      </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+        <label>RFC</label>
+        <input type="text" class="form-control" placeholder="Ingresa un RFC" ng-model="vm.form.rfc">
+      </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+        <label>Grupo</label>
+        <autocomplete datasource="groups_data" id="groups" model="vm.form.group" change="matchesGroup(vm.form.group.val)"></autocomplete>
+      </div>
+
+      <!--<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+        <label>Tipo</label>
+        <select class="form-control cl-md-6" ng-model="vm.form.type_person" ng-change="vm.changeTypePerson(vm.form.type_person)">
+          <option value="">Selecciona una opción</option>
+          <option value="1">Fisicas</option>
+          <option value="2">Morales</option>
+          <option value="0">Todas</option>
+        </select>
+      </div>-->
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group"> 
+        <label> Condiciones</label>
+        <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>  -->         
+        <select class="js-example-basic-multiple form-control" name="states[]" multiple="multiple" ng-model="select_condition" ng-change="selectConditions(select_condition)">
+          <option value="1">Sin vendedor</option>
+          <option value="2">Sin correo electrónico</option>
+          <option value="3">Sin teléfono</option>
+        </select>          
+      </div>
+
+      <div class="col-xs-12 col-md-8 col-lg-12 form-group btn-action">
+        <div class="row">
+          <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 pull-right">
+            <button class="col-xs-12 btn btn-success" ng-click="vm.Consultar()">Consultar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ibox float-e-margins border-bottom">
+  <div class="ibox-title">
+    <h5>Contratantes</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content" ng-if="vm.persons.all.length" >
+    <table class="table table-stripped table-hover hidden-xs hidden-sm" ng-if="!vm.show_binnacle">
+      <thead>
+        <tr>
+          <th ng-model="vm.table.headers[0]" ng-click="vm.Consultar()">{{vm.table.headers[0]}} <span ng-class="{'fa fa-sort-desc': vm.order_asc, 'fa fa-sort-asc': !vm.order_asc}"></span></th>
+          <th> Grupo</th>
+          <th> SubGrupo</th>
+          <th> SubSubGrupo</th>
+          <th ng-model="vm.table.headers[1]"> {{vm.table.headers[1]}} </th>
+          <th>Creado por</th>
+          <th ng-model="vm.table.headers[2]"> {{vm.table.headers[2]}} </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="gradeX" ng-click="vm.goToContractorView(person)" ng-repeat="person in vm.persons.all track by $index" ng-if="vm.persons.all.length">
+          <td>{{ person.full_name }}</td>
+          <td>{{ person.group }}</td>
+          <td>{{ person.subgrupo }}</td>
+          <td>{{ person.subsubgrupo }}</td>
+          <td>{{ person.type_person }}</td>
+          <td>{{ person.owner }}</td>
+          <td ng-click="$event.stopPropagation();">
+            <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(person)">
+              <i class="fa fa-comment" aria-hidden="true"></i>
+            </a>
+            <tasks click="addtask()" type="7" model="person.full_name" associated="person.id"></tasks>
+          </td>
+        </tr>
+        <tr ng-if="vm.persons" class="gradeX" ng-click="vm.goToContractorView(person)" ng-repeat="person in vm.persons track by $index">
+          <td>{{ person.full_name }} {{person.j_name}}</td>
+          <td>{{ person.group }}</td>
+          <td>{{ person.subgrupo }}</td>
+          <td>{{ person.subsubgrupo }}</td>
+          <td>{{ person.type_person }}</td>
+          <td>{{ person.owner }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div ng-if="vm.show_pag_naturals && !vm.show_binnacle" class="text-center hidden-xs hidden-sm">
+      <pagination config="vm.naturals_config" model="vm.persons.naturals"></pagination>
+    </div>
+
+    <div ng-if="vm.show_pag_juridicals" class="text-center hidden-xs hidden-sm">
+      <pagination config="vm.juridicals_config" model="vm.persons.juridicals"></pagination>
+    </div>
+
+    <div ng-if="show_pagination && !vm.show_binnacle"  class="text-center hidden-xs hidden-sm">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+            <a class="page-link" >{{page}}</a>
+          </li>
+          <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" >
+            <a class="page-link" ng-click="lastPage()" aria-label="Last">
+              <span aria-hidden="true">
+                <i class="fa fa-step-forward" aria-hidden="true"></i>
+              </span>
+              <span class="sr-only">Last</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="ibox float-e-margins border-bottom visible-xs-block visible-sm-block" ng-repeat="person in vm.persons.naturals track by $index" ng-if="vm.persons.naturals.length || type_person == 1">
+      <div class="ibox-title">
+        <h5> {{ vm.table.headers[0] }} : {{ person.full_name }} {{person.j_name }} </h5>
+        <div ibox-tools></div>
+      </div>
+
+      <div class="ibox-content" style="display: none" ng-click="vm.goToContractorView(person)">
+        <div class="table-flex">
+          <div class="table-row" >
+            <div class="table-cell col-xs-12 col-sm-6">
+              <label> {{ vm.table.headers[0] }} </label>
+              <p>{{ person.full_name }} {{person.j_name }}</p>
+            </div>
+
+            <div class="table-cell col-xs-12 col-sm-6">
+              <label> {{ vm.table.headers[1] }} </label>
+                <p>{{ person.type_person }} </p>
+            </div>
+
+            <div class="table-cell col-xs-12 col-sm-6">
+              <label> {{ vm.table.headers[2] }} </label>
+              <p>
+                <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); vm.showBinnacle(person)">
+                  <i class="fa fa-comment" aria-hidden="true"></i>
+                </a>
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <!--  <div ng-if="vm.show_pag_naturals && !vm.show_binnacle" class="text-center visible-xs-block visible-sm-block">
+      <pagination config="vm.naturals_config" model="vm.persons.naturals"></pagination>
+    </div> -->
+    <!-- PAGINACION -->
+    <div ng-if="vm.show_pagination" class="text-center hidden-xs hidden-sm">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+            <a class="page-link">{{page}}</a>
+          </li>
+          <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+            <a class="page-link">
+              <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+            </a>
+          </li>
+          <li class="page-item" >
+            <a class="page-link" ng-click="lastPage()" aria-label="Last">
+              <span aria-hidden="true">
+                <i class="fa fa-step-forward" aria-hidden="true"></i>
+              </span>
+              <span class="sr-only">Last</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-sm-4 col-md-3" ng-if="vm.persons.naturals.length && !vm.show_binnacle">
+        <button ng-model="vm.buttonReport" class="col-xs-12 btn btn-primary" ng-click="vm.exportDataE(1)">
+        Generar Reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-sm-4 col-md-3" ng-if="vm.persons.all.length && !vm.show_binnacle">
+        <button ng-model="vm.buttonReport" class="col-xs-12 btn btn-primary" ng-click="vm.exportDataE(0)">
+        Generar Reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-sm-4 col-md-3" ng-if="vm.persons.juridicals.length && !vm.show_binnacle">
+        <button ng-model="vm.buttonReport" class="col-xs-12 btn btn-primary" ng-click="vm.exportDataE(2)">
+        Generar Reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="row animate" ng-if="vm.show_binnacle">
+      <div class="col-xs-12">
+        <comments datasource="vm.comments_data" typemodel="2" config="vm.comments_config" idmodel="vm.person_id"></comments>
+        <div class="col-xs-12 col-sm-4 col-md-3">
+          <div class="row">
+            <a class="col-xs-12 btn btn-primary margin-top-10" ng-click="vm.returnToContractors(2)"> <span class="fa fa-arrow-left"></span>  Regresar </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

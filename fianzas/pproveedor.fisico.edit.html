@@ -1,0 +1,947 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Contratantes</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="fianzas.pprovlist">Contratantes</a>
+      </li>
+      <li class="active">
+        <strong>Editar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Información</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div>
+            <form class="col-xs-12" method="post" name="form" ng-submit="vm.submitNatural(form.$valid)" novalidate role="form">
+              <div class="data-container">
+                <div class="col-xs-12 col-sm-4 nopadding form-group" ng-class="{ 'has-error': form.name.$invalid && !form.name.$pristine }">
+                  <label>Nombre<span class="color-red">*</span></label>
+                  <input class="form-control" name="name" ng-model="vm.form.first_name" required type="text">
+                </div>
+
+                <div class="col-xs-12 col-sm-4 nopadding form-group" ng-class="{ 'has-error': form.last_name.$invalid && !form.last_name.$pristine }">
+                  <label>Apellido Paterno<span class="color-red">*</span></label>
+                  <input class="form-control" type="text" name="last_name" ng-model="vm.form.last_name" required type="text">
+                </div>
+
+                <div class="col-xs-12 col-sm-4 nopadding form-group">
+                  <label>Apellido Materno</label>
+                  <input class="form-control" type="text" name="second_last_name" ng-model="vm.form.second_last_name" >
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group" id="data_2" ng-class="{ 'has-error': form.birthday.$invalid && !form.birthday.$pristine }">
+                  <label>Fecha de Nacimiento<span class="color-red">*</span></label>
+
+                  <div class="input-group date">
+                    <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" name="birthday" ng-model="vm.form.birthday" value="vm.form.birthday" ng-change="selectDate(vm.form.birthday)">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group" ng-class="{ 'has-error': form.rfc.$invalid && !form.rfc.$pristine }">
+                  <label>RFC<span class="color-red">*</span></label>
+                  <input class="form-control" type="text" name="rfc" uppercase-only ng-model="vm.form.rfc" maxlength="13" required>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group">
+                  <label>Género</label>
+                  <select class="form-control" name="sex" ng-model="vm.form.sex">
+                    <option ng-selected="vm.form.sex == 'M'" value="M">MASCULINO</option>
+                    <option ng-selected="vm.form.sex == 'F'" value="F">FEMENINO</option>
+                  </select>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group" ng-class="{ 'has-error': form.group.$invalid && !form.group.$pristine }">
+                  <label for="group">Grupo<span class="color-red">*</span></label>
+                  <div class="input-group">
+                    <select class="form-control m-b" name="group" ng-model="vm.editForm.group" ng-change="changeGroup(vm.editForm.group)" ng-options="group.group_name for group in vm.groups track by group.id">
+                      <option value="" selected disabled="">--Sin grupo--</option>
+                    </select>
+                    <span class="input-group-btn">
+                      <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalGroup(1,1,null)" type="button" ng-if="vm.user.permiso.crear">
+                          <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 form-group nopadding" ng-class="{ 'has-error': form.group.$invalid && !form.group.$pristine }" ng-if="vm.editForm.group">
+                  <label for="subgroup">Subgrupo</label>
+                  <div class="input-group">
+                    <select class="form-control m-b" name="subgroup" ng-model="vm.editForm.subgroup" ng-change="changeSubGroup(vm.editForm.subgroup)" ng-options="group.group_name for group in vm.subgroups track by group.url" >
+                        <option value="" disabled>Seleccione un subgrupo</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalGroup(2,1,vm.editForm.group)">
+                            <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 form-group nopadding" ng-class="{ 'has-error': form.group.$invalid && !form.group.$pristine }" ng-if="vm.editForm.subgroup">
+                  <label for="subgroup2">Subsubgrupo</label>
+                  <div class="input-group">
+                    <select class="form-control m-b" name="subgroup2" ng-model="vm.editForm.subsubgrupo" ng-options="ssgroup.group_name for ssgroup in vm.sub_subgroups track by ssgroup.url" >
+                      <option value="" disabled>Seleccione un subgrupo</option>
+                    </select>
+                    <span class="input-group-btn">
+                      <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalGroup(3,1,vm.editForm.subgroup)">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group">
+                  <label>Correo Electrónico (principal)</label>
+                  <input class="form-control" ng-model="vm.form.email" type="email">
+                </div>
+
+                <div class="col-xs-12 col-sm-6 hidden-xs hidden-sm nopadding form-group">
+                  <label>Teléfono (principal)</label>
+                  <phonenumber-directive placeholder="myPrompt" model="vm.form.phone_number"></phonenumber-directive>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group">
+                  <label>Correos Electrónicos (secundarios)</label>
+
+                  <!-- <div class="input-group form-group" ng-repeat="item in vm.form.email_natural">
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-danger" name="button" ng-click="vm.emails.delete($index, 1, item)" ng-disabled="vm.form.email_natural.length <= 1">
+                        <i class="glyphicon glyphicon-minus"></i>
+                      </button>
+                    </div>
+                    <input class="form-control" lowercase ng-model="item.email" type="email">
+                    <div class="input-group-btn">
+                      <button class="btn btn-success" ng-click="vm.emails.add(1)" type="button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </div>
+                  </div> -->
+
+                  <div class="hidden-md hidden-lg nopadding form-group" ng-repeat="item in vm.form.email_natural">
+                    <div class="col-xs-12 input-group form-group">
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-danger" name="button" ng-click="vm.emails.delete($index, 1, item)">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                      </div><!-- /btn-group -->
+
+                      <input class="form-control" ng-model="item.correo" type="email">
+
+                      <div class="input-group-btn">
+                        <button class="btn btn-success" ng-click="vm.emails.add(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </div>
+                    </div><!-- /input-group -->
+
+                    <div class="col-xs-12 form-group">
+                      <div class="hasDropdown row">
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 0">
+                          Elige el tipo <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 1">
+                          <span class="fa fa-user" aria-hidden="true"></span>
+                          Personal
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 2">
+                          <span class="fa fa-building" aria-hidden="true"></span>
+                          Trabajo
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 3">
+                          <span class="fa fa-at" aria-hidden="true"></span>
+                          Otro
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 4">
+                          <span class="fa fa-file-text" aria-hidden="true"></span>
+                            CFDI
+                          <span class="caret"></span>
+                        </button>
+
+                        <ul class="col-xs-12 dropdown-menu">
+                          <li>
+                            <a id="dropdown-menu-item-link-1" ng-click="item.email_type = 1; vm.closeDropdown();">
+                              <span class="fa fa-user" aria-hidden="true"></span> Personal
+                            </a>
+                          </li>
+                          <li>
+                            <a id="dropdown-menu-item-link-2" ng-click="item.email_type = 2; vm.closeDropdown();">
+                              <span class="fa fa-building" aria-hidden="true"></span>
+                              Trabajo
+                            </a>
+                          </li>
+                          <li>
+                            <a id="dropdown-menu-item-link-3" ng-click="item.email_type = 3; vm.closeDropdown();">
+                              <span class="fa fa-at" aria-hidden="true"></span>
+                              Otro
+                            </a>
+                          </li>
+
+                          <li>
+                            <a id="dropdown-menu-item-link-3" ng-click="item.email_type = 4; vm.closeDropdown();">
+                              <span class="fa fa fa fa-building" aria-hidden="true"></span>
+                              CDFI
+                            </a>
+                          </li>
+
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="nopadding form-group" ng-if="vm.form.email_natural.length == 0">
+                    <div class="col-xs-12 input-group form-group">
+                      <button class="btn btn-success" ng-click="vm.emails.add(1)" type="button">Agregar correo</button>
+                    </div>
+                  </div>
+
+                  <div class="hidden-xs hidden-sm nopadding form-group" ng-repeat="item in vm.form.email_natural">
+                    <div class="col-xs-12 input-group form-group">
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-danger" name="button" ng-click="vm.emails.delete($index, 1, item)">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                      </div><!-- /btn-group -->
+
+                      <input class="form-control" ng-model="item.correo" type="email">
+
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 0">
+                          Elige el tipo <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 1">
+                          <span class="fa fa-user" aria-hidden="true"></span>
+                          Personal
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 2">
+                          <span class="fa fa-building" aria-hidden="true"></span>
+                          Trabajo
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 3">
+                          <span class="fa fa-at" aria-hidden="true"></span>
+                          Otro
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.email_type == 4">
+                          <span class="fa fa-file-text" aria-hidden="true"></span>
+                          CFDI
+                          <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li>
+                            <a ng-click="item.email_type = 1">
+                              <span class="fa fa-user" aria-hidden="true"></span> Personal
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.email_type = 2">
+                              <span class="fa fa-building" aria-hidden="true"></span>
+                              Trabajo
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.email_type = 4">
+                              <span class="fa fa-file-text" aria-hidden="true"></span>
+                              CFDI
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.email_type = 3">
+                              <span class="fa fa-at" aria-hidden="true"></span>
+                              Otro
+                            </a>
+                          </li>
+                        </ul>
+
+                        <button class="btn btn-success" ng-click="vm.emails.add(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </div>
+                    </div><!-- /input-group -->
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 hidden-md hidden-lg nopadding form-group">
+                  <label>Teléfono (principal)</label>
+                  <phonenumber-directive placeholder="myPrompt" model="vm.form.phone_number"></phonenumber-directive>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 nopadding form-group">
+                  <label>Teléfonos (secundarios)</label>
+
+                  <!-- <div class="col-xs-12 input-group form-group" ng-repeat="item in vm.form.phone_natural">
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-danger" name="button" ng-click="vm.phones.delete($index,1)" ng-disabled="vm.form.phones.length <= 1">
+                        <i class="glyphicon glyphicon-minus"></i>
+                      </button>
+                    </div>
+                    <phonenumber-directive placeholder="myPrompt" model="item.phone"></phonenumber-directive>
+                    <div class="input-group-btn">
+                      <button class="btn btn-success" ng-click="vm.phones.add(1)" type="button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </div>
+                  </div> -->
+
+                  <div class="hidden-md hidden-lg nopadding form-group" ng-repeat="item in vm.form.phone_natural">
+                    <div class="col-xs-12 input-group form-group">
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-danger" name="button" ng-click="vm.phones.delete($index, 1, item)">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                      </div>
+
+                      <phonenumber-directive placeholder="myPrompt" model="item.phone"></phonenumber-directive>
+
+                      <div class="input-group-btn">
+                        <button class="btn btn-success" ng-click="vm.phones.add(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 form-group">
+                      <div class="hasDropdown row">
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 0">
+                          Elige el tipo <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 1">
+                          <span class="fa fa-home" aria-hidden="true"></span>
+                          Casa
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 2">
+                          <span class="fa fa-building" aria-hidden="true"></span>
+                          Oficina
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="col-xs-12 btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 3">
+                          <span class="fa fa-mobile" aria-hidden="true"></span>
+                          Móvil
+                          <span class="caret"></span>
+                        </button>
+
+                        <ul class="col-xs-12 dropdown-menu">
+                          <li>
+                            <a ng-click="item.phone_type = 1; vm.closeDropdown();">
+                              <span class="fa fa-home" aria-hidden="true"></span>
+                              Casa
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.phone_type = 2; vm.closeDropdown();">
+                              <span class="fa fa-building" aria-hidden="true"></span>
+                              Oficina
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.phone_type = 3; vm.closeDropdown();">
+                              <span class="fa fa-mobile" aria-hidden="true"></span>
+                              Móvil
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="nopadding form-group" ng-if="vm.form.phone_natural.length == 0">
+                    <div class="col-xs-12 input-group form-group">
+                      <button class="btn btn-success" ng-click="vm.phones.add(1)" type="button">Agregar teléfono</button>
+                    </div>
+                  </div>
+
+                  <div class="hidden-xs hidden-sm nopadding form-group" ng-repeat="item in vm.form.phone_natural">
+                    <div class="col-xs-12 input-group form-group">
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-danger" name="button" ng-click="vm.phones.delete($index, 1, item)">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                      </div>
+
+                      <phonenumber-directive placeholder="myPrompt" model="item.phone"></phonenumber-directive>
+
+                      <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 0">
+                          Elige el tipo <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 1">
+                          <span class="fa fa-home" aria-hidden="true"></span>
+                          Casa
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 2">
+                          <span class="fa fa-building" aria-hidden="true"></span>
+                          Oficina
+                          <span class="caret"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="item.phone_type == 3">
+                          <span class="fa fa-mobile" aria-hidden="true"></span>
+                          Móvil
+                          <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li>
+                            <a ng-click="item.phone_type = 1">
+                              <span class="fa fa-home" aria-hidden="true"></span>
+                              Casa
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.phone_type = 2">
+                              <span class="fa fa-building" aria-hidden="true"></span>
+                              Oficina
+                            </a>
+                          </li>
+                          <li>
+                            <a ng-click="item.phone_type = 3">
+                              <span class="fa fa-mobile" aria-hidden="true"></span>
+                              Móvil
+                            </a>
+                          </li>
+                        </ul>
+
+                        <button class="btn btn-success" ng-click="vm.phones.add(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <div class="col-xs-12 col-sm-6 nopadding form-group" >
+                  <label>Sucursal</label>
+                  <input class="form-control" type="text" name="sucursal" ng-model="vm.form.sucursal" >
+                </div><br><br> -->
+      
+              </div>
+
+              <div class="address-container" ng-repeat="address in vm.form.userAddresses track by $index">
+                <div class="col-xs-12 legend-gray">
+                  <legend class="legend-title legend-flex" align="center">
+                    <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="vm.addresses.delete($index,1)" ng-disabled="address.can_delete">
+                      Quitar dirección
+                    </button>
+                    <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="vm.addresses.delete($index,1)" ng-disabled="vm.form.userAddresses.length <= 1">
+                      <i class="glyphicon glyphicon-minus"></i>
+                    </button>
+                    <span>
+                      Direccion #{{$index + 1}}
+                    </span>
+                    <button class="btn btn-success pull-right hidden-xs" ng-click="vm.addresses.add(1)" type="button">
+                      Agregar dirección
+                    </button>
+                    <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="vm.addresses.add(1)" type="button">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </legend>
+                </div>
+                <div class="col-xs-12 address_components">
+                  <div class="col-xs-12 col-sm-6 col-md-4 nopadding form-group" ng-class="{'has-error': form2.city.$invalid && !form2.city.$pristine}">
+                      <label>Tipo de dirección</label>
+
+                      <select class="form-control" data-ng-options="type.name for type in vm.address_type track by type.name" name="type" ng-model="address.tipo">
+                        <option value="" disabled="">Selecciona un tipo</option>
+                      </select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-4 nopadding form-group" ng-class="{'has-error': form.state.$invalid && !form.state.$pristine}">
+                      <label>Estado<span class="color-red">*</span></label>
+
+                      <select class="form-control" data-ng-options="estado.state for estado in vm.statesArray track by estado.url" name="state" ng-model="address.administrative_area_level_1" required>
+                        <option value="" disabled="">Selecciona un estado</option>
+                      </select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-4 nopadding form-group"  ng-class="{'has-error': form.city.$invalid && !form.city.$pristine}">
+                      <label>Municipio<span class="color-red">*</span></label>
+
+                      <select class="form-control" data-ng-options="ciudad.city for ciudad in address.administrative_area_level_1.cities track by ciudad.url" name="city" ng-model="address.administrative_area_level_2" required>
+                        <option value="" disabled="">Selecciona un municipio</option>
+                      </select>
+                    </div>
+
+                    <div class="col-xs-12 col-md-8 nopadding form-group">
+                      <label>Calle</label>
+                      <input type="text" class="form-control" ng-model="address.route" id="id_address_route" name="address_route" data-geo="route"/>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-2 nopadding form-group">
+                      <label>Num. Ext.</label>
+                      <input type="text" class=" form-control" ng-model="address.street_number" id="id_address_street_number" name="address_street_number" data-geo="street_number" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 col-md-2 nopadding form-group">
+                      <label>Num. Int.</label>
+                      <input type="text" class=" form-control" ng-model="address.street_number_int" id="id_address_street_number_int" name="address_street_number_int"/>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 nopadding form-group">
+                      <label>Colonia</label>
+                      <input type="text" class=" form-control" ng-model="address.sublocality" id="id_address_sublocality" name="address_sublocality" data-geo="sublocality" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 nopadding form-group">
+                      <label>Código Postal</label>
+                      <input type="tel" name="zip" ng-model="address.postal_code" minlength="5" maxlength="5" class="form-control" ng-keypress="filterValue($event)"/>
+                    </div>
+
+                    <div class="col-xs-12 nopadding form-group">
+                      <label>Referencias</label>
+                      <input type="text" class=" form-control" ng-model="address.details" id="id_address_details" name="address_details" />
+                    </div>
+
+                    <input type="hidden" class=" form-control" ng-model="address.administrative_area_level_1_short" id="id_address_administrative_area_level_1_short" name="address_state_code" data-geo="administrative_area_level_1_short" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.country" id="id_address_country" name="address_country" data-geo="country" value="México" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.composed" id="id_address_composed" name="address_composed" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.country_code" id="id_address_country_code" name="address_country_code" data-geo="country_short" value="MX" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.locality" id="id_address_locality" name="address_locality" data-geo="locality" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.latitude" id="id_address_latitude" name="address_latitude" data-geo="lat" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.longitude" id="id_address_longitude" name="address_longitude" data-geo="lng" />
+
+                    <input type="hidden" class=" form-control" ng-model="address.formatted" id="id_address_formatted" name="address_formatted" data-geo="formatted_address" />
+                </div>
+              </div>
+              <!-- *CheckList -->
+              <br><br><br>
+              
+              <div class="col-xs-12 " ng-if="vm.form.only_sureties">
+                <div class="alert alert-info alert-dismissible">
+                  <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                  <strong>Información:</strong> Seleccione el archivo a cargar, de clic en el ícono <i class="fa fa-upload" aria-hidden="true"></i> uno a la vez después de seleccionar, para añadirlo.
+                </div>
+              </div>              
+              <div class="col-xs-12 col-sm-6 form-group m-t">
+                <h3>
+                  <input type="checkbox" name="" ng-model="vm.form.only_sureties" ng-change="onlyFianzas(1)" disabled>
+                  <span> Solo para Fianzas</span>
+                </h3>
+              </div>
+              <div class="row">
+                <div class="col-xs-12 col-sm-6 col-lg-12 form-group" align="center" style="padding-top: 30px">
+                   <table class="table table-bordered " align="center">
+                    <thead>
+                      <tr>
+                        <th >Entregado</th>
+                        <th>Documento</th>
+                        <th ng-if="vm.form.only_sureties">Archivo</th>
+                      </tr> 
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="listaD in vm.listDocument track by $index">
+                        <td class="col-lg-3" ng-click="$event.stopPropagation()" >
+                          <label>
+                            <input type="checkbox" ng-model="listaD.value">
+                          </label>
+                        </td>
+                        <td>
+                          <span class="font-weight-bold">{{listaD.name}}</span>
+                        </td>
+                        <td ng-click="$event.stopPropagation()" ng-if="vm.form.only_sureties">
+                          <div class="col-xs-12 form-group" id="$index">
+                            <label class="btn btn-success" ng-if="listaD.file ==false"> Seleccionar Archivo
+                              <input nv-file-select="" type="file" name="xyz" uploader="uploaderDocument" class="display-none"/>
+                            </label>
+                              <button class="btn btn-white" ng-if="listaD.file ==false" ng-click="addFileList($index,vm.listDocument, uploaderDocument.queue,xyz)" title="Click para añadir archivo y subirlo">
+                                <i class="fa fa-upload" aria-hidden="true"></i>
+                              </button>
+                              <span class="blue-color">{{listaD.arch.file.name}}</span><i class="fa fa-check-circle" aria-hidden="true" ng-if="listaD.file ==true"></i>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>    
+                </div> 
+              </div>
+              <div class="col-xs-12 form-group m-t">
+                <label>Observaciones</label>
+                <textarea class="form-control upperclass" type="text" ng-model="vm.form.description"></textarea>
+              </div>
+
+              <div ng-if="vm.vendors.length >0" class="col-sm-6 form-group" ng-class="{ 'has-error': form.vendedor.$invalid && !form.vendedor.$pristine }">
+                <label for="vendedor">Referenciador<span class="color-red">*</span></label>
+                <div>
+                  <select class="form-control m-b" name="vendedor" ng-model="vm.form.vendedor" ng-change="changeVendedor(vm.form.vendedor)" ng-options="vendedor.name for vendedor in vm.vendors track by vendedor.id" >
+                      <option value="">Seleccione un referenciador</option>
+                  </select>
+                </div>
+              </div>
+
+              <div ng-if="sucursalList.length > 0" class="col-xs-12 col-sm-6 form-group">
+                <label for="sucursal">Sucursal</label>
+                <select class="form-control" name="sucursal" ng-model="vm.form.sucursal" ng-change="sucursal(vm.form.sucursal)" ng-options="sucursal as sucursal.sucursal_name for sucursal in sucursalList track by sucursal.id" >
+                    <option value="">Seleccione una Sucursal</option>
+                </select>
+              </div>
+              <div class="col-xs-12 col-sm-6 form-group">
+                <label for="sucursal">Célula</label>
+                <div class="input-group">
+                  <select class="form-control" name="celula" ng-model="vm.form.celula" ng-change="celula(vm.form.celula)" ng-options="celula.url as celula.celula_name for celula in vm.celulas" >
+                    <option value="" disabled>Seleccione una Célula</option>
+                  </select>
+                  <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="vm.openModalCelulaContractor()">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 form-group">
+                <label for="sucursal">Clasificación</label>
+                <div class="input-group">
+                  <select class="form-control" name="clasification" ng-model="vm.form.classification" ng-change="sucursal(vm.form.clasification)" ng-options="clasification.url as clasification.classification_name for clasification in vm.clasifications" >
+                    <option value="" disabled>Seleccione una clasificación</option>
+                  </select>
+                  <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="vm.openModalClasification()">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-xs-12 col-sm-6 form-group">
+                <label for="sucursal">Agrupación</label>
+                <!-- <div class="input-group"> -->
+                  <select class="form-control" name="agrupacion" ng-model="vm.editForm.grouping_level" ng-change="changeAgrupacion2(vm.editForm.grouping_level)" ng-options="agrupaciones.description for agrupaciones in vm.agrupaciones track by agrupaciones.id">
+                    <option value="" disabled>Seleccione una agrupación</option>
+                  </select>
+                  <!-- <span class="input-group-btn">
+                    <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalAsignacion(1)">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </span>
+                </div> -->
+              </div>
+
+              <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.editForm.grouping_level">
+                <label for="sucursal">Subagrupación</label>
+                <div class="input-group">
+                  <select class="form-control" name="subagrupacion" ng-model="vm.editForm.subagrupaciones" ng-change="changeSubagrupacion2(vm.editForm.subagrupaciones)" ng-options="agrupaciones.description for agrupaciones in sub_asignaciones track by agrupaciones.id">
+                    <option value="" disabled>Seleccione una agrupación</option>
+                  </select>
+                  <span class="input-group-btn">
+                    <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalAsignacion(2,vm.editForm.grouping_level)">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-xs-12 col-sm-6 form-group" ng-if="vm.editForm.subagrupaciones">
+                <label for="sucursal">Subsubagrupación</label>
+                <div class="input-group">
+                  <select class="form-control" name="subsubagrupacion" ng-model="vm.editForm.subsubasignaciones" ng-change="changeSubsubagrupacion2(vm.editForm.subsubasignaciones)" ng-options="grupo.description for grupo in sub_subasignaciones track by grupo.id">
+                    <option value="" disabled>Seleccione una agrupación</option>
+                  </select>
+                  <span class="input-group-btn">
+                    <button class="btn btn-success btn-add-contractor" ng-click="vm.openModalAsignacion(3,vm.editForm.subagrupaciones)">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <div ng-if="vm.responsables.length >0" class="col-sm-6 form-group" ng-class="{ 'has-error': form.responsable.$invalid && !form.responsable.$pristine }">
+                <label for="responsable">Responsable<span class="color-red">*</span></label>
+                <div>
+                  <select class="form-control m-b" name="responsable" ng-model="vm.form.responsable" ng-change="changeResponsable(vm.form.responsable)" ng-options="responsable.first_name + ' ' + responsable.last_name for responsable in vm.responsables track by responsable.id" >
+                      <option value="">Seleccione un responsable</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="hidden-xs hidden-sm nopadding form-group" ng-repeat="item in vm.form.resp_contractor">
+                <div class="col-xs-12 input-group form-group">
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-danger" name="button" ng-click="deleteResponsable($index, 1)" ng-disabled="vm.form.resp_contractor.length <= 1">
+                      <i class="glyphicon glyphicon-minus"></i>
+                    </button>
+                  </div><!-- /btn-group -->
+
+                  <select class="form-control m-b" ng-model="item.responsable" ng-options="responsable.url as responsable.first_name + ' ' + responsable.last_name for responsable in vm.responsables" >
+                    <option value="" disabled>Seleccione un responsable</option>
+                </select>
+
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 0">
+                      Elige el área <span class="caret"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 1">
+                      <span class="fa fa-file" aria-hidden="true"></span>
+                      Emisión
+                      <span class="caret"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 4">
+                      <span class="fa fa-user" aria-hidden="true"></span>
+                      Ejecutivo
+                      <span class="caret"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 5">
+                      <span class="fa fa-briefcase" aria-hidden="true"></span>
+                      Comercial
+                      <span class="caret"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 2">
+                      <span class="fa fa-money" aria-hidden="true"></span>
+                      Cobranza
+                      <span class="caret"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="vm.form.resp_contractor[$index].resp_type == 3">
+                      <span class="fa fa-ambulance" aria-hidden="true"></span>
+                      Siniestros
+                      <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li>
+                        <a ng-click="vm.form.resp_contractor[$index].resp_type = 1">
+                          <span class="fa fa-file" aria-hidden="true"></span> Emisión
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="vm.form.resp_contractor[$index].resp_type = 4">
+                          <span class="fa fa-user" aria-hidden="true"></span> Ejecutivo
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="vm.form.resp_contractor[$index].resp_type = 5">
+                          <span class="fa fa-briefcase" aria-hidden="true"></span> Comercial
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="vm.form.resp_contractor[$index].resp_type = 2">
+                          <span class="fa fa-money" aria-hidden="true"></span>
+                          Cobranza
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="vm.form.resp_contractor[$index].resp_type = 3">
+                          <span class="fa fa-ambulance" aria-hidden="true"></span>
+                          Siniestros
+                        </a>
+                      </li>
+                    </ul>
+
+                    <button class="btn btn-success" ng-click="addResponsable(1)" type="button">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                  </div>
+                </div><!-- /input-group -->
+              </div>             
+              
+              <div class="col-xs-12 col-sm-6 form-group">
+                <label>Obligado(s) Solidario(s) (Fianzas)</label>
+                <div class="hidden-md hidden-lg nopadding form-group" ng-repeat="item in vm.form.obligados">
+                  <div class="col-xs-12 input-group form-group">
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-danger" name="button" ng-click="deleteObligados($index, 1)" ng-disabled="vm.form.obligados.length <= 1">
+                        <i class="glyphicon glyphicon-minus"></i>
+                      </button>
+                    </div>
+                    <div id="item[$index]">
+                      <pre>{{item}}</pre>
+                      <autocomplete datasource="contractors_data" id="contractors" model="item" change="matchesContractors(item.val)"></autocomplete>
+                    </div>
+                    <div class="input-group-btn">
+                      <button class="btn btn-success" ng-click="addObligados(1)" type="button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="hidden-xs hidden-sm nopadding form-group" ng-repeat="item in vm.form.obligados">
+                  <div class="col-xs-12 input-group form-group">
+                    <div class="input-group-btn">
+                      <button type="button" class="btn btn-danger" name="button" ng-click="deleteObligados($index, 1)" ng-disabled="vm.form.obligados.length <= 1">
+                        <i class="glyphicon glyphicon-minus"></i>
+                      </button>
+                    </div><!-- /btn-group -->
+                    <div id="item[$index]">
+                      <autocomplete datasource="contractors_data" id="contractors" model="item" change="matchesContractors(item.val)"></autocomplete>
+                    </div>
+                    <div class="input-group-btn">
+                      <button class="btn btn-success" ng-click="addObligados(1)" type="button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                      </button>
+                    </div>
+                  </div><!-- /input-group -->
+                </div>
+              </div>
+
+
+              <div class="col-xs-12 col-sm-6 form-group m-t">
+                <h3>
+                  <input type="checkbox" name="" ng-model="vm.form.vip">
+                  <span> VIP</span>
+                </h3>
+              </div>
+
+
+
+              <div>
+                <input type="hidden" name="type_person" ng-model="vm.form.type" value="">
+              </div>
+
+              <div>
+                <div class="col-xs-12">
+                  <legend class="legend-title" align="center">
+                    Información de contacto
+                  </legend>
+                </div>
+
+                <div class="col-xs-12">
+                  <div class="row" ng-if="vm.form.contact_natural.length == 0">
+                    <div class="col-xs-12 legend-gray">
+                      <legend class="legend-title legend-flex" align="center">
+                        <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-disabled="vm.form.contact_natural.length == 0">
+                          Quitar contacto
+                        </button>
+                        <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-disabled="vm.form.contact_natural.length == 0">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                        <span>
+                          Contactos
+                        </span>
+                        <button class="btn btn-success pull-right hidden-xs" ng-click="vm.addContact(1)" type="button">
+                          Agregar contacto
+                        </button>
+                        <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="vm.addContact(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </legend>
+                    </div>
+                  </div>
+
+                  <div class="row address-container" ng-repeat="contact in vm.form.contact_natural track by $index">
+                    <div class="col-xs-12 legend-gray">
+                      <legend class="legend-title legend-flex" align="center">
+                        <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="vm.deleteContacts($index, 1, contact)">
+                          Quitar contacto
+                        </button>
+                        <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="vm.deleteContacts($index, 1, contact)">
+                          <i class="glyphicon glyphicon-minus"></i>
+                        </button>
+                        <span>
+                          Contacto #{{$index + 1}}
+                        </span>
+                        <button class="btn btn-success pull-right hidden-xs" ng-click="vm.addContact(1)" type="button">
+                          Agregar contacto
+                        </button>
+                        <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="vm.addContact(1)" type="button">
+                          <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                      </legend>
+                    </div>
+
+                    <div class="col-xs-12 address_components">
+                      <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Nombre</label>
+                        <input class="form-control" type="text" ng-model="contact.name">
+                      </div>
+
+                      <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Correo electrónico</label>
+                        <input class="form-control" type="search" lowercase ng-model="contact.email">
+                      </div>
+
+                      <div class="col-xs-12 col-sm-4 form-group">
+                        <label>Teléfono</label>
+                        <phonenumber-directive placeholder="myPrompt" model="contact.phone_number"></phonenumber-directive>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </form>
+          </div>
+        </div>
+
+        <div class="row" ng-if="vm.permiso_archivos">
+          <div class="col-xs-12">
+            <div class="ibox float-e-margins">
+              <div class="ibox-title">
+                <h5>Archivos</h5>
+                <div ibox-tools></div>
+              </div>
+              <div class="ibox-content">
+                <div class="row" ng-include="'templates/upload.html'" ng-if="vm.user.permiso.crear && vm.user.permiso.editar"></div>
+
+                <div class="col-xs-12 col-sm-4 col-md-3 pull-right form-group">
+                  <button class="col-xs-12 btn btn-primary" type="button" ng-click="vm.uploadImages()" ng-if="vm.user.permiso.crear && vm.user.permiso.editar">Subir archivos</button>
+                </div>
+
+                <div ng-include="'templates/show-files.html'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+            <button class="col-xs-12 btn btn-primary ladda-button" ng-click="vm.save()" ng-if="vm.user.permiso.editar">
+              Guardar cambios
+            </button>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+            <button class="col-xs-12 btn btn-danger" ng-click="vm.cancel()" type="button">
+              Cancelar
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
