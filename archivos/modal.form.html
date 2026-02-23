@@ -1,0 +1,58 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{md.item ? 'Editar' : 'Nueva'}} Condición General
+  </h4>
+</div>
+
+<div class="modal-body">
+  <div class="form-group">
+    <label>Nombre identificador</label>
+    <input class="form-control" ng-model="md.form.nombre" placeholder="Ej. GNP Autos 2025 - Condiciones">
+  </div>
+
+  <div class="form-group">
+    <label>Tipo</label>
+    <select class="form-control" ng-model="md.form.tipo">
+      <option value="CONDICIONES">Condiciones Generales</option>
+      <option value="GUIA">Guía de Póliza</option>
+      <option value="OTRO">Otro</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6 form-group">
+      <label>Aseguradora</label>
+      <select class="form-control"
+              ng-model="md.form.aseguradora"
+              ng-options="a.id as a.nombre for a in md.aseguradoras">
+        <option value="">Selecciona...</option>
+      </select>
+    </div>
+
+    <div class="col-sm-6 form-group">
+      <label>Subramo</label>
+      <select class="form-control"
+              ng-model="md.form.subramo"
+              ng-options="s.id as s.nombre for s in md.subramos">
+        <option value="">Selecciona...</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group" ng-if="!md.item">
+    <label>PDF</label>
+    <input type="file" class="form-control" file-model="md.file" accept="application/pdf">
+    <p class="text-muted small">Sube un PDF (hasta 25MB). Se guardará una sola vez.</p>
+  </div>
+
+  <div class="alert alert-info" ng-if="md.item">
+    Para cambiar el PDF, lo más seguro es crear un registro nuevo y eliminar/desactivar el anterior.
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-default" ng-click="md.cancel()">Cancelar</button>
+  <button class="btn btn-primary" ng-click="md.save()" ng-disabled="md.saving">
+    Guardar
+  </button>
+</div>

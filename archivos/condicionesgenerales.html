@@ -1,0 +1,243 @@
+<div class="row">
+  <div class="col-xs-12">
+    <h4>Adjuntos</h4>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="pull-right">
+          <button class="btn btn-primary" ng-click="vm.openCreate()">
+            <i class="fa fa-plus"></i> Nueva condición
+          </button>
+        </div>
+
+        <h3 class="m-b-sm">Condiciones Generales</h3>
+        <p class="text-muted">
+          Carga PDFs centralizados por aseguradora y subramo. Se reutilizan en pólizas sin duplicar archivos.
+        </p>
+
+        <div class="ibox">
+          <div class="ibox-content">
+
+            <!-- Filtros -->
+            <div class="row">
+              <div class="col-sm-4">
+                <label>Aseguradora</label>
+                <select class="form-control"
+                        ng-model="vm.filters.aseguradora"
+                        ng-change="vm.load()"
+                        ng-options="a.id as a.nombre for a in vm.aseguradoras">
+                  <option value="">Todas</option>
+                </select>
+              </div>
+
+              <div class="col-sm-4">
+                <label>Subramo</label>
+                <select class="form-control"
+                        ng-model="vm.filters.subramo"
+                        ng-change="vm.load()"
+                        ng-options="s.id as s.nombre for s in vm.subramos">
+                  <option value="">Todos</option>
+                </select>
+              </div>
+
+              <div class="col-sm-4">
+                <label>Búsqueda</label>
+                <input class="form-control"
+                      ng-model="vm.filters.q"
+                      ng-change="vm.debouncedLoad()"
+                      placeholder="Nombre identificador...">
+              </div>
+            </div>
+
+            <hr>
+
+            <!-- Tabla -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Nombre identificador</th>
+                    <th>Tipo</th>
+                    <th>Aseguradora</th>
+                    <th>Subramo</th>
+                    <th>Archivo</th>
+                    <th style="width:170px;"></th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr ng-repeat="c in vm.items">
+                    <td><b>{{c.nombre}}</b></td>
+                    <td>
+                      <span class="label label-default" ng-if="c.tipo=='CONDICIONES'">Condiciones</span>
+                      <span class="label label-info" ng-if="c.tipo=='GUIA'">Guía</span>
+                      <span class="label label-warning" ng-if="c.tipo=='OTRO'">Otro</span>
+                    </td>
+
+                    <!-- Nota: si tu API regresa ids en vez de nombres, aquí puedes mapearlos -->
+                    <td>{{vm.nameById(vm.aseguradoras, c.aseguradora)}}</td>
+                    <td>{{vm.nameById(vm.subramos, c.subramo)}}</td>
+
+                    <td>
+                      <a ng-href="{{c.url || c.arch}}" target="_blank">Ver PDF</a>
+                    </td>
+
+                    <td class="text-right">
+                      <button class="btn btn-xs btn-default" ng-click="vm.openEdit(c)">
+                        <i class="fa fa-pencil"></i> Editar
+                      </button>
+                      <button class="btn btn-xs btn-danger" ng-click="vm.remove(c)">
+                        <i class="fa fa-trash"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr ng-if="!vm.items.length && !vm.loading">
+                    <td colspan="6" class="text-center text-muted">Sin registros</td>
+                  </tr>
+                  <tr ng-if="vm.loading">
+                    <td colspan="6" class="text-center text-muted">Cargando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <hr>
+
+    <h4>Condiciones Generales</h4>
+
+    <div class="alert alert-info" ng-if="!vm.insurance.aseguradora || !vm.insurance.subramo">
+      Selecciona <b>Aseguradora</b> y <b>Subramo</b> para ver condiciones disponibles.
+    </div>
+
+    <div ng-if="vm.insurance.aseguradora && vm.insurance.subramo">
+
+      <label>Selecciona una o varias condiciones</label>
+
+      <ui-select multiple
+                 theme="bootstrap"
+                 ng-model="vm.cg.selectedDocs"
+                 on-select="vm.cg.onChangeSelection()"
+                 on-remove="vm.cg.onChangeSelection()"
+                 close-on-select="false">
+        <ui-select-match placeholder="Buscar...">
+          {{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+        </ui-select-match>
+        <ui-select-choices repeat="c in vm.cg.catalog | filter:$select.search track by c.id">
+          <div>
+            <b>{{c.nombre}}</b>
+            <div class="text-muted small">
+              {{c.tipo}}
+            </div>
+          </div>
+        </ui-select-choices>
+      </ui-select>
+
+      <div class="m-t-sm text-muted" ng-if="vm.cg.saving">
+        Guardando selección...
+      </div>
+
+      <div class="m-t-sm" ng-if="vm.cg.selectedDocs.length">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Archivo</th>
+              <th style="width:120px;">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="d in vm.cg.selectedDocs">
+              <td>{{d.nombre}}</td>
+              <td>{{d.tipo}}</td>
+              <td>
+                <a ng-href="{{d.url}}" target="_blank">Ver PDF</a>
+              </td>
+              <td>
+                <!-- Quitar = desasociar (no borra archivo) -->
+                <button class="btn btn-xs btn-warning" ng-click="vm.cg.removeOne(d)">
+                  Quitar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+          Estos archivos <b>no se pueden eliminar desde la póliza</b>. Solo puedes quitarlos de la selección.
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- views/condiciones_generales/list.html -->
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="pull-right">
+        <button class="btn btn-primary" ng-click="vm.openCreate()">Nueva condición</button>
+      </div>
+      <h3>Condiciones Generales</h3>
+      <hr>
+
+      <div class="row">
+        <div class="col-sm-3">
+          <label>Aseguradora</label>
+          <select class="form-control" ng-model="vm.filters.aseguradora" ng-change="vm.load()"
+                  ng-options="a.id as a.nombre for a in vm.aseguradoras">
+            <option value="">Todas</option>
+          </select>
+        </div>
+
+        <div class="col-sm-3">
+          <label>Subramo</label>
+          <select class="form-control" ng-model="vm.filters.subramo" ng-change="vm.load()"
+                  ng-options="s.id as s.nombre for s in vm.subramos">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="col-sm-3">
+          <label>Búsqueda</label>
+          <input class="form-control" ng-model="vm.filters.q" ng-change="vm.debouncedLoad()" placeholder="Nombre...">
+        </div>
+      </div>
+
+      <div class="m-t-md">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Aseguradora</th>
+              <th>Subramo</th>
+              <th>Archivo</th>
+              <th style="width:180px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="c in vm.items">
+              <td>{{c.nombre}}</td>
+              <td>{{c.tipo}}</td>
+              <td>{{c.aseguradora}}</td>
+              <td>{{c.subramo}}</td>
+              <td><a ng-href="{{c.url}}" target="_blank">Ver PDF</a></td>
+              <td class="text-right">
+                <button class="btn btn-xs btn-default" ng-click="vm.openEdit(c)">Editar</button>
+                <button class="btn btn-xs btn-danger" ng-click="vm.remove(c)">Eliminar</button>
+              </td>
+            </tr>
+            <tr ng-if="!vm.items.length">
+              <td colspan="6" class="text-center text-muted">Sin registros</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
