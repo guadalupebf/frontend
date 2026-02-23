@@ -1,0 +1,481 @@
+<toaster-container></toaster-container>
+<div class="row" ng-if="!show_certificates">
+  <div class="col-xs-12">
+    <legend class="col-xs-12 legend-title" align="center">Información de Fianza</legend>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Folio Interno:</label>
+  	<input class="form-control" type="text" ng-model="surety.internal_number" ng-change="" disabled>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+  	<label>Número de Fianza: <span class="color-red">*</span></label>
+  	<input class="form-control" type="text" ng-blur="checkNumPolicy()" ng-model="surety.poliza_number">
+  </div>
+  <div class="col-xs-12 col-sm-4 form-group" ng-if="!showPF">
+    <label>Fecha de emisión de Fianza </label>
+    <div class="datepicker-me input-group date" data-provide="datepicker">
+      <input type="text" name="emision_date" class="width-100 text-align-center form-control" ng-model="surety.emision_date" data-date-format="mm/dd/yyyy" ng-change="" >
+      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Vigencia: <span class="color-red">*</span></label>
+    <div class="datepicker-me input-group date">
+      <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="startDate" ng-change="checkDate(startDate);" />
+      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Al: <span class="color-red">*</span></label>
+    <div class="datepicker-me input-group date">
+      <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="endDate" ng-change="checkEndDate(endDate);" />
+      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Afianzadora: <span class="color-red">*</span></label>
+    <div class="input-group">
+    	<select class="form-control" ng-options="aseguradora.alias for aseguradora in providers | orderBy: 'alias' track by aseguradora.url" ng-model="aseguradoraSelected" ng-change="getClaves(aseguradoraSelected)">
+        <option value="">Selecciona un proveedor</option>
+      </select>
+      <span class="input-group-btn">
+        <button class="btn btn-success" ng-click="refreshProvider()">
+          <i class="glyphicon glyphicon-refresh"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Clave de Agente: <span class="color-red">*</span></label>
+    <input ng-if="claves.length == 0" class="form-control" type="text" placeholder="Elige una aseguradora aseguradora" disabled/>
+    <input ng-if="claves.length == 1" class="form-control" type="text" value="{{claves[0].clave + ' - ' + claves[0].name}}" disabled/>
+  	<select ng-if="claves.length > 1" class="form-control" ng-options="clave as clave.clave + ' - ' + clave.name for clave in claves | orderBy: 'clave' track by clave.url" ng-change="changeClave(claveSelected)" ng-model="claveSelected" ng-disabled="!aseguradoraSelected">
+      <option value="" disabled>Selecciona una clave de agente</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Ramo: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="ramo.ramo_name for ramo in ramos track by ramo.url" ng-change="changeRamo(ramoSelected)" ng-model="ramoSelected" disabled>
+      <option value="">Selecciona un ramo</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Subramo: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="subramo.subramo_name for subramo in subramos track by subramo.url" ng-change="changeSubramo(subramoSelected)" ng-model="subramoSelected" disabled>
+      <option value="">Selecciona un subramo</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Tipo Subramo de Fidelidad Colectiva: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="renewal.type_name for renewal in subramosTypes" ng-change="changeSubramoType(subramoTypeSelected)" ng-model="subramoTypeSelected">
+      <option value="">Selecciona un tipo de subramo</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Moneda:</label>
+  	<select class="form-control" ng-options="currency.value as currency.label for currency in currencys" ng-change="changeCurrency(currencySelected)" ng-model="currencySelected">
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-4 col-md-4 form-group">
+      <label>Renovable <span class="color-red">*</span></label>
+      <div  ng-class="{ 'has-error': form.renewal.$invalid && !form.renewal.$pristine  }">
+        <select class="form-control" ng-options="renewal.value as renewal.label for renewal in order.renewal.options" ng-change="renewalSelection()" name="renewal" ng-model="order.renewal.selected"required>
+        </select>
+      </div>
+  </div>
+  <div class="col-xs-12">
+    <legend class="col-xs-12 legend-title" align="center">Información de Contratante</legend>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Fiado: <span class="color-red">*</span></label>
+    <div class="input-group" ng-if="order.acceso_adm_cont">
+      <autocomplete datasource="contractors_data" id="contractors" model="order.contacto" change="matchesContractors(order.contacto)"></autocomplete>
+      <span class="input-group-btn">
+        <button class="btn btn-success btn-add-contractor" ng-click="contratanteCreatorModalEvent()">
+          <i class="glyphicon glyphicon-plus"></i>
+        </button>
+      </span>
+    </div>
+    <div class="form-group" ng-if="!order.acceso_adm_cont">
+      <autocomplete datasource="contractors_data" id="contractors" model="order.contacto" change="matchesContractors(order.contacto)"></autocomplete>
+      <span class="input-group-btn" ng-if="vm.acceso_adm_cont">
+        <button class="btn btn-success btn-add-contractor" ng-click="contratanteCreatorModalEvent(); show_contractor = true">
+          <i class="glyphicon glyphicon-plus"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Dirección: <span class="color-red">*</span></label>
+    <select class="form-control" ng-options="address.tipo + ' - ' + address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in addresses track by address.url" ng-change="changeAddress(addressSelected)" ng-model="addressSelected" ng-disabled="!order.contacto">
+      <option value="" disabled>Selecciona una dirección</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Correo Electrónico:</label>
+    <div class="input-group">
+      <span class="input-group-addon"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+      <input class="form-control" type="email" ng-model="order.contacto.value.email" disabled>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Teléfono:</label>
+    <div class="input-group">
+      <span class="input-group-addon"><i class="fa fa-phone" aria-hidden="true"></i></span>
+      <phonenumber-directive model="order.contacto.value.phone_number" class="ng-isolate-scope" disabledfield="true">
+      <input class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" type="tel" maxlength="25" aria-invalid="false" ng-model="inputValue" />
+    </phonenumber-directive>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-md-6 form-group">
+      <label>Referenciador(es): <span class="color-red" ng-if="order.acceso_obligatorio_ref">*</span></label>
+      <div ng-repeat="item in referenciadorArray">
+        <div class="row">
+          <div class="col-xs-12 input-group form-group">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-danger" ng-click="deleteReferenciador($index)" ng-disabled="referenciadorArray.length <= 1">
+                <i class="glyphicon glyphicon-minus"></i>
+              </button>
+            </div>
+            <select class="form-control" ng-options="referenciador.url as referenciador.first_name + ' ' + referenciador.last_name for referenciador in referenciadores" ng-model="item.referenciador">
+              <option value="" disabled="" selected>Seleccione el referenciador</option>
+            </select>
+            <div class="input-group-btn wb102">
+              <input class="form-control wb102" type="text" placeholder="% Comisión" ng-disabled="referenciadorArray.length <= 1" ng-change="changeComRef(item.comision_vendedor, $index)" ng-model="item.comision_vendedor"/> 
+              <button class="btn btn-success" ng-click="addReferenciador()" type="button">
+                <i class="glyphicon glyphicon-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xs-12 col-md-6 form-group">
+    <label>Bono Afianzadora: </label>
+    <div class="input-group">
+      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+      <input class="form-control" type="text" ng-model="surety.bono_variable">
+    </div>
+  </div>
+  
+  <div class="col-xs-12 col-sm-4 form-group">
+      <label>Fecha de Bono</label>
+      <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="end_of_validity" class="width-100 text-align-center form-control" ng-model="date_bono" data-date-format="mm/dd/yyyy" ng-change="checkFechaBono(date_bono);">
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+      </div>
+  </div>
+  <div class="col-xs-12">
+    <legend class="col-xs-12 legend-title" align="center">Detalles de Garantía</legend>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Monto a Garantizar: <span class="color-red">*</span></label>
+    <div class="input-group">
+      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+      <input class="form-control" type="text" ng-model="surety.contract_poliza.guarantee_amount" ng-blur="valueGuarante(surety.contract_poliza.guarantee_amount)">
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Tarifa: <span class="color-red">*</span></label>
+    <div class="input-group">
+      <input class="form-control" type="text" ng-model="surety.contract_poliza.rate" ng-blur="valuePercentageRate(surety.contract_poliza.rate); ">
+      <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Giro de la Empresa: <span class="color-red">*</span></label>
+    <input class="form-control" type="text" ng-model="surety.contract_poliza.activity" ng-change="">
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>No. de Empleados: <span class="color-red">*</span></label>
+    <input class="form-control" type="number" ng-model="surety.contract_poliza.no_employees" ng-change="">
+  </div>
+  <div class="col-xs-12 form-group">
+    <label>Detalle Adicional de Garantía para Subramo Fidelidad Colectiva <span class="color-red">*</span></label>
+    <textarea class="form-control" type="text" ng-model="surety.contract_poliza.description" ng-change=""></textarea>
+  </div>
+  <div class="col-xs-12 form-group">
+    <legend class="col-xs-12 legend-title" align="center">Categorías</legend>
+    <div class="address-container" ng-repeat="item in categories">
+      <div class="col-xs-12 legend-gray">
+        <legend class="legend-title legend-flex" align="center">
+          <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="deleteCategorie($index)" ng-disabled="categories.length <= 1">
+            <i class="fa fa-minus-circle" aria-hidden="true"></i> Quitar Categoría
+          </button>
+          <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="deleteCategorie($index)" ng-disabled="categories.length <= 1">
+            <i class="fa fa-minus-circle" aria-hidden="true"></i>
+          </button>
+          <span class="hidden-xs">
+            Categoría #{{$index + 1}}
+          </span>
+          <button class="btn btn-success pull-right hidden-xs" ng-click="addCategorie()" type="button">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i> Agregar Categoría
+          </button>
+          <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addCategorie()" type="button">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>>
+          </button>
+        </legend>
+      </div>
+      <div class="col-xs-12 address_components">
+        <div class="col-xs-12 col-sm-6 form-group">
+          <label>Nombre: <span class="color-red">*</span></label>
+          <input class="form-control" type="text" ng-model="item.name" ng-change="createIdentifier();">
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group">
+          <label>Porcentaje Deducible: <span class="color-red">*</span></label>
+          <div class="input-group">
+            <input class="form-control" type="number" ng-model="item.deductible" ng-change="valuePercentage(item.deductible, $index); ">
+            <span class="input-group-addon"><i class="fa fa-percent" aria-hidden="true"></i></span>
+          </div>
+        </div>
+        <div class="col-xs-12 form-group">
+          <label>Observaciones:</label>
+          <textarea type="text" class="form-control" ng-model="item.observations" ng-change=""></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xs-12 form-group">
+    <legend class="col-xs-12 legend-title" align="center">Beneficiarios</legend>
+    <label>Beneficiario existente:</label>
+    <div class="input-group col-xs-12">
+      <autocomplete datasource="beneficiaries_data" id="beneficiaries" model="benecifiarieSelected" change="matchesBeneficiary(benecifiarieSelected.val)"></autocomplete>
+      <span class="input-group-btn">
+        <button class="btn btn-success" ng-click="addBeneficiaries(benecifiarieSelected.value)">
+          Agregar
+        </button>
+      </span>
+    </div>
+    <br>
+    <div class="address-container" ng-repeat="beneficiary in beneficiaries">
+      <div class="col-xs-12 legend-gray">
+        <legend class="legend-title legend-flex" align="center">
+          <button type="button" class="btn btn-danger pull-left hidden-xs" name="button" ng-click="deleteBeneficiary($index)" ng-disabled="beneficiaries.length <= 1">
+            <i class="fa fa-minus-circle" aria-hidden="true"></i> Quitar Beneficiario
+          </button>
+          <button type="button" class="btn btn-danger pull-left visible-xs-inline-block" name="button" ng-click="deleteBeneficiary($index)" ng-disabled="beneficiaries.length <= 1">
+            <i class="fa fa-minus-circle" aria-hidden="true"></i>
+          </button>
+          <span class="hidden-xs">
+            Beneficiario #{{$index + 1}}
+          </span>
+          <button class="btn btn-success pull-right hidden-xs" ng-click="addBeneficiary()" type="button">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i> Agregar Beneficiario
+          </button>
+          <button class="btn btn-success pull-right visible-xs-inline-block" ng-click="addBeneficiary()" type="button">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>>
+          </button>
+        </legend>
+      </div>
+      <div class="col-xs-12 address_components">
+        <div class="col-xs-12 m-b">
+          <button ng-if="beneficiary.type_person == 1" class="btn btn-primary col-xs-6" ng-click="typePerson(1, $index)">Física</button>
+          <button ng-if="beneficiary.type_person == 1" class="btn btn-default col-xs-6" ng-click="typePerson(2, $index)">Moral</button>
+          <button ng-if="beneficiary.type_person == 2" class="btn btn-default col-xs-6" ng-click="typePerson(1, $index)">Física</button>
+          <button ng-if="beneficiary.type_person == 2" class="btn btn-primary col-xs-6" ng-click="typePerson(2, $index)">Moral</button>
+        </div>
+        <div ng-if="beneficiary.type_person == 1">
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <label>Nombre: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="beneficiary.first_name" />
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <label>Apellido Paterno: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="beneficiary.last_name" />
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <label>Apellido Materno: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="beneficiary.second_last_name" />
+          </div>
+        </div>
+        <div ng-if="beneficiary.type_person == 2">
+          <div class="col-xs-12 form-group">
+            <label>Razón Social: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="beneficiary.j_name" />
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+          <label>RFC: </label>
+          <input class="form-control" type="text" ng-model="beneficiary.rfc" />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+          <label>Correo Electrónico: </label>
+          <input class="form-control" type="email" ng-model="beneficiary.email" />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+          <label>Teléfono: </label>
+          <phonenumber-directive model="beneficiary.phone_number" class="ng-isolate-scope">
+            <input ng-model="beneficiaries_fianza.phone_number" type="tel" class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" maxlength="25" aria-invalid="false" style="" >
+          </phonenumber-directive>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-6 form-group">
+    <h3> 
+      <input type="checkbox" name="" ng-model="showPrograma">
+      <span>Pertenece a un Programa de Proveedores</span>
+    </h3>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group" ng-if="showPrograma">
+    <label>Nombre del programa</label>
+    <autocomplete datasource="contractors_data" id="contractors" model="order.contratante" change="matchesShows(order.contratante.val, true)"></autocomplete>
+  </div>
+
+  <div class="col-xs-12 form-group">
+    <div class="row">
+      <div ng-include="'templates/upload.html'"></div>
+    </div>
+    <div class="row">
+      <div ng-include="'templates/show-files.html'"></div>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Identificador: <span class="color-red">*</span></label>
+    <input class="form-control" type="text" ng-model="surety.identifier" ng-change="">
+  </div>
+  <div class="col-xs-12">
+    <hr>
+  </div>  
+
+  <div class="col-xs-12 col-sm-4 form-group" ng-if="!showPF">
+      <label>Fecha de emisión de la Factura</label>
+      <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" class="width-100 text-align-center form-control" ng-model="date_emision_factura" data-dat="mm/dd/yyyy" ng-change="checkFechaFactura(date_emision_factura)" ng-init="vm.checkFechaFactura(date_emision_factura)">
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+      </div>
+  </div>    
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+      <label for="SelectMontEmision">Mes de Emisión Factura</label>
+      <select id="SelectMontEmision" class="form-control" ng-options="month.value as month.label for month in month.options" ng-model="month.month_selected" ng-change="order.changemonth(month)">
+      </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+      <label for="year">Año Factura</label>
+      <select class="form-control" ng-options="year for year in years track by year" ng-model="year_factura" ng-change="changeyaer(year_factura)">
+        <option value=""></option>
+      </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+      <label for="folio-fact">Folio Factura</label>
+      <input class="form-control" name="folio-fact" type="text" ng-model="folio_factura" ng-change="changeFolio(folio_factura)" />
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+      <label for="folio-fact">Maquila</label>
+      <input class="form-control" name="maquila" type="number" ng-model="maquila" ng-change="changeMaquila(maquila)"/>
+  </div>
+  <div class="col-xs-12 col-sm-4 form-group" ng-if="!showPF">
+    <label>Fecha de Maquila</label>
+    <div class="datepicker-me input-group date" data-provide="datepicker">
+        <input type="text" class="width-100 text-align-center form-control" ng-model="date_maquila" data-date-format="mm/dd/yyyy" ng-change="checkFechaMaquila(date_maquila)">
+        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>    
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="!showPF">
+      <label for="folio-fact">Tipo Cambio (Captura)</label>
+      <input class="form-control" name="changeType" type="number" ng-model="exchange_rate" ng-change="changeExchange(exchange_rate)"/>
+  </div> <br>
+  <div class="col-xs-12 form-group" ng-if="!showPF">
+    <receipts-endorsement form="directiveReceipts" tosave="dataToSave" type="1"></receipts-endorsement>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+    <button class="col-xs-12 btn btn-primary ladda-button" ng-click="validityInsurance()"><i class="fa fa-save" aria-hidden="true"></i> Guardar Colectividad</button>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+    <button class="col-xs-12 btn btn-white" ng-click="cancel()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+  </div>
+</div>
+<div ng-if="show_certificates">
+  <div class="row">
+    <div class="col-xs-12 col-sm-4 form-group">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th>ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in dataCategories">
+            <td>{{ item.name }}</td>
+            <td>{{ item.id }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row" ng-if="!showTableCertificates">
+    <div class="col-sm-6 col-md-3 form-group" ng-if="!loader">
+      <label class="col-xs-12 btn btn-success">Agregar Archivo <i class="fa fa-upload" aria-hidden="true"></i>
+        <input class="display-none" type="file" fileread name="readCsvFile" id="readCsvFile" ng-model="excelFile" ng-change="validateExcel(excelFile)">
+      </label>
+    </div>
+    <div class="col-sm-6 col-md-3 form-group pull-right" ng-if="!loader">
+      <button class="col-xs-12 btn btn-primary" ng-click="goToInformation()"><i class="fa fa-list-alt" aria-hidden="true"></i> Información Fianza Colectiva</button>
+    </div>
+    <div class="col-xs-12 text-center" ng-if="loader">
+      <i class="fa fa-cog fa-spin fa-5x"></i>
+      <div>
+          <span>Cargando certificados...</span>
+      </div>
+    </div>
+  </div>
+  <div class="row" ng-if="showTableCertificates">
+    <div class="col-xs-1 form-group">
+      <select class="form-control" ng-options="renewal.value for renewal in optionsViews" ng-change="selectViews(optionViews)" ng-model="optionViews">
+      </select>
+    </div>
+    <div>
+      <label>Del {{ valueInitial }} al {{ valueFinal }} de {{ excelJson.length }} </label>
+      <button class="btn btn-white" ng-click="addViews(-1)" ng-disabled="valueInitial == 1"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+      <button class="btn btn-white" ng-click="addViews(+1)" ng-disabled="valueFinal == excelJson.length"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+    </div>
+    <div class="col-xs-12 form-group">
+      <div class="panel-body table-over-y">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td>Certificado</td>
+              <td>Correo</td>
+              <td>Nombre</td>
+              <td>Apellido Paterno</td>
+              <td>Apellido Materno</td>
+              <td>RFC</td>
+              <td>Puesto</td>
+              <td>Actividad</td>
+              <td>Monto a Garantizar</td>
+              <td>Observaciones</td>
+              <td>Categoría</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="item in excelJsonViews">
+              <td>{{ item.CERTIFICADO }}</td>
+              <td>{{ item.CORREO }}</td>
+              <td>{{ item.NOMBRE }}</td>
+              <td>{{ item.APELLIDO_PATERNO }}</td>
+              <td>{{ item.APELLIDO_MATERNO }}</td>
+              <td>{{ item.RFC }}</td>
+              <td>{{ item.PUESTO }}</td>
+              <td>{{ item.ACTIVIDAD }}</td>
+              <td>{{ item.MONTO_A_GARANTIZAR }}</td>
+              <td>{{ item.OBSERVACIONES }}</td>
+              <td>{{ item.CATEGORIA }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+      <button class="col-xs-12 btn btn-white" ng-click="cancelCertificates()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+      <button class="col-xs-12 btn btn-success" ng-click="saveCertificates()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar Certificados</button>
+    </div>
+  </div>
+</div>

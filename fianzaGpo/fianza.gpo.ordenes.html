@@ -1,0 +1,66 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Fianzas</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li ng-show="!show_contractor">
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active" ng-show="!show_contractor">
+        <strong>Colectividades</strong>
+      </li>
+      <li class="active" ng-show="show_contractor" ng-click="returnToPolicy()">
+        <a>Regresar</a>
+      </li>
+    </ol>
+  </div>
+</div>
+<!-- <br>
+<div class="row">
+  <div class="col-xs-12 animate z-index-9000" ng-if="show_contractor">
+    <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+  </div>
+  <div class="col-xs-12 animate" ng-show="!show_contractor">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content wizard">
+        <uib-tabset active="activeJustified" justified="true" >
+          <uib-tab index="0" heading="Proyecto de Fianza" ng-click="hideButtonOT()" ng-show="order.acceso_adm_ot">
+            <div id="divCOT" ng-include="'app/fianzaGpo/fianzas.gpo.colectividades.html'"></div>
+          </uib-tab>
+          <uib-tab index="1" heading="Fianza Colectiva" ng-click="hideButtonSurety()" ng-show="order.acceso_adm_fia">
+            <div id="divCPoliza" ng-include="'app/fianzaGpo/fianzas.gpo.colectividades.html'"></div>
+          </uib-tab>
+        </uib-tabset>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<div ng-if="show_contractor" class="animate z-index-9000">
+  <div>
+    <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeIn ng-scope" ng-if="!show_contractor" class="animate">
+  <div class="row">
+    <div class="col-lg-12"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-content wizard">
+          <uib-tabset active="activeJustified" justified="true">
+            <uib-tab index="0" heading="Proyecto de Fianza" ng-click="hideButtonOT()" ng-show="order.acceso_adm_ot  && order.acceso_proy_fia">
+              <div id="divCOT"  ng-include="'app/fianzaGpo/fianzas.gpo.colectividades.html'"></div>
+            </uib-tab>
+            <uib-tab index="1" heading="Fianza Colectiva" ng-click="hideButtonSurety()" ng-show="order.acceso_adm_fia">
+              <div  id="divCPoliza"  ng-include="'app/fianzaGpo/fianzas.gpo.colectividades.html'"></div>
+            </uib-tab>
+          </uib-tabset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

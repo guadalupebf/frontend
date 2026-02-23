@@ -1,0 +1,265 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Aseguradoras</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="aseguradoras.aseguradoras">Aseguradoras</a>
+      </li>
+      <li class="active">
+        <strong>{{vm.form.compania}}</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="ibox">
+      <div class="ibox-title">
+        <h5>Información</h5>
+      </div>
+      <div class="ibox-content">
+        <div class="row">
+          <form method="post" name="form" ng-submit="vm.submit(form.$valid)" novalidate role="form">
+            <div class="col-xs-6 form-group">
+              <span class="blue-color">Compañia</span>
+              <div>
+                <span>{{vm.form.compania}}</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group">
+              <span class="blue-color">Alías</span>
+              <div>
+                <span>{{vm.form.alias}}</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group">
+              <span class="blue-color">RFC</span>
+              <div>
+                <span>{{vm.form.rfc}}</span>
+              </div>
+            </div>
+           <div class="col-xs-6 form-group" ng-if="vm.form.phone">
+              <span class="blue-color">Teléfono</span>
+              <div >
+                <span>{{vm.form.phone | phonenumber}}</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group" ng-if="!vm.form.phone">
+              <span class="blue-color">Teléfono</span>
+              <div>
+                <span class="red-color">Sin teléfono asignado</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group" ng-if="vm.form.website">
+              <span class="blue-color">Website</span>
+              <div >
+                <span>{{vm.form.website}}</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group" ng-if="!vm.form.website">
+              <span class="blue-color">Website</span>
+              <div>
+                <span class="red-color">Sin website asignado</span>
+              </div>
+            </div>
+            <br><br>
+            <div class="col-xs-6 form-group">
+              <span class="blue-color">Creado por</span>
+              <div>
+                <span>{{vm.form.owner}}</span>
+              </div>
+            </div>
+            <div class="col-xs-6 form-group">
+              <span class="blue-color">Observaciones</span>
+              <div>
+                <span>{{vm.form.description}}</span>
+              </div>
+            </div>
+            <div class="address-container" ng-repeat="address in vm.address_list track by $index">
+              <div class="col-xs-12 legend-gray btn-mt">
+                <legend class="legend-title legend-flex" align="center">
+                  </button>
+                  <span>
+                    Dirección #{{$index + 1}}
+                  </span>
+                  </button>
+                </legend>
+              </div>
+
+              <div class="col-xs-12 address_components">
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Estado</span>
+                  <div>
+                    <span >{{vm.address_list[$index].administrative_area_level_1}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Municipio</span>
+                  <div>
+                    <span >{{vm.address_list[$index].administrative_area_level_2}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Calle</span>
+                  <div>
+                    <span >{{vm.address_list[$index].route}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Núm. Exterior</span>
+                  <div>
+                    <span >{{vm.address_list[$index].street_number}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Núm. Interior</span>
+                  <div>
+                    <span >{{vm.address_list[$index].street_number_int}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Colonia</span>
+                  <div>
+                    <span >{{vm.address_list[$index].sublocality}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-3 form-group" >
+                  <span class="blue-color">Código Postal</span>
+                  <div>
+                    <span >{{vm.address_list[$index].postal_code}}</span>
+                  </div>
+                </div>
+                <div class="col-xs-12 form-group" >
+                  <span class="blue-color">Referencias</span>
+                  <div>
+                    <span >{{vm.address_list[$index].details}}</span>
+                  </div>
+                </div>
+
+                <input type="hidden" class=" form-control" ng-model="address.administrative_area_level_1_short" id="id_address_administrative_area_level_1_short" name="address_state_code" data-geo="administrative_area_level_1_short" />
+
+                <input type="hidden" class=" form-control" ng-model="address.country" id="id_address_country" name="address_country" data-geo="country" value="México" />
+
+                <input type="hidden" class=" form-control" ng-model="address.composed" id="id_address_composed" name="address_composed" />
+
+                <input type="hidden" class=" form-control" ng-model="address.country_code" id="id_address_country_code" name="address_country_code" data-geo="country_short" value="MX" />
+
+                <input type="hidden" class=" form-control" ng-model="address.locality" id="id_address_locality" name="address_locality" data-geo="locality" />
+
+                <input type="hidden" class=" form-control" ng-model="address.latitude" id="id_address_latitude" name="address_latitude" data-geo="lat" />
+
+                <input type="hidden" class=" form-control" ng-model="address.longitude" id="id_address_longitude" name="address_longitude" data-geo="lng" />
+
+                <input type="hidden" class=" form-control" ng-model="address.formatted" id="id_address_formatted" name="address_formatted" data-geo="formatted_address" />
+              </div>
+            </div>
+            <br>
+
+            <div class="col-xs-12 " >
+              <legend class="legend-title" align="center">Ramos - Subramos</legend>
+              <div ng-repeat="item in vm.form.ramo_provider">
+                <ul class="todo-list m-t small-list">
+                    <li ng-init="show_ramo[$index] = true" ng-click="show_ramo[$index] ? show_ramo[$index] = false : show_ramo[$index] = true; selectRamo(item);"
+                        ng-class="{'ramo-selected': item.id == ramoResult.id}" class="ramo-item">
+                        <span class="m-l-xs blue-color">{{item.ramo_name}}</span>
+                        <div ng-repeat="sitem in item.subramo_ramo">
+                          <ul class="todo-list m-t small-list">
+                            <li ng-init="show_subramo[$index] = true" ng-click="show_subramo[$index] ? show_subramo[$index] = false : show_subramo[$index] = true; selectSubramo(sitem);" class="subramo-sitem">
+                                <span class="m-l-xs">{{sitem.subramo_name}}</span>
+                            </li>
+                          </ul>
+                        </div>
+                    </li>
+                </ul>
+              </div>
+            </div>
+            <br><br>
+            <div ng-if="vm.form.contact_provider.length">
+              <div class="col-xs-12">
+                <legend class="legend-title" align="center">
+                  Información de contacto
+                </legend>
+              </div>
+
+              <div class="col-xs-12">
+                <div class="row" ng-if="vm.form.contact_provider.length == 0">
+                  <div class="col-xs-12 legend-gray">
+                    <legend class="legend-title legend-flex" align="center">
+                      <span>
+                        Contactos
+                      </span>
+                    </legend>
+                  </div>
+                </div>
+
+                <div class="row address-container" ng-repeat="contact in vm.form.contact_provider track by $index">
+                  <div class="col-xs-12 legend-gray">
+                    <legend class="legend-title legend-flex" align="center">
+                      <span>
+                        Contacto #{{$index + 1}}
+                      </span>
+                    </legend>
+                  </div>
+                  <div class="col-xs-12 address_components">
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Nombre</span>
+                      <div>
+                        <span>{{contact.name}}</span>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Correo Electrónico</span>
+                      <div>
+                        <span>{{contact.email}}</span>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Teléfono</span>
+                      <div >
+                        <span>{{contact.phone_number | phonenumber}}</span>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Departamento</span>
+                      <div >
+                        <span>{{contact.departament}}</span>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Ramo</span>
+                      <div >
+                        <span>{{vm.form.contact_provider[$index].ramo_s.data.ramo_name}}</span>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                      <span class="blue-color">Subramo</span>
+                      <div >
+                        <span>{{vm.form.contact_provider[$index].subramo_s.data.subramo_name}}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <br><br>
+          <div class="btn-mt">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+              <button  class="col-xs-12 btn btn-info" ui-sref="aseguradoras.edit({aseguradoraId: vm.form.id})"  type="button">Editar</button>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+              <button  class="col-xs-12 btn btn-danger" ng-click="vm.cancel()" type="button">Regresar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

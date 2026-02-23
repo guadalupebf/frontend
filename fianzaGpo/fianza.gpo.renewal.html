@@ -1,0 +1,30 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Fianzas</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="breadcrumb">
+        <a ui-sref="fianzas.list">Fianzas</a>
+      </li>
+      <li>
+        <a ng-if="surety.poliza_number" ui-sref="fianzas.details({polizaId: surety.id})">Fianza #{{ surety.poliza_number }}</a>
+        <a ng-if="!surety.poliza_number" ui-sref="fianzas.details({polizaId: surety.id})">Proyecto de Fianza</a>
+      </li>
+      <li class="active">
+        <strong ng-if="reexpedir">Reexpedir</strong>
+        <strong ng-if="!reexpedir">Renovar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div ng-include="'app/fianzaGpo/fianzas.gpo.colectividades.html'"></div>
+    <br>
+    <br>
+  </div>
+</div>

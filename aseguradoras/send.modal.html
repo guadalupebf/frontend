@@ -1,0 +1,139 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Enviar PDF a la Compañía</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row" ng-if="!vm.show_binnacle">
+      <div class="col-lg-12">
+        <div class="tabs-container" >
+          <div>
+            <h4>Emails registrados en esta aseguradora:</h4>
+            <div class="form-group">
+              <select class="form-control" ng-options="contact.email for contact in vm.contacts" ng-change="EmailSelection()" name="email" ng-model="vm.email">
+                <option value="">Selecciona un email</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <a ng-click="combo = true">Ingresar un email diferente</a>
+            </div>
+
+            <div class="form-group" ng-if="combo">
+              <label>Escriba el correo electrónico al que desea enviar:<span class="color-red">*</span></label>
+              <input class="form-control" name="email_assign" ng-model="vm.email[0]" type="email" required>
+            </div>
+            <div class="form-group pull-right" ng-if="combo">
+              <a ng-click="flagMethod()">Cc</a>
+            </div>
+            <div class="form-group" ng-if="cc">
+              <label>Cc:</label>
+              <input class="form-control" name="email_assign" ng-model="vm.email[1]" type="email" required>
+            </div>            
+            <div class="col-xs-12">
+              <div class="form-group col-xs-12">
+              <label>Asunto:</label>
+              <input class="col-xs-12 form-control" type="text" name="" ng-model="vm.subjectEmail">
+              </div>
+              <div class="form-group col-xs-12">
+                <label>Mensaje:</label>
+                <div>
+                  <input type="checkbox" name="custom_mail" ng-model="custom_email" ng-change="getTemplate(custom_email)">
+                  <label>Personalizar</label>
+                  <br>
+                </div>
+                <div class="form-group">
+                  <label>Plantilla de Endoso:</label>
+                  <select class="form-control" ng-options="plantilla.title for plantilla in plantillas" ng-model="selectedPlantilla" ng-change="changePlantilla(selectedPlantilla)">
+                    <option value="">Selecciona una plantilla</option>
+                  </select>
+                </div>
+                <textarea ng-if="!custom_email" class="col-xs-12 form-control textarea-modal" ng-model="vm.messageEmail"></textarea>
+                <div ng-if="custom_email" class="col-xs-12" ng-bind-html="head" name="head"></div>
+                <div ng-if="custom_email" text-angular ng-model="vm.first_comment" name=""></div>
+                <br/>
+                <div ng-if="custom_email" ng-bind-html="body" name="body"></div>
+                <div ng-if="custom_email" text-angular  ng-model="vm.second_comment"></div>
+                <br/>
+                <div ng-if="custom_email" ng-bind-html="footer" name="footer"></div>
+                <br/>
+                <label ng-if="(signature && !custom_email) || (signature_edith)">Firma</label>
+                <div ng-if="!signature_edith && !custom_email" ng-bind-html="signature" name="signature"></div>
+                <div ng-if="signature_edith" text-angular  ng-model="vm.signature"></div>
+                <button ng-if="signature_edith" class="btn btn-primary" type="button" ng-click="setSignature()" title="Guardar Firma">Guardar</button>
+                <button ng-if="signature_edith" class="btn btn-danger" type="button" ng-click="cancelEdithSignature()" title="Guardar Firma">Cancelar</button>                
+                <br/>
+                <!-- <form ng-if="banner_edith">
+                  <label>* Estos archivos seran modificados para todas las cuentas de la organizacion</label>
+                  <div class="form-group col-xs-12">
+                    <label>Banner Superior :</label>
+                    <input class="col-xs-12 form-control" type="file" onchange="angular.element(this).scope().addFile('header',this.files)" ng-model="vm.b_super">
+                  </div>
+                  <div class="form-group col-xs-12">
+                    <label>Banner Inferior:</label>
+                    <input class="col-xs-12 form-control" type="file" onchange="angular.element(this).scope().addFile('footer',this.files)" ng-model="vm.b_infer">
+                  </div>
+                </form> -->
+
+                <button ng-if="banner_edith" class="btn btn-primary" type="button" ng-click="saveFilesHF()" title="Guardar Firma">Guardar</button>
+                <button ng-if="banner_edith" class="btn btn-danger" type="button" ng-click="CancelEdithBanner()" title="Guardar Firma">Cancelar</button>
+              </div>
+            </div>
+          </div>
+          <div class="text-align-center" >
+            <button class="btn btn-secondary" type="button" ng-click="adjFilesOK(true)" title="Deberá guardar los archivos para poder ser adjuntados en el correo">Adjuntar/Ver Archivos</button>
+          </div>
+          <!--  Files adjuntos -->
+          <div class="col-xs-12 row" ng-if="adjFiles">
+            <div upload-template></div>
+            <div class="text-align-center" ng-if="uploader.queue.length > 0"> <!--  ng-if="vm.permiso_archivos" -->
+              <button class="btn btn-secondary" type="button" name="savefiles" title="Click aquí y los archivos podrán ser adjuntados en el correo" ng-click="saveFiles(provider.id)">Guardar archivos</button>
+            </div>
+            <div class="col-xs-12 form-group ">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                <br><h3><span><i>Archivos que estan actualmente en la base de datos</i></span></h3>
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th width="400px">Opciones</th>
+                      <th width="20px">Adjuntar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="file in files track by $index">
+                      <td>
+                        <strong ng-bind="file.nombre" disabled></strong>
+                        <input class="form-control display-none" ng-model="file.nombre" onblur="blurArchivoCargado()" ng-blur="vmFiles.rename(file)">
+                      </td>
+                      <td>
+                        <a class="btn btn-success" download href="{{file.arch}}">Descargar</a>
+                        <a class="btn btn-primary" href="{{file.arch}}" target="_blank">Ver</a>
+                        <button class="btn btn-danger btn-bm0" ng-click="deleteFile(file,files)">Borrar</button>
+                        <button class="btn btn-info btn-bm0" onclick="renombrarArchivoCargado(), saveInput = true">Renombrar</button>
+                        <span class="btn btn-success display-none">
+                        Guardar
+                        </span>
+                      </td>
+                      <td>
+                        <input type="checkbox" ng_model='file.checked' ng-change="shareFileEmail(file)">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="text-align-center" ng-if="adjFiles">
+              <button class="btn btn-secondary" type="button" ng-click="adjFilesOK(false)">Ocultar Archivos</button>
+            </div>
+          </div>
+          <!-- Files adjuntos -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-white" type="button" ng-click="cancel()">Cerrar</button>
+    <button class="btn btn-primary ladda-button" ng-click="sendEmail(vm.email,files, vm.first_comment, vm.second_comment)">Enviar</button>
+  </div>
+</div>
