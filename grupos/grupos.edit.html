@@ -1,0 +1,106 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Grupos</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="grupos.grupos">Grupos</a>
+      </li>
+      <li class="active">
+        <strong>Editar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="ibox float-e-margins animate">
+  <div class="ibox-title">
+    <h5>Información</h5>
+  </div>
+  <div class="ibox-content">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 form-group" >
+        <label>Nombre<span class="color-red">*</span></label>
+        <input class="form-control" name="name" ng-model="vm.form.group_name" type="text">
+      </div>
+      <div class="col-xs-12 col-sm-6 form-group">
+        <label>Responsable</label>
+        <select class="form-control" name="responsable" ng-model="vm.form.responsable" ng-change="changeResponsable(vm.form.responsable)" ng-options="responsable.url as responsable.first_name + ' ' + responsable.last_name for responsable in users track by responsable.url" >
+          <option value="" disabled>Seleccione un responsable</option>
+        </select>
+      </div>
+      <div class="col-xs-12 form-group">
+        <label>Observaciones</label>
+        <textarea class="form-control" name="description" ng-model="vm.form.description" type="text"></textarea>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+        <button class="btn btn-success col-xs-12" ng-click="openModalGroup(2)">
+          <i class="fa fa-plus" aria-hidden="true"></i> Agregar Subgrupo
+        </button>
+      </div>
+      <div class="col-xs-12 form-group">
+        <legend class="legend-title" align="center">Contactos</legend>
+        <table class="table table-striped table-bordered table-hover dataTables-example">
+          <thead>
+            <tr>
+              <th class="footable-visible footable-sortable footable-first-column" data-breakpoints="xs">
+                Nombre
+              </th>
+              <th class="footable-visible footable-sortable" data-hide="phone">
+                 Teléfono
+              </th>
+              <th data-hide="phone" class="footable-sortable">
+                Correo electrónico
+              </th>
+              <th data-hide="phone" class="footable-sortable">
+                Departamento
+              </th>
+              <th data-hide="phone" class="footable-sortable">
+                Opción
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="contact in vm.form.contact_group track by $index" foo-repeat-done>
+              <td><input class="form-control" type="text" ng-model="contact.name" style="text-transform: capitalize"></td>
+              <td>
+                <phonenumber-directive model="contact.phone_number" class="ng-isolate-scope">
+  								<input ng-model="inputValue" type="tel" class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" maxlength="25"
+  											placeholder="" title="Phonenumber (Format: (999) 9999-9999)" aria-invalid="false" style="" >
+  							</phonenumber-directive>
+              </td>
+              <td><input class="form-control" type="email" ng-model="contact.email"></td>
+              <td><input class="form-control" type="text" ng-model="contact.departament"></td>
+              <td>
+                <button type="button" class="btn btn-w-m btn-danger" name="button"  ng-click="vm.deleteContacts(contact.url, $index)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+        <button class="btn btn-success col-xs-12" ng-click="vm.addContact()" type="button">Agregar contacto</button>
+      </div>
+      <div class="col-xs-12">
+        <div ng-include="'templates/upload.html'" ng-if="vm.user.permiso.crear && vm.user.permiso.editar"></div>
+        <div ng-include="'templates/show-files.html'"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+        <button class="btn btn-primary col-xs-12" ng-disabled="form.$invalid" type="submit" ng-click="vm.save()" ng-if="vm.user.permiso.editar"><i class="fa fa-save" aria-hidden="true"></i> Guardar cambios</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+        <button class="btn btn-white col-xs-12" type="button" ng-click="vm.cancel()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+      </div>
+      <div class="col-xs-12 form-group">
+        <br><br><br>
+      </div>
+    </div>
+  </div>
+</div>
+

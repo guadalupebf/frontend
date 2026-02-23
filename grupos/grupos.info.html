@@ -1,0 +1,273 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Grupos</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li >
+        <a ui-sref="grupos.grupos">Grupos</a>
+      </li>
+      <li class="active">
+        <strong>Información</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="ibox float-e-margins animate">
+  <div class="ibox-title">
+    <h5>Grupo</h5>
+  </div>
+  <div class="ibox-content">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+        <label >Nombre del grupo:</label>
+        <input disabled  ng-model="vm.group.group_name" class="form-control"/>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="vm.group.responsable">
+        <label >Responsable:</label>
+        <input disabled  value="{{vm.group.responsable.first_name}} {{vm.group.responsable.last_name}}" class="form-control"/>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group" ng-if="!vm.group.responsable">
+        <label >Responsable:</label>
+        <input disabled  value="Sin grupo asignado" class="form-control"/>
+      </div>
+      <div ng-if="vm.group.description" class="col-xs-12 col-sm-6 form-group">
+        <label >Descripción:</label>
+        <input disabled  ng-model="vm.group.description" class="form-control"/>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t">
+        <button ng-if="vm.acceso_del_group" class="btn btn-white col-xs-12" type="button" name="button" ng-click="deleteGroup(vm.group.url)"><i class="fa fa-trash"></i> Eliminar</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t">
+        <button ng-if="vm.acceso_adm_cont" class="btn btn-info col-xs-12" type="button" ui-sref="grupos.edit({grupoId: vm.group.id})" name="button"><i class="fa fa-pencil"></i> Editar</button>
+      </div>
+      <div class="col-xs-12 form-group">
+        <legend class="legend-title" align="center">Contratantes</legend>
+        <table class="table table-striped table-bordered table-hover dataTables-example table " data-filter="#filter" data-page-size="25" ng-if="vm.groupsJuridical || vm.groupsNatural">
+          <thead>
+            <tr>
+              <th class="visible sortable first-column" data-breakpoints="xs">
+                Nombre
+                <span class="sort-indicator"></span>
+              </th>
+              <th class="visible sortable" data-hide="phone">
+                Tipo
+                <span class="sort-indicator"></span>
+              </th>
+              <th class="visible sortable" data-hide="phone">
+                RFC
+                <span class="sort-indicator"></span>
+              <th data-hide="phone" class="sortable" >
+                Correo
+                <span class="sort-indicator"></span>
+              </th>
+              <th data-hide="phone" class="sortable" >
+                Teléfono
+                <span class="sort-indicator"></span>
+              </th>
+              <!-- <th>Opción</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="info in vm.groupsJuridical track by $index" foo-repeat-done ng-if="info.is_active == true">
+              <td>
+                <a ui-sref="contratantes.edit({type: vm.checkType(info.type_person), contratanteId: info.id})">
+                  {{ info.full_name }} {{ info.j_name }}
+                </a>
+              </td>
+              <td><span ng-if="info.type_person ==1">Física</span><span ng-if="info.type_person ==2">Moral</span></td>
+              <td>{{info.rfc}}</td>
+              <td>{{info.email}}</td>
+              <td>{{info.phone_number | phonenumber}}</td>
+            </tr>
+             <tr ng-repeat="info in vm.groupsNatural track by $index" ng-if="info.is_active == true" foo-repeat-done>
+              <td>
+                <a ui-sref="contratantes.edit({type: vm.checkType(info.type_person), contratanteId: info.id})">
+                  {{ info.full_name }} {{ info.j_name }}
+                </a>
+              </td>
+              <td><span ng-if="info.type_person ==1">Física</span><span ng-if="info.type_person ==2">Moral</span></td>
+              <td>{{info.rfc}}</td>
+              <td>{{info.email}}</td>
+              <td>{{info.phone_number | phonenumber}}</td>
+            </tr>
+          </tbody>
+          <tfoot class="hide-if-no-paging">
+             <tr>
+                <td colspan="6" align="center">
+                  <ul class="pagination"></ul>
+                </td>
+              </tr>
+          </tfoot>
+        </table>
+        <div ng-if="show_pagination" class="text-center">
+          <pagination config="vm.config_pagination" model="vm.groupsNatural"></pagination>
+        </div>
+      </div>
+      <div class="col-xs-12 form-group" ng-if="!edit_subgroup">
+        <legend class="legend-title" align="center">Subgrupos y subsubgrupos</legend>
+        <table class="table table-striped table-bordered table-hover dataTables-example table " data-filter="#filter" data-page-size="25" ng-if="vm.groupsJuridical || vm.groupsNatural">
+          <thead>
+            <tr>
+              <th class="visible sortable first-column" data-breakpoints="xs">
+                Nombre Subgrupo
+                <span class="sort-indicator"></span>
+              </th>
+              <th class="visible sortable" data-hide="phone">
+                Subsubgrupos
+                <span class="sort-indicator"></span>
+              </th>
+              <th class="visible sortable" data-hide="phone">
+                Opciones
+                <span class="sort-indicator"></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="info in vm.group.subgrupos track by $index" foo-repeat-done>
+              <td>
+                <span>{{info.group_name}}</span>
+              </td>
+              <td>
+                <ul>
+                  <li ng-repeat="item in info.subsubgrupos">
+                    <span>{{item.group_name}}</span>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <button class="btn btn-white btn-sm" ng-click="editSubroup(info)"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                <button class="btn btn-white btn-sm" ng-click="deleteGroup(info.url)"><i class="fa fa-trash" aria-hidden="true"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div ng-if="edit_subgroup">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="btn btn-info col-xs-12" ng-click="returnSub()"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group">
+          <label>Nombre</label>
+          <input class="form-control" type="text" ng-model="sub_group.group_name">
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t" ng-if="sub_group.subsubgrupos.length == 0">
+          <button class="btn btn-primary col-xs-12" ng-click="addSubsubgroups();">Agregar Subsubgrupos</button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 form-group" ng-repeat="item in sub_group.subsubgrupos">
+          <label>Subgrupos</label>
+          <div class="input-group">
+            <span class="input-group-btn" ng-if="item.url">
+              <button class="btn btn-white" ng-click="deleteSubsubgroup(item, $index)" type="button">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+              </button>
+            </span>
+            <span class="input-group-btn" ng-if="!item.url">
+              <button class="btn btn-white" ng-click="deleteSubsubgroup(item, $index)" type="button">
+                <i class="fa fa-minus" aria-hidden="true"></i>
+              </button>
+            </span>
+            <input class="form-control" type="text" ng-model="item.group_name">
+            <span class="input-group-btn" ng-if="item.url">
+              <button class="btn btn-success" ng-click="addSubsubgroups()" type="button">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+              </button>
+            </span>
+            <span class="input-group-btn" ng-if="!item.url">
+              <button class="btn btn-success" ng-click="addSubsubgroups()" type="button">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="col-xs-12 form-group">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+          <button class="btn btn-primary col-xs-12" ng-click="upgrade()"><i class="fa fa-save" aria-hidden="true"></i> Guardar Cambios</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+          <button class="btn btn-white col-xs-12" ng-click="returnSub()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ibox float-e-margins">
+  <div class="ibox-title">
+    <h5>Información de contacto</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <table class="table table-striped table-bordered table-hover table table-stripped" data-page-size="25">
+          <thead>
+            <tr>
+                <th class="visible sortable first-column" data-breakpoints="xs">
+                  Nombre
+                    <span class="sort-indicator"></span>
+                </th>
+                <th class="visible sortable" data-hide="phone">
+                   Teléfono
+                   <span class="sort-indicator"></span>
+                </th>
+                <th data-hide="phone" class="sortable">
+                  Email
+                  <span class="sort-indicator"></span>
+                </th>
+                <th data-hide="phone" class="sortable">
+                  Departamento
+                  <span class="sort-indicator"></span>
+                </th>
+            </tr>
+          </thead>
+      <tbody>
+        <tr ng-repeat="contact in vm.contact_group track by $index" foo-repeat-done>
+          <td>{{contact.name}}</td>
+          <td>{{contact.phone_number}}</td>
+          <td>{{contact.email}}</td>
+          <td>{{contact.departament}}</td>
+        </tr>
+      </tbody>
+      <tfoot class="hide-if-no-paging">
+         <tr>
+            <td colspan="6" align="center">
+              <ul class="pagination"></ul>
+            </td>
+          </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="ibox float-e-margins" ng-if="vm.permiso_archivos">
+  <div class="ibox-title">
+    <h5>Archivos</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <div ng-include="'templates/show-files.html'"></div>
+  </div>
+</div>
+
+<div class="ibox float-e-margins">
+  <div class="ibox-title light-gray-background">
+    <h5>Bitácora</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content col-md-12">
+      <div class="col-md-12">
+        <comments datasource="vm.comments_data" config="vm.comments_config" typemodel="8" idmodel="vm.groupId" exportable="true"></comments>
+      </div>
+  </div>
+</div>

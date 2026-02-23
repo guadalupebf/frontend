@@ -1,0 +1,30 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Colectividades</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Colectividades</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12 animate" ng-show="!show_contractor">
+    <br>
+    <div ng-include src="'app/flotillas/ordenes.html'"></div>
+    <div class="col-xs-12 col-sm-4 form-group pull-right">
+      <button class="btn btn-primary col-xs-12 m-t" ng-click="validityInsurance()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar Cambios</button>
+    </div>
+    <div class="col-xs-12 col-sm-4 form-group pull-right">
+      <button class="btn btn-white col-xs-12 m-t" ui-sref="flotillas.info({polizaId: caratula.id})"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+    </div>
+  </div>
+  <div class="col-xs-12 animate z-index-9000" ng-if="show_contractor">
+    <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+  </div>
+</div>

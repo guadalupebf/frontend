@@ -1,0 +1,185 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-9">
+	    <h2>Lectura de documentos</h2>
+	    <ol class="breadcrumb margin-top-15">
+	    	<li>
+	        	<a ui-sref="inicio.inicio">Inicio</a>
+	      	</li>
+	    	<li class="active">
+	        	<strong>Lectura de documentos</strong>
+	      	</li>
+	    </ol>
+	</div>
+</div>
+<br>
+<div>
+	<div class="row" ng-if="!archivos_cargados">
+	    <div class="col-xs-12">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Selecciona tu póliza</h5>
+				</div>
+				
+				<div class="ibox-content">
+					<div class="row">
+						<div class="panel-body table-over-y animate">
+							<div class="col-xs-12 col-sm-6 col-md-4">
+								<div class="col-xs-12 form-group">
+									<label>Nombre</label>
+									<input class="form-control" type="text" ng-model="form.nombre" />	
+								</div>
+								<div class="col-xs-12 form-group">
+									<label>Tipo de póliza</label>
+									<select class="form-control" ng-model="form.tipo_poliza"
+										data-ng-options="item.name for item in tipo_poliza | orderBy: 'name' track by item.id">
+									</select>
+								</div>
+								<div class="col-xs-12 form-group">
+									<label>Aseguradora</label>
+									<select class="form-control" ng-model="form.aseguradora" 
+										data-ng-options="item.alias for item in aseguradoras | orderBy: 'name' track by item.id"
+										ng-change="changeAseguradora()">
+									</select>
+								</div>
+								<div class="col-xs-12 form-group">
+									<label>Ramo</label>
+									<select class="form-control" ng-model="form.ramo"
+										data-ng-options="item.ramo_name disable when item.disabled for item in ramos | orderBy: 'name' track by item.ramo_code"
+										ng-change="changeRamo()">
+									</select>
+								</div>
+								<div class="col-xs-12 form-group">
+									<label>Subramo</label>
+									<select class="form-control" ng-model="form.subramo"
+										data-ng-options="item.subramo_name disable when item.disabled for item in form.ramo.subramo_ramo | orderBy: 'name' track by item.subramo_code">
+									</select>
+								</div>
+							</div>  
+
+							<div class="col-xs-12 col-sm-6 col-md-4">
+								<div class="col-xs-12 form-group m-t">	
+									<label class="col-xs-12 btn btn-success">Examinar o arrastrar <i class="fa fa-upload" aria-hidden="true"></i>
+										<input nv-file-select="" type="file" name="file" uploader="uploader" class="display-none"/>
+									</label>
+								</div>
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-4">
+								<div class="col-xs-12 form-group">
+									<img src="https://miurabox-public.s3.amazonaws.com/estaticos-publicos/Captura+de+Pantalla+2022-06-06+a+la(s)+16.23.45.png">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 col-sm-6 col-md-4 pull-right">
+							<button class="col-xs-12 btn btn-primary ladda-button" ng-click="cargarNuevaPoliza()">Entrenar póliza</button>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 pull-right">
+							<button class="col-xs-12 btn btn-white ladda-button" ng-click="atras()">Atrás</button>
+						</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+	</div>
+
+
+	<div class="row" ng-if="archivos_cargados">
+	    <div class="col-xs-12">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Selecciona tu póliza</h5>
+				</div>
+				
+				<div class="ibox-content">
+					<div class="row">
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+							<label>Nombre</label>
+							<input class="form-control" type="text" ng-model="form.nombre" />	
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+							<label>Tipo de póliza</label>
+							<select class="form-control" ng-model="form.tipo_poliza"
+								data-ng-options="item.name for item in tipo_poliza | orderBy: 'name' track by item.id">
+							</select>	
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+							<label>Aseguradora</label>
+							<select class="form-control" ng-model="form.aseguradora" 
+								data-ng-options="item.alias for item in aseguradoras | orderBy: 'name' track by item.id"
+								ng-change="changeAseguradora()">
+								
+							</select> 
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+							<label>Ramo</label>
+							<select class="form-control" ng-model="form.ramo"
+								data-ng-options="item.ramo_name disable when item.disabled for item in ramos | orderBy: 'name' track by item.ramo_code"
+								ng-change="changeRamo()">
+							</select>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 form-group">
+							<label>Subramo</label>
+							<select class="form-control" ng-model="form.subramo"
+								data-ng-options="item.subramo_name disable when item.disabled for item in form.ramo.subramo_ramo | orderBy: 'name' track by item.subramo_code">
+							</select>
+						</div>
+					</div>
+					
+
+					<div class="row" style="margin-bottom: 20px;">
+						<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 form-group">
+							<label>Selecciona la etiqueta que deseas crear</label>
+							<select class="form-control" ng-model="item_active"
+								data-ng-options="item.name disable when !item.active for item in items | orderBy: 'name' track by item.id"
+								ng-change="itemChanged(item_active.name)"
+								>
+							</select>
+						</div>	
+						<!-- <div class="col-xs-12 col-sm-6 col-md-3 m-t">
+							<button class="col-xs-12 btn btn-primary ladda-button" ng-click="vm.reset()">Reset</button>
+						</div> -->
+					</div>	
+					<div class="row">
+						<div class="panel-body table-over-y animate" ng-repeat="archivo in archivos track by $index">
+							<hr>
+							<img ng-areas="fields900"
+								ng-areas-allow="{'edit':true, 'move':true, 'resize':true, 'select':true, 'remove':true, 'nudge':true }"
+								ng-areas-on-add="onAddArea"
+								reset = "reset()"
+								ng-areas-on-remove="onRemoveArea"
+								ng-areas-on-change="onChangeAreas900"
+								ng-areas-extend-data="{pageNumber: {{$index + 1}}, tag: 'width900'}"
+								ng-src="{{archivo.arch}}">
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-3 m-t"></div>
+							<div class="col-xs-12 col-sm-6 col-md-3 m-t"></div>
+							
+							<div class="col-xs-12 col-sm-6 col-md-3 m-t">
+								<button class="col-xs-12 btn btn-white" ng-click="atras()">Atrás</button>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-md-3 m-t">
+								<button class="col-xs-12 btn btn-primary ladda-button" ng-click="guardar()">Entrenar póliza</button>
+							</div>
+
+
+					</div>
+				</div>
+			</div>
+	    </div>
+	</div>
+
+	
+</div>
+
+
+
+<style type="text/css">
+	.class_blue{
+		background-color: #1c84c6;
+		border: 2px solid #1c84c6;
+		color: white;
+	}
+</style>

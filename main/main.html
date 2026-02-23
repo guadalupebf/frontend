@@ -1,0 +1,1509 @@
+<toaster-container></toaster-container>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<div class="wrapper wrapper-content animated fadeIn ng-scope">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-3" ng-if="main.acceso_adm_pol || main.acceso_adm_ot">
+      <div class="ibox">
+        <!-- <a id="createOTS" href="tel:+524421792869" class="btn btn-outline btn-block btn-primary dim">Crear OT/Póliza</a> -->
+
+        <button id="createOTS" ng-click="main.otCreatorModalEvent(1)" class="btn btn-outline btn-block btn-primary dim">Crear OT/Póliza</button>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3" ng-if="main.acceso_ver_cob && main.acceso_pag_cob">
+      <div class="ibox">
+        <button ng-click="main.goToCotization()" class="btn btn-block btn-outline btn-primary dim">Prospectos</button>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3" ng-if="main.acceso_adm_ot">
+      <div class="ibox">
+        <button ng-click="main.crearEndoso()" class="btn btn-block btn-outline btn-primary dim">Crear endoso</button>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3" ng-if="main.acceso_adm_sin">
+      <div>
+        <button type="button" class="btn btn-block btn-outline btn-primary dim dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Capturar Siniestro</button>
+        <ul class="dropdown-menu dropdown-menu-right" ng-model="crearSiniestroSeleccionado" style="width: 276px; margin-top: -18px;">
+          <li ng-click="gotoCapturarSiniestro('siniestros.accidentes')"><a>Accidentes y Enfermedades</a></li>
+          <li ng-click="gotoCapturarSiniestro('siniestros.vida')"><a>Vida</a></li>
+          <li ng-click="gotoCapturarSiniestro('siniestros.autos')"><a>Automóviles</a></li>
+          <li ng-click="gotoCapturarSiniestro('siniestros.danios')"><a>Daños</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row flex-center" >
+    <div class="col-xs-12 col-sm-3" ng-if="main.permiso_g_ot">
+      <div class="ibox-content col-xs-12">
+        <h3 class="text-center">
+          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+          OTs
+          <a ng-click="configGraph(1)"><i class="fa fa-wrench pull-right" aria-hidden="true"></i></a>
+        </h3>
+        <br>
+        <div class="row">
+          <graphic gtype="ot" lc="last_color"></graphic>
+        </div>
+        <br>
+        <button class="btn btn-success center-block" ng-click="main.show_binnacle = false; main.showTotalOt(1,1)" ng-model="main.btn_all">
+          Ver todos</button>
+      </div>
+    </div>
+    <div ui-view="cobranza" ng-if="main.permiso_g_cob"></div>
+    <div ui-view="renovaciones"></div>
+  </div>
+
+  <br>
+
+
+  <div ng-show="main.policyTable" class="row flex-container" id="myTable" ng-if="main.permiso_g_ot">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>
+            OTs
+            <span ng-if="main.titleID==1" style="color: #17A45D;">{{main.title}}</span>
+            <span ng-if="main.titleID==2" style="color: #F5CD21;">{{main.title}}</span>
+            <span ng-if="main.titleID==3" style="color: #EA9021;">{{main.title}}</span>
+            <span ng-if="main.titleID==4" style="color: #EA5121;">{{main.title}}</span>
+          </h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="input-group m-b" style="z-index: 0;">
+            <input ng-enter="main.searchOTs(main.cadena,main.titleID)" class="form-control search-custom" style="height: 34px; margin-top: 13px;" placeholder="Buscar en OTs {{main.title}} (Contratante, subramo, ramo, aseguradora, no. póliza)" ng-model="main.cadena" name="top-search" id="top-search">
+            <span class="input-group-btn">
+              <button ng-click="main.searchOTs(main.cadena,main.titleID)" class="btn btn-success" style="margin-top: 13px;" type="button">Buscar</button>
+            </span>
+          </div>
+          <div class="table-responsive" ng-if="!main.show_binnacle && !main.show_binnacle_endoso">
+                <table class="table table-bordered table-hover" id="polizas"> <!-- row-border hover -->
+                  <thead>
+                    <tr>
+                      <div ng-if="main.btn_all == false">
+                        <th ng-if="main.btn_all == false" > Tipo </th>
+                        <th ng-if="main.btn_all == false" > Folio Interno </th>
+                        <th ng-if="main.btn_all == false" > Contratante </th>
+                        <th ng-if="main.btn_all == false" > No. Póliza </th>
+                        <th ng-if="main.btn_all == false" > Subramo </th>
+                        <th ng-if="main.btn_all == false" > Aseguradora </th>
+                        <th ng-if="main.btn_all == false" > Estatus </th>
+                        <th ng-if="main.btn_all == false" > Fecha Creación </th>
+                        <th ng-if="main.btn_all == false"> Antigüedad </th>
+                        <th ng-if="main.btn_all == false"> Acciones </th>
+                      </div>
+                      <div ng-if="main.btn_all == true">
+                        <th ng-if="main.btn_all == true" > Tipo </th>
+                        <th ng-if="main.btn_all == true" > Folio Interno </th>
+                        <th ng-if="main.btn_all == true" > Contratante </th>
+                        <th ng-if="main.btn_all == true" > No. Póliza </th>
+                        <th ng-if="main.btn_all == true" > Subramo </th>
+                        <th ng-if="main.btn_all == true" > Aseguradora </th>
+                        <th ng-if="main.btn_all == true" > Estatus </th>
+                        <th ng-if="main.btn_all == true" > Fecha Creación </th>
+                        <th ng-if="main.btn_all == true" > Antigüedad</th>
+                        <th ng-if="main.btn_all == true"> Acciones </th>
+                      </div>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-click="main.goToPolicy(insurance)" ng-repeat="insurance in main.insurances | orderBy: 'created_at' track by $index">
+                      <td>
+                        <span ng-if="insurance.document_type == 1">Individual {{insurance.historic}}</span>
+                        <span ng-if="insurance.document_type == 3">Póliza de Grupo {{insurance.historic}}</span>
+                      </td>
+                        <div ng-if="insurance.folio == '0'">Sin número de OT.</div>
+                        <div ng-if="insurance.folio != '0'">{{ insurance.folio }}</div>
+                      </td>
+                      <td>{{ insurance.internal_number }}</td>
+                      <td>{{ insurance.contractor.full_name }} 
+                      </td>
+                      <td>Sin asignar</td>
+                      <td>{{ insurance.subramo }}</td>
+                      <td>{{ insurance.aseguradora }}</td>
+                      <td>En trámite</td>
+                      <td>{{ insurance.created_at | date:"dd/MM/yyyy - HH:mm"  : 'UTC' }}</td>
+                      <td ng-if="insurance.antiguedad > 0">{{ insurance.antiguedad }} días</td>
+                      <td ng-if="!(insurance.antiguedad > 0)">0 días</td>
+                      <td ng-click="$event.stopPropagation();">
+                        <!-- comments -->
+                        <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); main.showBinnacle(insurance,'poliza')">
+                          <i class="fa fa-comment" aria-hidden="true"></i>
+                        </a>
+                        <tasks click="addtask()" type="1" model="insurance.internal_number" associated="insurance.id"></tasks>
+                      </td>
+                    </tr>
+                    <tr ng-click="goToEndorsement('Información endosos', 'endorsement.info', insurance)" ng-repeat="insurance in main.endo track by $index">
+                      <td><span>Endoso</span></td>
+                      <td><span>{{insurance.internal_number}} Tipo: {{insurance.endorsement_type}}</span></td>
+                      <td>
+                        <span ng-if="insurance.policy.contractor">{{ insurance.policy.contractor }}</span>
+                        <span ng-if="insurance.policy.contratante_sub && !insurance.policy.contractor">{{insurance.policy.contratante_sub}}</span>
+                      </td>
+                      <td>{{ insurance.policy.poliza_number }} </td>
+                      <td>{{insurance.policy.subramo}} </td>
+                      <td>{{ insurance.policy.aseguradora }} </td>
+                      <td ng-if="insurance.status == 1"> Pendiente</td>
+                      <td ng-if="insurance.status == 5"> En trámite</td>
+                      <td>{{ insurance.created_at | date:"dd/MM/yyyy - HH:mm" : 'UTC'  }}</td>
+                      <td ng-if="insurance.antiguedad > 0">{{ insurance.antiguedad }} días</td>
+                      <td ng-if="!(insurance.antiguedad > 0)">0 días</td>
+                      <td ng-click="$event.stopPropagation();">
+                        <!-- comments -->
+                        <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); main.showBinnacle_endoso(insurance)">
+                          <i class="fa fa-comment" aria-hidden="true"></i>
+                        </a>
+                        <tasks click="addtask()" type="2" model="insurance.internal_number" associated="insurance.id"></tasks>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <!-- <button ng-if="!main.btn_all && main.insurances.length && main.acceso_rep_pol" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary" ng-click="main.exportDataAll(1)">
+                  Generar Reporte OTs
+                </button>
+                <button ng-if="!main.btn_all && main.endo.length && main.acceso_rep_end" ng-model="vm.buttonReportE" class="col-xs-3 btn btn-primary pull-right" ng-click="main.exportDataAll(2)">
+                  Generar Reporte Endosos
+                </button>
+                <button ng-if="main.btn_all && main.insurances.length && main.acceso_rep_pol" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary" ng-click="main.exportDataAll(1)">
+                  Generar Reporte OTs
+                </button>
+                <button ng-if="main.btn_all && main.endo.length && main.acceso_rep_end" ng-model="vm.buttonReportE" class="col-xs-3 btn btn-primary pull-right" ng-click="main.exportDataAll(2)">
+                  Generar Reporte Endosos
+                </button> -->
+                <button ng-if="main.btn_all && (main.endo.length || main.insurances.length) && (main.acceso_rep_end || main.acceso_rep_pol)" ng-model="vm.buttonReportE" class="col-xs-3 btn btn-primary pull-right ladda-button4" ng-click="main.exportDataGral(2)">
+                  Generar reporte
+                </button>
+                <button ng-if="!main.btn_all && (main.endo.length || main.insurances.length) && (main.acceso_rep_end || main.acceso_rep_pol)" ng-model="vm.buttonReportE" class="col-xs-3 btn btn-primary pull-right ladda-button4" ng-click="main.exportDataGral(2)">
+                  Generar reporte
+                </button>
+          </div>
+          <div class="col-xs-12" ng-if="main.show_binnacle_endoso">
+            <div class="ibox float-e-margins">
+              <div class="ibox-title">
+                <h5>Bitácora Endoso</h5>
+                <a class="btn btn-info pull-right" ng-click="main.returnToEndoso()"><span class="fa fa-arrow-left"></span> Regresar</a>
+              </div>
+              <div class="ibox-content">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <comments datasource="main.comments_data_endoso" config="main.comments_config" typemodel="10" idmodel="main.endosoId"></comments>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row animate" ng-if="main.show_binnacle">
+            <div class="col-xs-12">
+              <div class="col-xs-12 margin-top-24"></div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <button class="col-xs-12 btn btn-info pull-right" ng-click="main.returnToReceipts(1)"><span class="fa fa-reply"></span> Regresar</button>
+              </div>
+              <div class="col-xs-12">
+                <comments datasource="main.comments_data" typemodel="1" config="main.comments_config" idmodel="main.policy_id"></comments>
+              </div>
+            </div>
+          </div>
+
+          <div class="row animate" ng-if="main.show_binnacle_receipt">
+            <div class="col-xs-12">
+              <label>Bitácora de Recibos</label>
+              <div class="col-xs-12 margin-top-24"></div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <button class="col-xs-12 btn btn-info" ng-click="main.returnToReceipts(2)"><span class="fa fa-reply"> </span> Regresar</button>
+              </div>
+              <div class="col-xs-12">
+                <comments datasource="main.comments_data_receipt" typemodel="4" config="main.comments_config_receipt" idmodel="main.receipt_id" receiptmodel="receiptmodel"></comments>
+               
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-show="main.coverageTable || main.coverageModal" class="row flex-container" id="myTable" ng-if="main.permiso_g_cob">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>
+            Cobranza
+            <span ng-if="main.titleID==1" style="color: #17A45D;">{{main.title}}</span>
+            <span ng-if="main.titleID==2" style="color: #F5CD21;">{{main.title}}</span>
+            <span ng-if="main.titleID==3" style="color: #EA9021;">{{main.title}}</span>
+            <span ng-if="main.titleID==4" style="color: #EA5121;">{{main.title}}</span>
+          </h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="m-b col-xs-12">
+            <div class="col-xs-2">
+              <input type="text" ng-model="main.serie" class="form-control" placeholder="Serie" ng-enter="main.searchReceipts(main.serie,main.cadena,main.titleID)">
+            </div>
+            <div class="col-xs-10">
+              <div class="input-group" style="z-index: 0;">
+                <input ng-enter="main.searchReceipts(main.serie,main.cadena,main.titleID)" class="form-control search-custom" style="height: 34px; margin-top: 0px;" placeholder="Buscar en cobranza {{main.title}} (Contratante, subramo, ramo, aseguradora, no. póliza)" ng-model="main.cadena" name="top-search" id="top-search">
+                <span class="input-group-btn">
+                  <button ng-click="main.searchReceipts(main.serie,main.cadena,main.titleID)" class="btn btn-success" style="margin-top: 0px;" type="button">Buscar</button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive col-xs-12" ng-if="!main.show_binnacle_receipt" id="tableDash">
+            <table class="table table-striped table-bordered table-hover" id="cobranza">
+              <thead>
+                <tr>
+                  <th width="1%"></th>
+                  <div ng-if="main.show_cobranza == false">
+                    <th ng-if="main.show_cobranza == false" width="5%" ng-click="main.changeReceipt(1, main.receipt_num_asc == 1 ? 2 : 1)" >Tipo <span ng-class="{'fa fa-sort-desc': main.receipt_num_asc == 1, 'fa fa-sort-asc': main.receipt_num_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="5%" ng-click="main.changeReceipt(1, main.receipt_num_asc == 1 ? 2 : 1)" >Serie <span ng-class="{'fa fa-sort-desc': main.receipt_num_asc == 1, 'fa fa-sort-asc': main.receipt_num_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="15%" ng-click="main.changeReceipt(2, main.receipt_cont_asc == 1 ? 2 : 1)" >Contratante<span ng-class="{'fa fa-sort-desc': main.receipt_cont_asc == 1, 'fa fa-sort-asc': main.receipt_cont_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="10%" ng-click="main.changeReceipt(3, main.receipt_nump_asc == 1 ? 2 : 1)" >Número de póliza<span ng-class="{'fa fa-sort-desc': main.receipt_nump_asc == 1, 'fa fa-sort-asc': main.receipt_nump_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="10%" ng-click="main.changeReceipt(4, main.receipt_vig_asc == 1 ? 2 : 1)" >Inicio de Vigencia<span ng-class="{'fa fa-sort-desc': main.receipt_vig_asc == 1, 'fa fa-sort-asc': main.receipt_vig_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="10%" ng-click="main.changeReceipt(5, main.receipt_subr_asc == 1 ? 2 : 1)" >Subramo<span ng-class="{'fa fa-sort-desc': main.receipt_subr_asc == 1, 'fa fa-sort-asc': main.receipt_subr_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="10%" ng-click="main.changeReceipt(6, main.receipt_aseg_asc == 1 ? 2 : 1)" >Aseguradora<span ng-class="{'fa fa-sort-desc': main.receipt_aseg_asc == 1, 'fa fa-sort-asc': main.receipt_aseg_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="5%" ng-click="main.changeReceipt(7, main.receipt_venc_asc == 1 ? 2 : 1)" >Fecha de vencimiento<span ng-class="{'fa fa-sort-desc': main.receipt_venc_asc == 1, 'fa fa-sort-asc': main.receipt_venc_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == false" width="10%" ng-click="main.changeReceipt(8, main.receipt_pneta == 1 ? 2 : 1)" >Prima total<span ng-class="{'fa fa-sort-desc': main.receipt_pneta == 1, 'fa fa-sort-asc': main.receipt_pneta == 2}"></span></th>
+
+                  </div>
+
+                  <div ng-if="main.show_cobranza == true">
+                    <th ng-if="main.show_cobranza == true" width="5%" ng-click="main.changeReceiptAll(1, main.receipt_num_asc == 1 ? 2 : 1)" >Tipo <span ng-class="{'fa fa-sort-desc': main.receipt_num_asc == 1, 'fa fa-sort-asc': main.receipt_num_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="5%" ng-click="main.changeReceiptAll(1, main.receipt_num_asc == 1 ? 2 : 1)" >Serie <span ng-class="{'fa fa-sort-desc': main.receipt_num_asc == 1, 'fa fa-sort-asc': main.receipt_num_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="15%" ng-click="main.changeReceiptAll(2, main.receipt_cont_asc == 1 ? 2 : 1)" >Contratante<span ng-class="{'fa fa-sort-desc': main.receipt_cont_asc == 1, 'fa fa-sort-asc': main.receipt_cont_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="10%" ng-click="main.changeReceiptAll(3, main.receipt_nump_asc == 1 ? 2 : 1)" >Número de póliza<span ng-class="{'fa fa-sort-desc': main.receipt_nump_asc == 1, 'fa fa-sort-asc': main.receipt_nump_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="10%" ng-click="main.changeReceiptAll(4, main.receipt_vig_asc == 1 ? 2 : 1)" >Inicio de Vigencia<span ng-class="{'fa fa-sort-desc': main.receipt_vig_asc == 1, 'fa fa-sort-asc': main.receipt_vig_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="10%" ng-click="main.changeReceiptAll(5, main.receipt_subr_asc == 1 ? 2 : 1)" >Subramo<span ng-class="{'fa fa-sort-desc': main.receipt_subr_asc == 1, 'fa fa-sort-asc': main.receipt_subr_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="10%" ng-click="main.changeReceiptAll(6, main.receipt_aseg_asc == 1 ? 2 : 1)" >Aseguradora<span ng-class="{'fa fa-sort-desc': main.receipt_aseg_asc == 1, 'fa fa-sort-asc': main.receipt_aseg_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="5%" ng-click="main.changeReceiptAll(7, main.receipt_venc_asc == 1 ? 2 : 1)" >Fecha de vencimiento<span ng-class="{'fa fa-sort-desc': main.receipt_venc_asc == 1, 'fa fa-sort-asc': main.receipt_venc_asc == 2}"></span></th>
+                    <th ng-if="main.show_cobranza == true" width="10%" ng-click="main.changeReceiptAll(8, main.receipt_pneta == 1 ? 2 : 1)" >Prima total<span ng-class="{'fa fa-sort-desc': main.receipt_pneta == 1, 'fa fa-sort-asc': main.receipt_pneta == 2}"></span></th>
+                    
+                  </div>
+                  <th width="10%">Identificador</th>
+                  <th width="10%">Sucursal</th>
+                  <th ng-if="ver_referenciador" width="10%">Vendedor</th>
+                  <th width="10%">Antigüedad</th>
+                  <th width="10%" ng-click="main.changeReceiptAll(13, main.receipt_promesa_pago == 1 ? 2 : 1)" >Promesa de pago<span ng-class="{'fa fa-sort-desc': main.receipt_promesa_pago == 1, 'fa fa-sort-asc': main.receipt_promesa_pago == 2}"></span></th>
+                  <th width="10%">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="receipt in main.receipts track by $index" ng-click="main.editRecibo(receipt)" ng-init="sel_rec">
+                  <td ng-click="$event.stopPropagation()"><label><input type="checkbox" ng-model="receipt.toPay" ng-click="massiveReceipts(receipt,receipt.toPay)" class="checkbox"></label></td>
+                  <!-- <td>{{receipt.receipt_type}}</td>        -->
+                  <td>{{rectype(receipt)}}</td>
+                  <td align="center">{{ receipt.recibo_numero }}</td>
+                  <td>
+                    <span ng-if="receipt.poliza && receipt.poliza.document_type != 4">{{ receipt.poliza.contractor}}</span>
+                    <span ng-if="receipt.poliza.document_type == 4">{{receipt.poliza.parent.contractor.full_name}} <span class="color-blue">({{receipt.poliza.contractor}})</span></span>
+                  </td>  
+                  <td ng-if="receipt.poliza.document_type != 12">{{ receipt.poliza.poliza_number }}{{ receipt.poliza.parent.poliza_number }}{{ receipt.fianza.fianza_number }}{{ receipt.fianza.parent.fianza_number }}</td>
+
+                  <td ng-if="receipt.poliza.document_type == 12">{{ receipt.poliza.poliza_number }}</td>
+                  <!-- <td ng-if="receipt.poliza.document_type == 4">{{ receipt.poliza.poliza_number }}</td> -->
+                  <td>{{ receipt.fecha_inicio | date:"dd/MM/yyyy" : 'UTC' }}</td>
+                  
+                  <td ng-if="receipt.poliza.document_type != 4">{{ receipt.poliza.subramo }}{{ receipt.fianza.subramo }} <span ng-if="receipt.poliza.automobiles_policy.length">/ {{receipt.poliza.automobiles_policy[0].model}}</span></td>   
+                  <td ng-if="receipt.poliza.document_type == 4">{{ receipt.poliza.parent.subramo.subramo_name }}</td>                                 
+                  <td ng-if="receipt.poliza.document_type != 4">{{ receipt.poliza.aseguradora }}{{ receipt.fianza.afianzadora }}</td> 
+                  <td ng-if="receipt.poliza.document_type == 4">{{ receipt.poliza.parent.aseguradora.alias }}{{ receipt.fianza.parent.afianzadora.alias }}</td> 
+                  <td>{{ receipt.vencimiento| date:"dd/MM/yyyy"  : 'UTC'}}</td>                            
+                  <td>
+                    {{receipt.prima_total | currency}}
+                    <span ng-if="receipt.status==9 || receipt.status =='Pago parcial'" class="color-blue">{{ statusRecibo(receipt.status) }}</span>
+                  </td>
+                  <td>
+                    <span ng-if="receipt.poliza">{{receipt.poliza.identifier}}</span>
+                    <span ng-if="!receipt.fianza && !receipt.poliza">No aplica</span>
+                  </td>
+                  <td>{{receipt.poliza.sucursal.sucursal_name}}</td>
+                  <td ng-if="receipt.poliza.document_type != 4 && ver_referenciador">
+                    <span ng-if="receipt.poliza.vendor && !receipt.poliza.ref_policy">{{receipt.poliza.vendor.first_name}} {{receipt.poliza.vendor.last_name}}</span> 
+                    <span ng-if="receipt.fianza.vendor">{{receipt.fianza.vendor.first_name}} {{receipt.fianza.vendor.last_name}}</span> 
+                    <span ng-if="receipt.poliza.ref_policy && !receipt.poliza.vendor"> {{receipt.poliza.ref_policy[0].referenciador.first_name}} {{receipt.poliza.ref_policy[0].referenciador.last_name}}</span>
+                    <span ng-if="receipt.poliza.vendor && receipt.poliza.ref_policy">{{receipt.poliza.vendor.first_name}} {{receipt.poliza.vendor.last_name}}</span>
+                  </td>
+                  <td ng-if="receipt.poliza.document_type == 4 && ver_referenciador">
+                    {{receipt.poliza.parent.vendor.first_name}} {{receipt.poliza.parent.vendor.last_name}}
+                    <span ng-if="receipt.poliza.parent.ref_policy">
+                      <span ng-repeat="rpol in receipt.poliza.parent.ref_policy">
+                        {{rpol.referenciador.first_name}} {{rpol.referenciador.last_name}}, 
+                      </span>
+                    </span>
+                  </td>
+                
+                  <td >{{receipt.antiguedad}} días</td>
+                  <td>{{ receipt.promesa_pago | date:"dd/MM/yyyy" : 'UTC' }}</td>
+                  <td ng-click="$event.stopPropagation()">
+                    <a class="btn btn-white btn-sm" ng-click="main.showPhone(receipt)" ng-disabled="!receipt.contratante.phone">
+                      <i class="fa fa-phone"></i>
+                    </a>
+                    <div ng-if="receipt.track_phone" class="identificador-dash-phone"></div>
+                    <a class="btn btn-white btn-sm" ng-if="main.acceso_cor && main.acceso_adm_pol" ng-click="addEmailsConfirm(receipt, receipt.poliza.parent,receipt)">
+                      <i class="fa fa-envelope"></i>
+                    </a>
+                    <div ng-if="receipt.track_mensajeria" class="identificador-dash-whatsapp"></div>
+                    <a class="btn btn-white btn-sm" ng-if="main.acceso_adm_pol" ng-click="addPhoneWhatsapp(receipt, receipt.poliza.parent,receipt)"
+                      title="{{ main.whatsappWebEnabled ? 'Recordatorio por WhatsApp Web' : 'Recordatorio por SMS' }}">
+                      <img ng-if="!main.whatsappWebEnabled" style="height: 15px;" class="icon-menu" src="../../assets/comment-sms-solid.svg">
+                      <i ng-if="main.whatsappWebEnabled" class="fa fa-whatsapp"></i> 
+                    </a>
+                    <div ng-if="receipt.track_email" class="identificador-dash-email"></div>
+                    <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); main.showBinnacle(receipt, 'recibo')">
+                      <i class="fa fa-comments" aria-hidden="true"></i>
+                    </a>
+                    <div ng-if="receipt.track_bitacora" class="identificador-dash-binnacle"></div>
+                    
+                    <a ng-if="receipt.poliza.conducto_de_pago != 'No domiciliada'" ng-click="$event.stopPropagation(); sel_rec = receipt" class="btn btn-white btn-sm" title="{{receipt.poliza.conducto_de_pago}}">
+                      <i ng-if="receipt.poliza.conducto_de_pago == 'Agente'" class="fa fa-user" aria-hidden="true"></i>
+                      <i ng-if="receipt.poliza.conducto_de_pago == 'CAC'" class="fa fa-user" aria-hidden="true"></i>
+                      <i ng-if="receipt.poliza.conducto_de_pago == 'CAT/Domiciliado'" class="fa fa-credit-card-alt" aria-hidden="true"></i>
+                      <i ng-if="receipt.poliza.conducto_de_pago == 'Nómina'" class="fa fa-money" aria-hidden="true"></i>
+                      <i ng-if="receipt.poliza.conducto_de_pago == 'CUT'" class="fa fa-credit-card" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-default sm" style="color: red" ng-click="$event.stopPropagation()" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE" ng-if="receipt.endosotramite">
+                      <i class="fa fa-exclamation-circle" aria-hidden="true" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE"></i>
+                    </a>
+                    
+                    <tasks click="addtask()" type="3" model="receipt.recibo_numero + ' de la póliza ' + receipt.poliza.poliza_number" associated="receipt.poliza.id"></tasks>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="col-xs-12">
+              <div class="identificador-dash-phone" style="width: 30px;"></div><span class="margin-right-34"> Se hizo una llamada.</span>
+              <div class="identificador-dash-email" style="width: 30px;"></div><span class="margin-right-34"> Se envio un correo.</span>
+              <div class="identificador-dash-binnacle" style="width: 30px;"></div><span class="margin-right-34"> Hay comentarios en la bitácora.</span>
+            </div>
+            <div ng-if="main.show_paginationReceipts || (show_receipts_pagination && main.config_receipts.count > 10)">
+              <pagination config="main.config_receipts" model="main.receipts"></pagination>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+              <button ng-if="main.show_cobranza == false && main.acceso_rep_cob" ng-model="vm.buttonReport" class="col-xs-12 btn btn-primary ladda-button3" ng-click="main.exportDataReceipts(2)">
+                Generar Reporte
+              </button>
+              <button ng-if="main.show_cobranza == true && main.acceso_rep_cob" ng-model="vm.buttonReport" class="col-xs-12 btn btn-primary ladda-button3" ng-click="main.exportDataReceiptsAll(2)">
+                Generar Reporte 
+              </button>
+            </div>            
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="main.acceso_pag_cob">
+              <button class="col-xs-12 btn btn-success" ng-click="main.pagarRecibos(main.receipts,1)" ng-disabled="main.recibos_a_pagar.length == 0">
+                Pagar recibos seleccionados
+              </button>
+            </div>
+            <!-- <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="main.acceso_pag_cob">
+              <button class="col-xs-12 btn btn-white" ng-click="main.pagarRecibos(main.receipts,2)">
+                Pagar Todos los Recibos
+              </button>
+            </div> -->
+   <!--          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+              <button class="col-xs-12 btn btn-success" ng-click="main.adminReminder(main.receipts)">
+                Enviar recordatorio
+              </button>
+            </div> -->
+          </div>
+          <div class="row animate" ng-if="main.show_binnacle_receipt">
+            <div class="col-xs-12">
+            <label>Bitácora de Recibos</label>
+              <div class="col-xs-12 margin-top-24"></div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <button class="col-xs-12 btn btn-info" ng-click="main.returnToReceipts(2,main.receipts,main.title,main.titleID)"><span class="fa fa-reply"> </span> Regresar</button>
+              </div>
+              <div class="col-xs-12">
+                <comments datasource="main.comments_data_receipt" typemodel="4" config="main.comments_config_receipt" idmodel="main.receipt_id" receiptmodel="main.receipt_url"></comments>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="main.notas" class="row flex-container" id="myTable" ng-if="main.permiso_g_cob">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>
+            Notas de crédito
+          </h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="m-b">
+            <input type="text" ng-model="main.cadena" class="form-control" placeholder="Buscar en notas de crédito (Contratante, folio, no. póliza)" ng-enter="main.searchNotas(main.cadena)">
+          </div>
+          <div class="table-responsive" ng-if="!main.show_binnacle_receipt">
+            <table class="table table-striped table-bordered table-hover" id="notas">
+              <thead>
+                <tr>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(1, main.nota_cont_asc == 1 ? 2 : 1)" width="25%">Contratante <span ng-class="{'fa fa-sort-desc': main.nota_cont_asc == 1, 'fa fa-sort-asc': main.nota_cont_asc == 2}"></span></th>
+                  <th ng-if="main.show_nota == false" width="5%">Aseguradora </th>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(2, main.nota_folio_asc == 1 ? 2 : 1)" width="10%">Folio de la Nota <span ng-class="{'fa fa-sort-desc': main.nota_folio_asc == 1, 'fa fa-sort-asc': main.nota_folio_asc == 2}"></span></th>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(3, main.nota_numend_asc == 1 ? 2 : 1)" width="10%">Número de Endoso <span ng-class="{'fa fa-sort-desc': main.nota_numend_asc == 1, 'fa fa-sort-asc': main.nota_numend_asc == 2}"></span></th>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(4, main.nota_numpol_asc == 1 ? 2 : 1)" width="10%">Número de Póliza <span ng-class="{'fa fa-sort-desc': main.nota_numpol_asc == 1, 'fa fa-sort-asc': main.nota_numpol_asc == 2}"></span></th>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(5, main.nota_fecha_asc == 1 ? 2 : 1)" width="10%">Fecha de Emisión <span ng-class="{'fa fa-sort-desc': main.nota_fecha_asc == 1, 'fa fa-sort-asc': main.nota_fecha_asc == 2}"></span></th>
+                  <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(6, main.nota_ptotal_asc == 1 ? 2 : 1)" width="10%">Prima Total <span ng-class="{'fa fa-sort-desc': main.nota_ptotal_asc == 1, 'fa fa-sort-asc': main.nota_ptotal_asc == 2}"></span></th>
+                  <!-- <th ng-if="main.show_nota == false" width="5%" ng-click="main.changeNCr(8, main.nota_moneda_asc == 1 ? 2 : 1)" width="10%">Moneda <span ng-class="{'fa fa-sort-desc': main.nota_moneda_asc == 1, 'fa fa-sort-asc': main.nota_moneda_asc == 2}"></span></th> -->
+                  <th width="5%">Vigencia</th>
+                  <th width="5%">Estatus</th>
+                  <th width="5%">Antiguedad</th>
+                  <th width="5%">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="receipt in main.notascredito track by $index" ng-click="main.NotasModal(receipt)">
+                  <td>{{ receipt.endorsement.policy.contractor}}</td>
+                  <td>{{ receipt.policy.aseguradora }}</td>
+                  <td>{{ receipt.folio }}</td>
+                  <td>{{receipt.endorsement.number_endorsement}}</td>
+                  <td>{{receipt.endorsement.policy.poliza_number}}</td>
+                  <td>{{ receipt.fecha_emision | date:"dd/MM/yyyy"  : 'UTC' }}</td>
+                  <td>{{ receipt.prima_total }}
+                    <span ng-if="receipt.status==9 || receipt.status =='Pago parcial'" class="color-blue">{{ statusRecibo(receipt.status) }}</span>
+                  </td>
+                  <!-- <td ng-if="receipt.moneda == 1">PESOS</td>
+                  <td ng-if="receipt.moneda == 2">DOLARES</td> -->
+                  <td>{{receipt.fecha_inicio | date: 'dd/MM/yyyy' : 'UTC' }} - {{receipt.fecha_fin | date: 'dd/MM/yyyy' : 'UTC' }} </td>
+                  <td>{{ checkStatusNotes(receipt.status) }}</td>
+                  <td>{{receipt.antiguedad}} días</td>
+                  <td ng-click="$event.stopPropagation()">
+                    <!-- comments -->
+                    <a class="btn btn-white btn-sm" ng-click="$event.stopPropagation(); main.showBinnacle(receipt, 'recibo')">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                    <tasks click="addtask()" type="3" model="receipt.recibo_numero + ' de la póliza ' + receipt.poliza.poliza_number" associated="receipt.poliza.id"></tasks>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div ng-if="main.show_paginationNote || (show_note_pagination && main.config_notes.count > 10)">
+              <pagination config="main.config_notes" model="main.notascredito"></pagination>
+            </div>
+            <button ng-if="main.acceso_rep_cob" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary ladda-button3" ng-click="main.exportDataReceipts(5)">Generar Reporte </button>
+          </div>
+          <div class="row animate" ng-if="main.show_binnacle_receipt">
+            <div class="col-xs-12">
+            <label>Bitácora de Recibos</label>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                <a class="col-xs-12 btn btn-info" ng-click="main.returnToReceipts(2)"><span class="fa fa-reply"> </span> Regresar</a>
+              </div>
+              <div class="col-xs-12 margin-top-24"></div>
+              <div class="col-xs-12">
+                <comments datasource="main.comments_data_receipt" typemodel="4" config="main.comments_config_receipt" idmodel="main.receipt_id" receiptmodel='receiptmodel'></comments>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="main.renewalTable" class="row flex-container" id="myTable" ng-if="main.permiso_g_ren">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>
+            Renovaciones
+            <span ng-if="main.titleID==1" style="color: #17A45D;">{{main.title}}</span>
+            <span ng-if="main.titleID==2" style="color: #F5CD21;">{{main.title}}</span>
+            <span ng-if="main.titleID==3" style="color: #EA9021;">{{main.title}}</span>
+            <span ng-if="main.titleID==4" style="color: #EA5121;">{{main.title}}</span>
+          </h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="input-group m-b" style="z-index: 0;">
+            <input ng-model="main.cadena" placeholder="Buscar en renovaciones {{main.title}} (Contratante, subramo, ramo, aseguradora, no. póliza)" ng-enter="main.searchRenewals(main.cadena,main.titleID)" class="form-control search-custom" style="height: 34px; margin-top: 13px;" name="top-search" id="top-search">
+            <span class="input-group-btn">
+              <button ng-click="main.searchRenewals(main.cadena,main.titleID)" class="btn btn-success" style="margin-top: 13px;" type="button">Buscar</button>
+            </span>
+          </div>
+          <div class="table-responsive animate" ng-if="!main.show_binnacle_renewal" id="tableDash">
+            <table class="table table-striped table-bordered table-hover" id="renovacion">
+              <thead>
+                <tr>
+                  <th ng-if="main.show_renewal == false" ng-click="main.changeRen(1, main.ren_nump_asc == 1 ? 2 : 1)" >Número de Póliza <span ng-class="{'fa fa-sort-desc': main.ren_nump_asc == 1, 'fa fa-sort-asc': main.ren_nump_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == false" ng-click="main.changeRen(2, main.ren_cont_asc == 1 ? 2 : 1)" >Contratante <span ng-class="{'fa fa-sort-desc': main.ren_cont_asc == 1, 'fa fa-sort-asc': main.ren_cont_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == false" ng-click="main.changeRen(3, main.ren_subr_asc == 1 ? 2 : 1)" >Subramo <span ng-class="{'fa fa-sort-desc': main.ren_subr_asc == 1, 'fa fa-sort-asc': main.ren_subr_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == false"  ng-click="main.changeRen(4, main.ren_aseg_asc == 1 ? 2 : 1)" >Aseguradora <span ng-class="{'fa fa-sort-desc': main.ren_aseg_asc == 1, 'fa fa-sort-asc': main.ren_aseg_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == false">Estatus</th>
+                  <th ng-if="main.show_renewal == false" ng-click="main.changeRen(5, main.ren_vig_asc == 1 ? 2 : 1)" >Fin de Vigencia <span ng-class="{'fa fa-sort-desc': main.ren_vig_asc == 1, 'fa fa-sort-asc': main.ren_vig_asc == 2}"></span></th>
+
+                  <th ng-if="main.show_renewal == true" ng-click="main.changeRenAll(1, main.ren_nump_asc == 1 ? 2 : 1)" >Número de Póliza <span ng-class="{'fa fa-sort-desc': main.ren_nump_asc == 1, 'fa fa-sort-asc': main.ren_nump_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == true" ng-click="main.changeRenAll(2, main.ren_cont_asc == 1 ? 2 : 1)" >Contratante <span ng-class="{'fa fa-sort-desc': main.ren_cont_asc == 1, 'fa fa-sort-asc': main.ren_cont_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == true" ng-click="main.changeRenAll(3, main.ren_subr_asc == 1 ? 2 : 1)" >Subramo <span ng-class="{'fa fa-sort-desc': main.ren_subr_asc == 1, 'fa fa-sort-asc': main.ren_subr_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == true"  ng-click="main.changeRenAll(4, main.ren_aseg_asc == 1 ? 2 : 1)" >Aseguradora <span ng-class="{'fa fa-sort-desc': main.ren_aseg_asc == 1, 'fa fa-sort-asc': main.ren_aseg_asc == 2}"></span></th>
+                  <th ng-if="main.show_renewal == true">Estatus</th>
+                  <th ng-if="main.show_renewal == true" ng-click="main.changeRenAll(5, main.ren_vig_asc == 1 ? 2 : 1)" >Fin de Vigencia <span ng-class="{'fa fa-sort-desc': main.ren_vig_asc == 1, 'fa fa-sort-asc': main.ren_vig_asc == 2}"></span></th>
+
+                  <th>Antigüedad </th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-click="main.renewPolicy(policy)" ng-repeat="policy in main.policies track by $index">
+                  <td>{{policy.poliza_number}}</td>
+                  <td>{{policy.contractor.full_name }}</td>
+                  <td>{{policy.subramo }}</td>
+                  <td>{{policy.aseguradora }}</td>
+                  <td>{{ status(policy.status) }} <span ng-if="orgName =='ancora' && policy.is_renewable==1 && policy.status ==13 || policy.status =='Vencida'">- En Proceso de Renovación</span><span ng-if="policy.renewed_status == 2 && orgName !='ancora'"> - <strong>En proceso de renovación</strong></span></td>
+                  <td>{{policy.end_of_validity | date:"dd/MM/yyyy" : 'UTC'}}</td>
+                  <td>{{policy.antiguedad }} días</td>
+                  <td>
+                    <!-- comments -->
+                    <a class="btn btn-white btn-sm" ng-if="!policy.track_bitacora" ng-click="$event.stopPropagation(); main.showBinnacle(policy, 'renovacion')">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-warning btn-sm" ng-if="policy.track_bitacora" ng-click="$event.stopPropagation(); main.showBinnacle(policy, 'renovacion')">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                    <tasks click="addtask()" type="5" model="policy.poliza_number" associated="policy.id"></tasks>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="col-xs-12" ng-if="!show_binnacle_receipt">
+              <div class="identificador-dash-binnacle" style="width: 30px;"></div>
+              <span class="margin-right-34"> Hay comentarios en la bitácora.</span>
+            </div>
+            <div ng-if="main.show_paginationRenewals || ( show_renovaciones_pagination && main.config_renovaciones.count > 10) ">
+              <pagination config="main.config_renovaciones" model="main.policies"></pagination>
+            </div>
+          </div>
+          <div ng-if="!main.show_binnacle_renewal">
+            <button ng-if="main.show_renewal == false && main.acceso_rep_ren" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary ladda-button2" ng-click="main.exportDataRenewal(3,main.cadena)">
+              Generar Reporte
+            </button>
+            <button ng-if="main.show_renewal == true && main.acceso_rep_ren" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary ladda-button2" ng-click="main.exportDataRenewalAll(3,main.cadena)">
+              Generar Reporte
+            </button>
+          </div>
+          <!-- Bitacora -->
+          <div class="row animate" ng-if="main.show_binnacle_renewal">
+            <div class="col-xs-12">
+              <div class="col-xs-12 margin-top-24"></div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group">
+                <button class="col-xs-12 btn btn-info" ng-click="main.returnToReceipts(3)"><span class="fa fa-reply"></span> Regresar</button>
+              </div>
+              <div class="col-xs-12">
+                <comments datasource="main.comments_data_renewal" typemodel="6" config="main.comments_config_renewal" idmodel="main.renewal_id"></comments>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="main.sinisterTable" class="row flex-container" id="myTable" ng-if="main.permiso_g_sin">
+    <div class="col-lg-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>Siniestros</h5>
+          <div ibox-tools></div>
+        </div>
+        <div class="ibox-content">
+          <div class="input-group m-b" style="z-index: 0;">
+            <input placeholder="Buscar en siniestros {{main.title}} (Contratante, subramo, ramo, aseguradora, no. póliza)" ng-model="main.cadena" ng-enter="main.searchSinisters(main.cadena,main.titleID)" class="form-control search-custom" style="height: 34px; margin-top: 13px;" name="top-search" id="top-search">
+            <span class="input-group-btn">
+              <button ng-click="main.searchSinisters(main.cadena,main.titleID)" class="btn btn-success" style="margin-top: 13px;" type="button">Buscar</button>
+            </span>
+          </div>
+          <div class="table-responsive" id="tableDash">
+            <table  class="table table-striped table-bordered table-hover" id="siniestro">
+              <thead>
+                <tr>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(1, main.sin_afec_asc == 1 ? 2 : 1)">Afectado <span ng-class="{'fa fa-sort-desc': main.sin_afec_asc == 1, 'fa fa-sort-asc': main.sin_afec_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(2, main.sin_cont_asc == 1 ? 2 : 1)">Contratante <span ng-class="{'fa fa-sort-desc': main.sin_cont_asc == 1, 'fa fa-sort-asc': main.sin_cont_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(3, main.sin_aseg_asc == 1 ? 2 : 1)">Aseguradora <span ng-class="{'fa fa-sort-desc': main.sin_aseg_asc == 1, 'fa fa-sort-asc': main.sin_aseg_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(4, main.sin_nump_asc == 1 ? 2 : 1)">Número de Póliza <span ng-class="{'fa fa-sort-desc': main.sin_nump_asc == 1, 'fa fa-sort-asc': main.sin_nump_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(5, main.sin_nums_asc == 1 ? 2 : 1)">Número de Siniestro <span ng-class="{'fa fa-sort-desc': main.sin_nums_asc == 1, 'fa fa-sort-asc': main.sin_nums_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(6, main.sin_subr_asc == 1 ? 2 : 1)">Subramo <span ng-class="{'fa fa-sort-desc': main.sin_subr_asc == 1, 'fa fa-sort-asc': main.sin_subr_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(7, main.sin_fecha_asc == 1 ? 2 : 1)">Fecha Captura<span ng-class="{'fa fa-sort-desc': main.sin_fecha_asc == 1, 'fa fa-sort-asc': main.sin_fecha_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(12, main.sin_ingreso_asc == 1 ? 2 : 1)">Fecha Ingreso<span ng-class="{'fa fa-sort-desc': main.sin_ingreso_asc == 1, 'fa fa-sort-asc': main.sin_ingreso_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(13, main.sin_compromiso_asc == 1 ? 2 : 1)">Fecha Compromiso<span ng-class="{'fa fa-sort-desc': main.sin_compromiso_asc == 1, 'fa fa-sort-asc': main.sin_compromiso_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false">Reclamado</th>
+
+                  <th ng-if="main.show_sinister == false" >Tipo pago </th>
+
+                  <th ng-if="main.show_sinister == false">Padecimiento</th>
+                  <th ng-if="main.show_sinister == false" ng-click="main.changeSin(9, main.sin_status_asc == 1 ? 2 : 1)">Estatus <span ng-class="{'fa fa-sort-desc': main.sin_status_asc == 1, 'fa fa-sort-asc': main.sin_status_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == false">Antiguedad </th>
+
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(1, main.sin_afec_asc == 1 ? 2 : 1)">Afectado <span ng-class="{'fa fa-sort-desc': main.sin_afec_asc == 1, 'fa fa-sort-asc': main.sin_afec_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(2, main.sin_cont_asc == 1 ? 2 : 1)">Contratante <span ng-class="{'fa fa-sort-desc': main.sin_cont_asc == 1, 'fa fa-sort-asc': main.sin_cont_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(3, main.sin_aseg_asc == 1 ? 2 : 1)">Aseguradora <span ng-class="{'fa fa-sort-desc': main.sin_aseg_asc == 1, 'fa fa-sort-asc': main.sin_aseg_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(4, main.sin_nump_asc == 1 ? 2 : 1)">Número de Póliza <span ng-class="{'fa fa-sort-desc': main.sin_nump_asc == 1, 'fa fa-sort-asc': main.sin_nump_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(5, main.sin_nums_asc == 1 ? 2 : 1)">Número de Siniestro <span ng-class="{'fa fa-sort-desc': main.sin_nums_asc == 1, 'fa fa-sort-asc': main.sin_nums_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(6, main.sin_subr_asc == 1 ? 2 : 1)">Subramo <span ng-class="{'fa fa-sort-desc': main.sin_subr_asc == 1, 'fa fa-sort-asc': main.sin_subr_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(7, main.sin_fecha_asc == 1 ? 2 : 1)">Fecha Captura <span ng-class="{'fa fa-sort-desc': main.sin_fecha_asc == 1, 'fa fa-sort-asc': main.sin_fecha_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSin(12, main.sin_ingreso_asc == 1 ? 2 : 1)">Fecha Ingreso<span ng-class="{'fa fa-sort-desc': main.sin_ingreso_asc == 1, 'fa fa-sort-asc': main.sin_ingreso_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSin(13, main.sin_compromiso_asc == 1 ? 2 : 1)">Fecha Compromiso<span ng-class="{'fa fa-sort-desc': main.sin_compromiso_asc == 1, 'fa fa-sort-asc': main.sin_compromiso_asc == 2}"></span></th>
+                  <th ng-if="main.show_sinister == true">Reclamado</th>
+                  <th ng-if="main.show_sinister == true" >Tipo pago </th>
+                  <th ng-if="main.show_sinister == true">Padecimiento </th>
+
+                  <th ng-if="main.show_sinister == true" ng-click="main.changeSinAll(8, main.sin_status_asc == 1 ? 2 : 1)">Estatus <span ng-class="{'fa fa-sort-desc': main.sin_status_asc == 1, 'fa fa-sort-asc': main.sin_status_asc == 2}"></span></th>
+
+                  <th ng-if="main.show_sinister == true">Antiguedad </th>
+                  <th>Acciones <span ng-class="{'fa fa-sort-desc': main.sin_ant_asc == 1, 'fa fa-sort-asc': main.sin_ant_asc == 2}"></span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="siniestro in main.sinisters track by $index" ng-click="main.siniesterInfo(siniestro)">
+                  <td>
+                    <span ng-if="siniestro.poliza.accidents_policy.length">
+                      <span ng-if="siniestro.accidente_sinister[0].dependiente">
+                        {{ siniestro.accidente_sinister[0].dependiente.first_name }} {{ siniestro.accidente_sinister[0].dependiente.last_name }} {{ siniestro.accidente_sinister[0].dependiente.second_last__name }}
+                      </span>
+                      <span ng-if="siniestro.accidente_sinister[0].titular">
+                        {{ siniestro.accidente_sinister[0].titular.first_name }} {{ siniestro.accidente_sinister[0].titular.last_name }} {{ siniestro.accidente_sinister[0].titular.second_last__name }}
+                      </span>
+                      <span ng-if="!siniestro.accidente_sinister[0].titular && !siniestro.accidente_sinister[0].dependiente">
+                        {{ siniestro.accidente_sinister[0].affected_full_name }}
+                      </span>
+                    </span>
+                    <span ng-if="siniestro.vida_siniester.length">
+                      <span ng-if="siniestro.vida_siniester[0].nombre_afectado">
+                        {{ siniestro.vida_siniester[0].nombre_afectado }}
+                      </span>
+                      <span ng-if="siniestro.accidente_sinister[0].titular">
+                        {{ siniestro.accidente_sinister[0].titular.first_name }} {{ siniestro.accidente_sinister[0].titular.last_name }} {{ siniestro.accidente_sinister[0].titular.second_last__name }}
+                      </span>
+                      <span ng-if="!siniestro.accidente_sinister && siniestro.accidente_sinister.affected_full_name">
+                        {{ siniestro.accidente_sinister.affected_full_name }}
+                      </span>
+                    </span>
+                    <span ng-if="siniestro.poliza.automobiles_policy.length">{{siniestro.poliza.automobiles_policy[0].serial}} - {{siniestro.poliza.automobiles_policy[0].version}} - {{siniestro.poliza.automobiles_policy[0].year}}</span>
+                    <span ng-if="siniestro.poliza.damages_policy.length">{{siniestro.poliza.damages_policy[0].insured_item}}</span>
+                    <span ng-if="siniestro.danios_sinister[0].bien_asegurado && !siniestro.poliza.damages_policy.length">{{siniestro.danios_sinister[0].bien_asegurado}}</span>
+                    <span ng-if="!siniestro.danios_sinister[0].bien_asegurado && !siniestro.poliza.damages_policy.length">
+                        {{ siniestro.aux_affected }}
+                      </span>
+                    <span ng-if="siniestro.poliza.life_policy.length && !siniestro.vida_siniester[0].nombre_afectado">
+                      <span ng-if="siniestro.poliza.life_policy[0].personal.full_name ">{{ siniestro.poliza.life_policy[0].personal.full_name }}</span>
+                      <span ng-if="!siniestro.poliza.life_policy[0].personal.full_name ">{{ siniestro.poliza.life_policy[0].personal.first_name }} {{ siniestro.poliza.life_policy[0].personal.last_name }}</span>
+                    </span>
+                    <!-- <span ng-if="siniestro.poliza.life_policy.length">{{ siniestro.poliza.life_policy[0].personal.full_name }}</span> -->
+                  </td>                 
+                  <td>
+                    <span ng-if="siniestro.poliza.contractor">{{siniestro.poliza.contractor}}</span>
+                    <span ng-if="!siniestro.poliza.contractor">{{siniestro.poliza.parent.parent.parent.contractor.full_name}}</span>
+                  </td>
+                  <td ng-if="!siniestro.poliza.aseguradora">{{siniestro.poliza.parent.parent.parent.aseguradora.alias}}</td>
+                  <td ng-if="siniestro.poliza.aseguradora"> {{siniestro.poliza.aseguradora}}</td>
+                  <td>{{siniestro.poliza.poliza_number}} </td>
+                  <td>{{siniestro.numero_siniestro}} </td>
+                  <td>{{siniestro.poliza.subramo}} </td>
+                  <td><span ng-if="siniestro.fecha_ingreso">{{siniestro.fecha_ingreso | date:"dd/MM/yyyy" : 'UTC' }}</span></td>
+                  <td> <span ng-if="siniestro.fecha">{{siniestro.fecha | date:"dd/MM/yyyy" : 'UTC' }}</span></td>
+                  <!-- <td ng-if="!siniestro.auto_siniester.length">{{siniestro.accidente_sinister[0].created_at | date:"dd/MM/yyyy" : 'UTC' }} {{siniestro.vida_siniester[0].created_at | date:"dd/MM/yyyy": 'UTC'}}</td>
+                  <td ng-if="siniestro.auto_siniester.length">{{siniestro.fecha_siniestro | date:"dd/MM/yyyy" : 'UTC' }}</td> -->
+                  <td><span ng-if="siniestro.fecha_compromiso">{{siniestro.fecha_compromiso | date:"dd/MM/yyyy" : 'UTC' }}</span></td>
+                  <td>{{siniestro.accidente_sinister[0].total_reclamado | currency : symbol : fractionSize}}</td>
+                  <td>{{tipoPagoSinister(siniestro.accidente_sinister[0].tipo_pago)}}</td>
+                  <td ng-if="siniestro.accidente_sinister.length">{{siniestro.accidente_sinister[0].ailment}}</td>
+                  <td ng-if="!siniestro.accidente_sinister.length">No aplica</td>
+                  <td>{{ statusSinister(siniestro.status) }}</td>
+                  <td>{{ siniestro.antiguedad }} días</td>
+                  <td>
+                    <tasks click="addtask()" type="6" model="siniestro.numero_siniestro + ' de la póliza ' + siniestro.poliza.poliza_number" associated="siniestro.id"></tasks>
+                    <button class="btn btn-white btn-sm" ng-if="main.whatsappWebEnabled" ng-click="$event.stopPropagation(); main.sendWhatsAppWeb(siniestro)">
+                      <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div ng-if="main.show_sinisters_pagination && main.config_sinisters.count > 10">
+              <pagination config="main.config_sinisters" model="main.sinisters"></pagination>
+            </div>
+            <button ng-if="main.show_sinister == false && main.search == false && main.acceso_rep_sin" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary ladda-button" ng-click="main.exportDataSinister(4)">
+              Generar Reporte
+            </button>
+            <button ng-if="main.show_sinister == true && main.search == false && main.acceso_rep_sin" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary ladda-button" ng-click="main.exportDataSinAll(4)">
+              Generar Reporte
+            </button>
+            <button ng-if="main.search == true && main.acceso_rep_sin" ng-model="vm.buttonReport" class="col-xs-3 btn btn-primary" ng-click="main.excel_search(main.cadena,main.titleID)">
+              Generar Reporte
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-sm-6 col-md-3" ng-if="main.acceso_ver_cob && main.acceso_pag_cob">
+    <div class="ibox">
+      <button id="verTareas" ng-click="createTask('Tareas', 'task.task')" class="btn btn-outline btn-block btn-primary dim">Crear Tarea</button>
+    </div>
+  </div>
+
+  <div class="row flex-center" >
+    <div class="col-xs-6 col-sm-1 col-md-1 pull-right">
+      <div class="ibox">
+        <button ng-if="!has_sr_conf" ng-click="filtrosSubramos()" class="btn btn-outline btn-block btn-default dim btn-sm"><i class="fa fa-cog" aria-hidden="true"></i></button>
+        <button ng-if="has_sr_conf" ng-click="filtrosSubramos()" class="btn btn-outline btn-block btn-primary dim btn-sm"><i class="fa fa-cog" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="col-xs-12 form-group"></div> -->
+  <!-- <div class="row flex-center">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+      <div class="ibox-content col-xs-12">
+        <div class="col-xs-12 form-group">
+          <h3 class="text-center">
+            <i class="fa fa-list-ul" aria-hidden="true"></i>
+            Tareas
+            <a ng-click="configGraph(5)"><i class="fa fa-wrench pull-right" aria-hidden="true"></i></a>
+          </h3>
+        </div>
+        <div class="col-xs-12 form-group">
+          <button class="btn btn-success" ng-click="showTableTasks(0)" ng-model="main.btn_all">Ver todos</button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <div class="row flex-center" ng-if="hide_task">
+    <div class="col-xs-12 form-group"></div>
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <div class="ibox-content col-xs-12">
+        <div class="col-xs-12 form-group">
+          <h3 class="text-center">
+            <i class="fa fa-list-ul" aria-hidden="true"></i>
+            Tareas
+            <a ng-click="hideTask(false)"><i class="fa fa-eye pull-right" aria-hidden="true"></i></a>
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row d-flex justify-content-between" ng-init="showTask()" ng-if="!hide_task">
+      <!-- Tareas Section -->
+      <div class="col-md-6">
+        <div class="ibox-content">
+          <h3 class="text-center">
+            <i class="fa fa-list-ul" aria-hidden="true"></i>
+            Tareas
+            <a ng-click="configGraph(5)"><i class="fa fa-wrench pull-right" aria-hidden="true"></i></a>
+          </h3>
+          <a ng-click="hideTask(true)"><i class="fa fa-close pull-right" aria-hidden="true"></i></a>
+  
+          <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableTasks(1)" title="{{chartsTasks.green.title}}">
+              <h3 style="color: #17A45D;">{{ chartsTasks.green.status }}</h3>
+              <p class="small">{{ chartsTasks.green.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsTasks.green.percent }}%;background: #17A45D;" class="progress-bar"></div>
+              </div>
+              <p class="no-margins small pull-right">ALTA: {{ chartsTasks.green.Alta }} | MEDIA: {{ chartsTasks.green.Media }} | BAJA: {{ chartsTasks.green.Baja }}</p>
+            </div>
+  
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableTasks(2)" title="{{chartsTasks.yellow.title}}">
+              <h3 style="color: #F5CD21;">{{ chartsTasks.yellow.status }}</h3>
+              <p class="small">{{ chartsTasks.yellow.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsTasks.yellow.percent }}%;background: #F5CD21;" class="progress-bar"></div>
+              </div>
+              <p class="no-margins small pull-right">ALTA: {{ chartsTasks.yellow.Alta }} | MEDIA: {{ chartsTasks.yellow.Media }} | BAJA: {{ chartsTasks.yellow.Baja }}</p>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableTasks(3)" title="{{chartsTasks.orange.title}}">
+              <h3 style="color: #EA9021;">{{ chartsTasks.orange.status }}</h3>
+              <p class="small">{{ chartsTasks.orange.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsTasks.orange.percent }}%;background: #EA9021;" class="progress-bar"></div>
+              </div>
+              <p class="no-margins small pull-right">ALTA: {{ chartsTasks.orange.Alta }} | MEDIA: {{ chartsTasks.orange.Media }} | BAJA: {{ chartsTasks.orange.Baja }}</p>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableTasks(4)" title="{{chartsTasks.red.title}}">
+              <h3 style="color: #EA5121;">{{ chartsTasks.red.status }}</h3>
+              <p class="small">{{ chartsTasks.red.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsTasks.red.percent }}%;background: #EA5121;" class="progress-bar"></div>
+              </div>
+              <p class="no-margins small pull-right">ALTA: {{ chartsTasks.red.Alta }} | MEDIA: {{ chartsTasks.red.Media }} | BAJA: {{ chartsTasks.red.Baja }}</p>
+            </div>
+          </div>
+  
+          <div class="col-xs-12 form-group">
+            <button class="btn btn-success" ng-click="showTableTasks(0)" ng-model="main.btn_all">Ver todos</button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Cotizaciones Section -->
+      <div class="col-md-6" ng-if="main.acceso_ver_cotizaciones">
+        <div class="ibox-content" ng-init="showQuotations()">
+          <h3 class="text-center">
+            <i class="fa fa-th-large" aria-hidden="true"></i>
+            Cotizaciones
+            <a ng-click="configGraph(6)"><i class="fa fa-wrench pull-right" aria-hidden="true"></i></a>
+          </h3>
+          <!-- <a ng-click="hideQuotations(true)"><i class="fa fa-close pull-right" aria-hidden="true"></i></a> -->
+  
+          <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableQuotations(1,1)" title="{{chartsQuotations.green.title}}">
+              <h3 style="color: #17A45D;">{{ chartsQuotations.green.status }}</h3>
+              <p class="small">{{ chartsQuotations.green.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsQuotations.green.percent }}%;background: #17A45D;" class="progress-bar"></div>
+              </div>
+              <!-- <p class="no-margins small pull-right">ALTA: {{ chartsQuotations.green.Alta }} | MEDIA: {{ chartsQuotations.green.Media }} | BAJA: {{ chartsQuotations.green.Baja }}</p> -->
+            </div>
+  
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableQuotations(2,1)" title="{{chartsQuotations.yellow.title}}">
+              <h3 style="color: #F5CD21;">{{ chartsQuotations.yellow.status }}</h3>
+              <p class="small">{{ chartsQuotations.yellow.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsQuotations.yellow.percent }}%;background: #F5CD21;" class="progress-bar"></div>
+              </div>
+              <!-- <p class="no-margins small pull-right">ALTA: {{ chartsQuotations.yellow.Alta }} | MEDIA: {{ chartsQuotations.yellow.Media }} | BAJA: {{ chartsQuotations.yellow.Baja }}</p> -->
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableQuotations(3,1)" title="{{chartsQuotations.orange.title}}">
+              <h3 style="color: #EA9021;">{{ chartsQuotations.orange.status }}</h3>
+              <p class="small">{{ chartsQuotations.orange.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsQuotations.orange.percent }}%;background: #EA9021;" class="progress-bar"></div>
+              </div>
+              <!-- <p class="no-margins small pull-right">ALTA: {{ chartsQuotations.orange.Alta }} | MEDIA: {{ chartsQuotations.orange.Media }} | BAJA: {{ chartsQuotations.orange.Baja }}</p> -->
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 form-group" ng-click="showTableQuotations(4,1)" title="{{chartsQuotations.red.title}}">
+              <h3 style="color: #EA5121;">{{ chartsQuotations.red.status }}</h3>
+              <p class="small">{{ chartsQuotations.red.label }}</p>
+              <div class="progress progress-mini">
+                <div style="width: {{ chartsQuotations.red.percent }}%;background: #EA5121;" class="progress-bar"></div>
+              </div>
+              <!-- <p class="no-margins small pull-right">ALTA: {{ chartsQuotations.red.Alta }} | MEDIA: {{ chartsQuotations.red.Media }} | BAJA: {{ chartsQuotations.red.Baja }}</p> -->
+            </div>
+          </div>
+  
+          <div class="col-xs-12 form-group">
+            <button class="btn btn-success" ng-click="showTableQuotations(0)" ng-model="main.btn_all">Ver todos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--  Cotizaciones ending -->
+  <div class="row col-xs-12"></div>
+  <div class="col-lg-12" ng-if="main.showTable">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>
+          Tareas
+          <span ng-if="main.titleID==1" style="color: #17A45D;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==2" style="color: #F5CD21;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==3" style="color: #EA9021;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==4" style="color: #EA5121;">{{typeGraphyc}}</span>
+        </h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <div class="table-responsive animate" id="tableDash">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Estatus</th>
+                <th>Folio</th>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Prioridad</th>
+                <th>Antigüedad</th>
+                <th>Creador</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="ticket in tickets track by $index" ng-click="goToTask(ticket,'Tareas')">
+                <td>
+                  <span ng-if="!ticket.closed">Abierta</span>
+                  <span ng-if="ticket.closed">Cerrada</span></td>
+                <td>{{ ticket.identifier }}</td>
+                <td>{{ ticket.title }}</td>
+                <td>{{ ticket.date | date: 'dd/MM/yyyy'  : 'UTC'  }}</td>
+                <td>
+                  <div class="label priority" ng-class="{'label-success': ticket.closed, 'label-danger' : ticket.priority == 1 && !ticket.closed, 'label-warning' : ticket.priority == 2 && !ticket.closed, 'label-info' : ticket.priority == 3 && !ticket.closed }">
+                    <span ng-if="ticket.priority == 1 && !ticket.closed">Alta</span>
+                    <span ng-if="ticket.priority == 2 && !ticket.closed">Media</span>
+                    <span ng-if="ticket.priority == 3 && !ticket.closed">Baja</span>
+                    <span ng-if="ticket.priority == 1 && ticket.closed">Hecho/Alta</span>
+                    <span ng-if="ticket.priority == 2 && ticket.closed">Hecho/Media</span>
+                    <span ng-if="ticket.priority == 3 && ticket.closed">Hecho/Baja</span>
+                  </div>
+                </td>
+                <td>{{ ticket.antiguedad }} días</td>
+                <td>{{ ticket.owner.first_name }} {{ ticket.owner.last_name }}</td>
+                <td>
+                  <!-- <a ng-if="!ticket.closed" class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); Complete(ticket, $index)" title="Cerrar tarea"><i class="fa fa-times-circle"></i></a>
+                  <a ng-if="ticket.closed" class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); Complete(ticket, $index)" title="Abrir tarea"><i class="fa fa-folder-open"></i></a>
+                  <a class="btn btn-white btn-sm" href="" ng-if="!ticket.archived" ng-click="$event.stopPropagation(); archiveTask(ticket)" title="Archivar tarea"><i class="fa fa-archive"></i></a> -->
+                  <a class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); getLog(ticket)" title="Log de tarea"><i class="fa fa-history"></i></a>
+                  <!-- <a class="btn btn-white btn-sm" href="" ng-click="openTask(ticket)"><i class="fa fa-eye"></i></a> -->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right" ng-if="tickets.length > 0">
+            <button class="btn btn-primary col-xs-12" ng-click="exportDataGralTask(main.titleID)">Generar Reporte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-12" ng-if="main.showTableQ">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>
+          Cotizaciones
+          <span ng-if="main.titleID==1" style="color: #17A45D;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==2" style="color: #F5CD21;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==3" style="color: #EA9021;">{{typeGraphyc}}</span>
+          <span ng-if="main.titleID==4" style="color: #EA5121;">{{typeGraphyc}}</span>
+        </h5>
+        <div ibox-tools></div>
+      </div>
+      <div class="ibox-content">
+        <div class="table-responsive animate" id="tableDash">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>No. de Folio</th>
+                <th>Contratante</th>
+                <th>Ramo</th>
+                <th>Subramo</th>
+                <th>Aseguradora</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in quotations track by $index" ng-click="showInformationQ(item)">
+                <td>{{ item.id }}</td>
+                <td>{{ item.full_name }}</td>
+                <td>{{ item.ramo }}</td>
+                <td>{{ item.subramo }}</td>
+                <td><ul><li ng-repeat="aseg in item.aseguradora track by $index">{{aseg}}</li></ul></td>
+                <td>{{ item.status }}</td>
+                <td>
+                  <a class="btn btn-white btn-sm" href="" ng-click="$event.stopPropagation(); getLog(item)" title="Log de Cotización"><i class="fa fa-history"></i></a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div ng-if="showpag" class="text-center hidden-xs hidden-sm">
+            <div ng-if="paginacion['count'] > 10" class="text-center">
+              <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item" ng-click="anteriorPagina(pagina)">
+                      <a class="page-link" aria-label="Previous" role="button">
+                      <span aria-hidden="true">&laquo;</span>
+                      </a>
+                  </li>
+                  <li class="page-item" ng-repeat="pagina in paginacion.totalPaginas" ng-click="selecionPagina(pagina)" ng-class="{'active': pagina === paginacion.paginaActual}">
+                      <a class="page-link" role="button">{{pagina}}</a>
+                  </li>
+                  <li class="page-item" ng-click="siguientePagina(pagina)">
+                      <a class="page-link" aria-label="Next" role="button">
+                      <span aria-hidden="true">
+                          <span aria-hidden="true">&raquo;</span>
+                      </span>
+                      </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>  
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right" ng-if="quotations.length > 0">
+            <button class="btn btn-primary col-xs-12" ng-click="exportDataGralQuotations()">Generar Reporte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-kbi hidden-xs hidden-sm" ng-if="main.permiso_kbi" style="z-index: 30000;display: none;">
+    <div id="box-kbi">
+      <uib-tabset>
+        <uib-tab heading="Financiero" id="financiero" ng-click="show_tab_kbi(1)" style="width: 25%;"></uib-tab>
+        <uib-tab heading="Producción" id="produccion" ng-click="show_tab_kbi(2)" style="width: 25%;"></uib-tab>
+        <uib-tab heading="Cotizaciones" id="Cotizaciones" ng-click="show_tab_kbi(3)" style="width: 25%;"></uib-tab>
+        <uib-tab heading="Gastos" id="Gastos" ng-click="show_tab_kbi(4)" style="width: 25%;"></uib-tab>
+      </uib-tabset>
+      <div ng-if="show_financiero">
+        <div class="loader-kbi" ng-if="showLoaderKbi">
+          <img src="../../assets/images/loader/blue_loader.gif">
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-9">
+            <label>Recibos Pagados, Liquidados o Conciliados <span title="Total Prima neta de recibos Pagados, Liquidados o Conciliados con fecha de inicio de recibo del año seleccionado (Tipo Moneda)"> <i class="fa fa-question-circle"></i></label>
+            <div ng-if="show_currency_mxn">
+              <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancial.data" chart-labels="charts_kbi.chartDataFinancial.labels" chart-colours="charts_kbi.chartDataFinancial.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancial.series" height="54"></canvas>
+            </div>
+            <div ng-if="show_currency_usd">
+              <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataFinancialDolar.data" chart-labels="charts_kbi.chartDataFinancialDolar.labels" chart-colours="charts_kbi.chartDataFinancialDolar.colours" chart-legend="true" chart-series="charts_kbi.chartDataFinancialDolar.series" height="54"></canvas>
+            </div>
+          </div>
+          <div class="col-xs-3">
+            <label>Año: </label>
+            <select class="form-kbi" name="payment" ng-model="year_kbi" ng-options="year as year for year in charts_kbi.anios" ng-change="getFilter(1, year_kbi, startDate_production, endDate_production)">
+              <option value="" disabled>Selecciona un año</option>
+            </select>
+          </div>
+          <div class="col-xs-3">
+            <label>Primas con moneda: </label>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+          </div>
+          <div class="col-xs-3">
+            <span>Primas por cobrar</span> <span title="Totales de Prima Total de recibos por cobrar que inicien  vigencia en el año seleccionado(Endosos, Pólizas, Fianzas, SubGrupo, Pendiente de Pago, Prorrogadas, excluye NC)"> <i class="fa fa-question-circle"></i> </span><br>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.prima_cobrar | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.prima_cobrarDolar | currency }}</label>
+            <span>Comisión por recibir</span> <span title="Total Comisión de recibos pendientes por recibir con fecha de inicio de recibo del año seleccionado (Tipo Moneda, Pendiente Pago, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+            <br>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.prima_recibir | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.prima_recibirDolar | currency }}</label>
+          </div>
+        </div>
+        <div class="row container-chart" style="padding: 10px;">
+          <div class="col-xs-12">
+            <label>Subramos <span title="Totales de Prima Netas emitida por Subramo de pólizas con inicio de vigencia del año seleccionado (Tipo Moneda, SubRamo)"> <i class="fa fa-question-circle"></i> </span></label>
+            <div ng-if="show_currency_mxn">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancial.data" chart-labels="charts_kbi.polarDataFinancial.labels" height="60"></canvas>            
+            </div>
+            <div ng-if="show_currency_usd">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.polarDataFinancialDolar.data" chart-labels="charts_kbi.polarDataFinancialDolar.labels" height="60"></canvas>            
+            </div>
+          </div>
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-4" style="background-color: #884EA0; color: #ffffff;">
+            <span>Comisión neta del año</span> <span title="Total de Comisiones de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado (Tipo de Moneda, excluye NC)"> <i class="fa fa-question-circle"></i> </span>
+            <br>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.comision | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.comisionDolar | currency }}</label>
+          </div>
+          <div class="col-xs-4" style="background-color: #5DADE2; color: #ffffff;">
+            <span> Notas de crédito sobre prima total</span> <span title="Totales de Prima Total de notas de crédito con fecha de inicio de recibo del año seleccionado (Excluye recibos con estatus cerrados, cancelados)"> <i class="fa fa-question-circle"></i> </span>
+            <br>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.notas_credito | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.notas_credito">{{ charts_kbi.notas_creditoDolar | currency }}</label>
+            <label class="lbl-tableros" ng-if="!charts_kbi.notas_credito">{{ 0 | currency }}</label>
+          </div>
+          <div class="col-xs-4" style="background-color: #F1C40F; color: #ffffff;">
+            <!-- <span> Recibos pagados sobre prima total</span><br> -->
+            <span> Recibos pagados sobre prima neta</span> <span title="Totales de Prima Neta de recibos pagados, liquidado, conciliado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            <br>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.recibos_pagados | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros" ng-if="charts_kbi.recibos_pagados">{{ charts_kbi.recibos_pagadosDolar | currency }}</label>
+            <label class="lbl-tableros" ng-if="!charts_kbi.recibos_pagados">{{ 0 | currency }}</label>
+          </div>
+        </div>
+      </div>
+      <div ng-if="show_produccion">
+        <div class="loader-kbi" ng-if="showLoaderKbi">
+          <img src="../../assets/images/loader/blue_loader.gif">
+        </div>
+        <div class="row container-chart">
+          <br>
+          <div class="col-xs-6">
+            <label>Meta a Registrar</label>
+            <input type="number" class="form-kbi" ng-model="newGoal.value" ng-change="validateDecimal(newGoal.value)">
+          </div>
+          <div class="col-xs-3 form-group" style="margin-top: 23px;">
+            <select class="form-kbi" ng-model="newGoal.model">
+              <option ng-repeat="option in newGoal.options" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+          </div>
+          <div class="col-xs-3 form-group" style="margin-top: 23px;">
+            <button class="col-xs-12 btn btn-primary btn-xs" ng-if="!showBtnKbi" ng-click="saveGoal()" ng-disabled="!newGoal.value">Guardar</button>
+            <button class="col-xs-12 btn btn-primary btn-xs" ng-if="showBtnKbi" ng-click="editGoal()" ng-disabled="!newGoal.value">Editar</button>
+          </div>
+          <br>
+          <div class="col-xs-4">
+            <label>Meta: {{ charts_kbi.goal.value | currency }} {{ charts_kbi.goal.currency }}</label>
+          </div>
+          <div class="col-xs-4">
+            <label>Actual: {{ charts_kbi.goal.progress | currency }} {{ charts_kbi.goal.currency }}</label>
+          </div>
+          <div class="col-xs-4">
+            <label>Faltan: {{ charts_kbi.goal.remain | currency }} {{ charts_kbi.goal.currency }}</label>
+            <div class="col-xs-4 pull-right">            
+              <span title="Monto Faltante para cumplir Meta del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-12">
+            <div class="progress" style="height: 32px;">
+              <div class="progress-bar bar-goal animate" role="progressbar" ng-style="progressGoal" aria-valuemin="0" aria-valuemax="100"><label>{{ charts_kbi.goal.percentajeGoal }}%</label></div>
+            </div>
+          </div>
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-6">
+            <span>Total de Primas de Pólizas canceladas de póliza</span>
+            <span title="Total de primas netas de pólizas Canceladas, PreCanceladas"> <i class="fa fa-question-circle"></i> </span>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label class="lbl-tableros" ng-if="show_currency_mxn">{{ charts_kbi.primas_canceladas | currency }}</label>
+            <label class="lbl-tableros" ng-if="show_currency_usd">{{ charts_kbi.primas_canceladasDolar | currency }}</label>
+          </div>
+          <div class="col-xs-6">
+            <span>Comisión perdida por notas de crédito</span>
+            <span title="Total de Comisión de recibos de Notas de crédito (Cancelados, PreCanceladas del año seleccionado)"> <i class="fa fa-question-circle"></i> </span>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.comision_perdida | currency }}</label>
+            <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.comision_perdidaDolar | currency }}</label>
+          </div>
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #5DADE2;">
+              <i class="fa fa-user" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span>Contratantes</span>
+              <br>
+              <label class="lbl-tableros">{{ charts_kbi.contratantes }}</label> <span title=" Totales  de contratantes datos de alta en SAAM del año seleccionado(Físicas, Morales)"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #27AE60;">
+              <i class="fa fa-file-text" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span> Pólizas/Fianzas</span>
+              <br>
+              <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.polizas }}</label>
+              <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.polizasDolar }}</label>
+              <span title="Total de pólizas y fianzas registradas en SAAM del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #F1C40F;">
+              <i class="fa fa-file" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span> OT proceso </span>
+              <br>
+              <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.ot }}</label>
+              <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.otDolar }}</label>
+              <span title="Total de OT proceso del año seleccionado Endosos (Pendiente, Tramite), OT de Poliza (Pendientes, Trámite)"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #E67E22;">
+              <i class="fa fa-folder" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span> Endosos</span>
+              <br>
+              <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.endosos }}</label>
+              <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.endososDolar }}</label>
+              <span title="Total de Endosos del año seleccionado (Todos los estatus)"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #BDC3C7;">
+              <i class="fa fa-bookmark" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span> Renovaciones</span>
+              <br>
+              <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.renovaciones }}</label>
+              <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.renovacionesDolar }}</label>
+              <span title="Total de Renovaciones del año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+          <div class="col-xs-2">
+            <div class="col-xs-3 box-tableros" style="background-color: #9B59B6;">
+              <i class="fa fa-certificate" aria-hidden="true"></i>
+            </div>
+            <div class="col-xs-9">
+              <span> Siniestros</span>
+              <br>
+              <label ng-if="show_currency_mxn" class="lbl-tableros">{{ charts_kbi.siniestros }}</label>
+              <label ng-if="show_currency_usd" class="lbl-tableros">{{ charts_kbi.siniestrosDolar }}</label>
+              <span title="Total de Siniestros registrados del año seleccionado (fecha de ingreso de siniestros y/o actualización)"> <i class="fa fa-question-circle"></i> </span>
+            </div>
+          </div>
+        </div>
+        <div class="row container-chart" style="padding: 10px;">
+          <div class="col-xs-6">
+            <label>Comisiones <span title="Total de Comisiones  de recibos Liquidado, Conciliado, Pagado con fecha de inicio de recibo del año seleccionado"> <i class="fa fa-question-circle"></i> </span></label>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <select class="form-kbi-filtro pull-right"  name="payment" ng-model="year_kbi" ng-options="year as year for year in charts_kbi.anios" ng-change="getFilter(1, year_kbi, startDate_production, endDate_production)">
+              <option value="" disabled>Selecciona un año</option>
+            </select>
+            <label class="pull-right">Año: </label>
+            <div ng-if="show_currency_mxn">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProduction.data" chart-labels="charts_kbi.barDataProduction.labels" chart-colours="charts_kbi.barDataProduction.colours" height="110"></canvas>
+            </div>
+            <div ng-if="show_currency_usd">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataProductionDolar.data" chart-labels="charts_kbi.barDataProductionDolar.labels" chart-colours="charts_kbi.barDataProductionDolar.colours" height="110"></canvas>
+            </div>
+          </div>
+          <div class="col-xs-6 border-left">
+            <label>Fecha: </label>
+            <div class="datepicker-me input-group date" data-provide="datepicker" style="display: inline-block; margin-bottom: 6px;">
+              <input type="text" name="startDate" class="text-align-center form-kbi-filtr" ng-model="startDate_production" value="{{startDate_production}}" data-date-format="mm/dd/yyyy" >
+                <span class="input-group-addon" style="display: none;"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="datepicker-me input-group date" data-provide="datepicker" style="display: inline-block; margin-bottom: 6px;">
+              <input type="text" name="endingDate" class="text-align-center form-kbi-filtr" ng-model="endDate_production" value="{{endDate_production}}" data-date-format="mm/dd/yyyy" >
+                <span class="input-group-addon" style="display: none;"><i class="fa fa-calendar"></i></span>
+            </div>
+            <button class="btn btn-primary btn-xs" ng-click="getFilter(1, year_kbi, startDate_production, endDate_production)">
+              Consultar
+            </button>
+            <select class="form-kbi-filtro" ng-model="currency_kbi" ng-change="changeCurrencyKbi(currency_kbi)" style="color: #000000;">
+              <option ng-repeat="option in currencies" value="{{option.id}}">{{ option.name }}</option>
+            </select>
+            <ul class="tab-kbi-prodution">
+               <li ng-class="{ 'active-kbi': show_ejectivo }" ng-click="show_tab_production(1)">Ejecutivos</li>
+               <li ng-class="{ 'active-kbi': show_aseguradora }" ng-click="show_tab_production(2)">Aseguradoras</li>
+               <li ng-class="{ 'active-kbi': show_subramo }" ng-click="show_tab_production(3)">Subramos</li>
+            </ul>
+            <div ng-if="show_ejectivo">
+              <div class="col-xs-12 box-scroll">
+                <table class="list-production">
+                  <thead>
+                    <tr>
+                      <th>Ejecutivo</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="row-list" ng-repeat="user in charts_kbi.ejecutivos" ng-if="show_currency_mxn">
+                      <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                      <td>{{ user.user__count }}</td>
+                    </tr>
+                    <tr class="row-list" ng-repeat="user in charts_kbi.ejecutivosDolar" ng-if="show_currency_usd">
+                      <td>{{ user.user__first_name }} {{ user.user__last_name }}</td>
+                      <td>{{ user.user__count }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div ng-if="show_aseguradora">
+              <div class="col-xs-12 box-scroll">
+                <table class="list-production">
+                  <thead>
+                    <tr>
+                      <th>Aseguradora</th>
+                      <th>Emitida <span title="Total de Prima Neta de pólizas por aseguradora del rango fecha seleccionado"> <i class="fa fa-question-circle"></i> </span></th>
+                      <th>Pagada <span title="Totales de Prima Neta de recibos pagados por aseguradora de la fecha  seleccionada (Pagado, liquidado o conciliado)"> <i class="fa fa-question-circle"></i> </span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="row-list" ng-repeat="item in charts_kbi.aseguradoras" ng-if="item.aseguradora__alias && show_currency_mxn">
+                      <td>{{ item.aseguradora__alias }}</td>
+                      <td>{{ item.p_neta__sum | currency }}</td>
+                      <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                      <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                    </tr>
+                    <tr class="row-list" ng-repeat="item in charts_kbi.aseguradorasDolar" ng-if="item.aseguradora__alias && show_currency_usd">
+                      <td>{{ item.aseguradora__alias }}</td>
+                      <td>{{ item.p_neta__sum | currency }}</td>
+                      <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                      <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div ng-if="show_subramo">
+              <div class="col-xs-12 box-scroll">
+                <table class="list-production">
+                  <thead>
+                    <tr>
+                      <th>Subramo</th>
+                      <th>Emitida <span title="Totales de Prima Neta emitida de pólizas por SubRamo de fecha seleccionada (Aseguradora)"> <i class="fa fa-question-circle"></i> </span></th>
+                      <th>Pagada <span title="Totales de Prima Neta de recibos pagados por  SubRamo de fecha seleccionada (pagado, Liquidado, Conciliado, Subramo)"> <i class="fa fa-question-circle"></i> </span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="row-list" ng-repeat="item in charts_kbi.subramos" ng-if="item.subramo__subramo_name && show_currency_mxn">
+                      <td>{{ item.subramo__subramo_name }}</td>
+                      <td>{{ item.p_neta__sum | currency }}</td>
+                      <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                      <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                    </tr>
+                    <tr class="row-list" ng-repeat="item in charts_kbi.subramosDolar" ng-if="item.subramo__subramo_name && show_currency_usd">
+                      <td>{{ item.subramo__subramo_name }}</td>
+                      <td>{{ item.p_neta__sum | currency }}</td>
+                      <td ng-if="item.pagado">{{ item.pagado | currency }}</td>
+                      <td ng-if="!item.pagado">{{ 0 | currency }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div ng-if="show_cotizacion">
+        <div class="row container-chart" style="padding: 10px;">
+          <div class="col-xs-9">
+            <label>Cotizaciones</label> <span title="Total de cotizaciones realizadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            <div ng-if="show_for == '1'">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotization.data" chart-labels="charts_kbi.barDataCotization.labels" chart-colours="charts_kbi.barDataCotization.colours" height="80"></canvas>
+            </div>
+            <div ng-if="show_for == '2'">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizationRamo.data" chart-labels="charts_kbi.barDataCotizationRamo.labels" chart-colours="charts_kbi.barDataCotizationRamo.colours" height="80"></canvas>
+            </div>
+            <div ng-if="show_for == '3'">
+              <canvas id="line" class="chart chart-bar" chart-data="charts_kbi.barDataCotizacionSubramo.data" chart-labels="charts_kbi.barDataCotizacionSubramo.labels" chart-colours="charts_kbi.barDataCotizacionSubramo.colours" height="80"></canvas>
+            </div>
+          </div>
+          <div class="col-xs-3">
+            <label>Ver por: </label>
+            <br>
+            <select class="form-kbi-filtro" name="payment" ng-model="show_for" ng-options="item.id as item.name for item in options">
+              <option value="" disabled>Selecciona una opción</option>
+            </select>
+            <br>
+            <span>No. de cotizaciones</span><br>
+            <label class="lbl-tableros">{{ charts_kbi.cotizaciones }}</label>
+          </div>
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-3" style="padding: 10px;">
+            <label>Bateo: {{ charts_kbi.bateo}}%</label> <span title="Porcentaje Total de cotizaciones bateadas en el año seleccionado"> <i class="fa fa-question-circle"></i> </span>
+            <div class="box-scroll-cotization">
+              <ul class="list-cotization" ng-repeat="item in charts_kbi.monthsBateo">
+                <li>{{ item.month }} <span class="pull-right">{{ item.value }}</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-9" style="padding: 10px;">
+            <label>Cotización y Emisión</label>
+            <canvas id="line" class="chart chart-line" chart-data="charts_kbi.chartDataCotization.data" chart-labels="charts_kbi.chartDataCotization.labels" chart-colours="charts_kbi.chartDataCotization.colours" chart-legend="true" chart-series="charts_kbi.chartDataCotization.series" height="70"></canvas>
+          </div>
+        </div>
+      </div>
+      <div ng-if="show_gastos">
+        <div class="row container-chart">
+          <div class="col-xs-8">
+            <div class="concept-scroll">
+              <div class="col-xs-3">
+                <label>Mes</label>
+                <select class="form-kbi" name="payment" ng-model="main.month_kbi" ng-options="month as month.month for month in months_kbi track by month.id" ng-change="selectMonth(main.month_kbi)">
+                  <option value="" disabled>Selecciona un mes</option>
+                </select>
+              </div>
+              <div class="col-xs-3" style="margin-top: 23px;">
+                <button class="col-xs-12 btn btn-primary btn-xs" ng-click="saveGastos()">Guardar</button>
+              </div>
+              <div class="col-xs-3" style="margin-top: 23px;">
+                <button class="col-xs-12 btn btn-success btn-xs" ng-click="addConcept()">Agregar concepto</button>
+              </div>
+              <div class="col-xs-12"></div>
+              <div ng-repeat="concept in concepts track by $index">
+                <div class="col-xs-6">
+                  <label>Concepto</label>
+                  <input class="form-kbi" type="text" ng-model="concept.concept" name="" />
+                </div>
+                <div class="col-xs-3">
+                  <label>Gasto</label>
+                  <input class="form-kbi" type="number" ng-model="concept.cantidad" ng-change="validateGasto(concept.cantidad)" name="" />
+                </div>
+                <div class="col-xs-3" style="margin-top: 23px;" ng-if="concept.value > 9">
+                  <button class="col-xs-12 btn btn-danger btn-xs" ng-click="removeConcept($index)">Quitar concepto</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-4" ng-if="charts_kbi.barDataGastos.concepts.length > 0">
+            <div class="box-scroll">
+              <br>
+              <table class="list-production">
+                <thead>
+                  <tr>
+                    <th>Mes</th>
+                    <th>Concepto</th>
+                    <th>Cantidad</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item_conc in charts_kbi.barDataGastos.concepts | orderBy: 'month' track by $index"> 
+                    <td><span >{{monthName(item_conc.month)}}</span></td> 
+                    <td><span >{{item_conc.concept}}</span></td>                               
+                    <td><span >{{item_conc.cantidad | currency}}</span></td>
+                    <td><span ng-click="deleteConcept(item_conc, $index)"><i class="fa fa-trash" aria-hidden="true"></i></span></td>                   
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row container-chart">
+          <div class="col-xs-8">
+            <canvas id="bar" class="chart chart-bar" chart-data="charts_kbi.barDataGastos.data" chart-labels="charts_kbi.barDataGastos.labels" chart-colours="charts_kbi.barDataGastos.colours" chart-legend="true" chart-series="charts_kbi.barDataGastos.series" height="100"></canvas>
+          </div>
+          <div class="col-xs-4">
+            <br>
+            <div class="box-scroll">
+              <br>
+              <table class="list-production">
+                <thead>
+                  <tr>
+                    <th>Utilidad<span title="Total de comision en el año seleccionado: {{total_utilidad | currency }}"> <i class="fa fa-question-circle"></i> </span></th>
+                    <th>MXN</th>
+                    <th>USD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item_uti in charts_kbi.monthsUtilidad track by $index"> 
+                    <td><span >{{item_uti.month}}</span></td> 
+                    <td><span >{{item_uti.value | currency}}</span></td>                               
+                    <td><span >{{item_uti.value_dolar | currency}}</span></td>                   
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-kbi" onclick="divLogin()">Administrador KBI</div>
+    </div>
+  </div>
+  
+</div>
+<script type="text/javascript">
+  setTimeout(function(){ if(document.getElementById("box-kbi")){document.getElementById("box-kbi").style.width = "0px"; }}, 10);
+  var clic = 1;
+  function divLogin(){
+    if(clic==1){
+      angular.element(document.getElementById('box-kbi')).scope().getFilter(0);
+      document.getElementById("box-kbi").style.width = "1100px";
+      clic = clic + 1;
+    } else{
+      document.getElementById("box-kbi").style.width = "0px";      
+      clic = 1;
+    }   
+  }
+</script>

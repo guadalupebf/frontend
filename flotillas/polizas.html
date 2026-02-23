@@ -1,0 +1,270 @@
+<toaster-container></toaster-container>
+<div class="row">
+  <br>
+  <div class="col-xs-12 form-group">
+    <legend class="legend-title" align="center">Pólizas</legend>
+  </div>
+  <div class="col-xs-12 form-group" ng-if="dataCaratula.id">
+    <div class="alert alert-info alert-dismissible">
+      <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      - El layout para cargar pólizas a esta colectividad es <strong>Colectividades_Flotillas.xls</strong><br>
+      - El layout lo puedes descargar desde el botón de opciones que se encuentra en esta misma página en la parte superior derecha.<br>
+      - Busca los ID que te ayudarán a llenar el layout.
+    </div>
+  </div>
+  <div class="col-xs-12" ng-if="dataCaratula.id">
+    <legend class="legend-title">{{ dataCaratula.subramo.subramo_name }}</legend>
+  </div>
+  <div class="col-xs-12 col-sm-6">
+    <div class="col-xs-12 form-group">
+      <label>Contratante: <span class="color-red">*</span></label>
+      <autocomplete datasource="contractors_data" id="contractors" model="order.searchContratante" change="matchesContractors(order.searchContratante)"></autocomplete>
+    </div>
+    <div class="col-xs-12 form-group" ng-if="order.searchContratante">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Contratante</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <small>ID para layout: </small><span class="font-weight-bold">{{ contractorLayout.id }}</span>
+              <br>
+              <small>Nombre: <span>{{ contractorLayout.name }}</span></small>
+              <br>
+              <small>Tipo Contratante: <span class="font-weight-bold">{{ contractorLayout.type }}</span></small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-xs-12 form-group" ng-if="order.searchContratante">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Direcciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in contractorLayout.address">
+            <td>
+              <small>ID para layout: </small><span class="font-weight-bold">{{ item.id }}</span>
+              <br>
+              <small>Nombre: <span>{{ item.administrative_area_level_2 }}, {{ item.administrative_area_level_1 }}</span></small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 border-left">
+    <div class="col-xs-12 form-group">
+      <label>Paquete: <span class="color-red">*</span></label>
+      <select class="form-control" data-ng-options="package.package_name for package in paquetesLayout | orderBy:'package_name' track by package.url" ng-change="changePackageLay(paqueteLay)" name="paquete" ng-model="paqueteLay" ng-disabled="!subramoSelected">
+        <option value="">Selecciona un paquete</option>
+      </select>
+      <span ng-if="!paquetesLayout.length && subramoSelected">No hay paquetes en este subramo</span>
+    </div>
+    <div class="col-xs-12 form-group" ng-if="paqueteLay">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Paquete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <small>ID para layout: </small><span class="font-weight-bold">{{ paqueteLay.id }}</span>
+              <br>
+              <small>Nombre: <span>{{ paqueteLay.package_name }}</span></small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 border-left">
+    <div class="col-xs-12 form-group">
+      <label>Sucursal: <span class="color-red">*</span></label>
+      <select class="form-control" data-ng-options="sucursal as sucursal.sucursal_name for sucursal in sucursalesLay" ng-change="changeSucursalLay(sucursal)" name="sucursals" ng-model="sucursalLay">
+        <option value="">Selecciona un sucursal</option>
+      </select>
+      <span ng-if="!sucursalesLay.length">No hay sucursales</span>
+    </div>
+    <div class="col-xs-12 form-group" ng-if="sucursalLay">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Sucursal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <small>ID para layout: </small><span class="font-weight-bold">{{ sucursalLay.id }}</span>
+              <br>
+              <small>Nombre: <span>{{ sucursalLay.sucursal_name }}</span></small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row" ng-if="!showTableCertificates">
+  <div class="col-sm-6 col-md-3 form-group" ng-if="!loader">
+    <label class="col-xs-12 btn btn-success">Agregar Archivo <i class="fa fa-upload" aria-hidden="true"></i>
+      <input class="display-none" type="file" fileread name="readCsvFile" id="readCsvFile" ng-model="excelFile" ng-change="validateExcel(excelFile)" onclick="limpiar()">
+    </label>
+  </div>
+  <div class="col-sm-6 col-md-3 form-group pull-right" ng-if="!loader">
+    <button class="col-xs-12 btn btn-primary" ng-click="goToPolicy()"><i class="fa fa-list-alt" aria-hidden="true"></i> Información de la colectividad</button>
+  </div>
+  <div class="col-xs-12 text-center" ng-if="loader">
+    <i class="fa fa-cog fa-spin fa-5x"></i>
+    <div>
+        <span>Cargando pólizas...</span>
+    </div>
+  </div>
+  <div class="col-xs-12 form-group">
+    <br>
+    <br>
+    <br>
+  </div>
+</div>
+<div class="row" ng-if="showTableCertificates">
+  <div class="col-xs-12 form-group">
+    <legend class="legend-title" align="center">{{ layout.subramo_name }}</legend>
+  </div>
+  <div class="col-xs-1 form-group">
+    <select class="form-control" ng-options="renewal.value for renewal in optionsViews" ng-change="selectViews(optionViews)" ng-model="optionViews">
+    </select>
+  </div>
+  <div>
+    <label>Del {{ valueInitial }} al {{ valueFinal }} de {{ excelJson.length }} </label>
+    <button class="btn btn-white" ng-click="addViews(-1)" ng-disabled="valueInitial == 1"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+    <button class="btn btn-white" ng-click="addViews(+1)" ng-disabled="valueFinal == excelJson.length"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+  </div>
+  <div class="col-xs-12 form-group">
+    <div class="panel-body table-over-y">
+      <table class="table table-bordered table-hover" ng-if="layout.subramo.subramo_name == 'Automóviles'">
+        <thead>
+          <tr>
+            <td>No Carátula</td>
+            <td>Folio</td>
+            <td>No. Póliza</td>
+            <td>Contratante</td>
+            <td>Tipo Contratante</td>
+            <td>Dirección</td>
+            <!-- <td>Correo</td>
+            <td>Teléfono</td> -->
+            <td>Vigencia Inicio</td>
+            <td>Vigencia Fin</td>
+            <td>Frecuencia Pago</td>
+            <td>Renovable</td>
+            <td>Moneda</td>
+            <td>Paquete</td>
+            <td>Sucursal</td>
+            <td>Tipo</td>
+            <td>Procedencia</td>
+            <td>Conductor</td>
+            <td>Marca</td>
+            <td>Modelo</td>
+            <td>Año</td>
+            <td>Versión</td>
+            <td>Serie</td>
+            <td>Motor</td>
+            <td>Color</td>
+            <td>Matrícula</td>
+            <td>Uso</td>
+            <td>Servicio</td>
+            <td>Prima Neta</td>
+            <td>Descuento</td>
+            <td>RPF</td>
+            <td>Derecho</td>
+            <td>Iva</td>
+            <td>Prima Total</td>
+            <td>Comisión</td>
+            <td>%Comisión</td>
+            <td>No. Recibo</td>
+            <td>Prima Recibo</td>
+            <td>RPF Recibo</td>
+            <td>Derecho Recibo</td>
+            <td>IVA Recibo</td>
+            <td>Total Recibo</td>
+            <td>Comisión Recibo</td>
+            <td>Inicio Recibo</td>
+            <td>Fin Recibo</td>
+            <td>Vencimiento Recibo</td>
+            <td>Conducto de Pago</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in excelJsonViews">
+            <td>{{ item.NO_CARATULA }}</td>
+            <td>{{ item.FOLIO }}</td>
+            <td>{{ item.NO_POLIZA }}</td>
+            <td>{{ item.CONTRATANTE }}</td>
+            <td>{{ item.TIPO_CONTRATANTE }}</td>
+            <td>{{ item.DIRECCION }}</td>
+            <!-- <td>{{ item.CORREO }}</td>
+            <td>{{ item.TELEFONO }}</td> -->
+            <td>{{ item.VIGENCIA_INICIO }}</td>
+            <td>{{ item.VIGENCIA_FIN }}</td>
+            <td>{{ item.FRECUENCIA_PAGO }}</td>
+            <td>{{ item.RENOVABLE }}</td>
+            <td>{{ item.MONEDA }}</td>
+            <td>{{ item.PAQUETE }}</td>
+            <td>{{ item.SUCURSAL }}</td>
+            <td>{{ item.TIPO }}</td>
+            <td>{{ item.PROCEDENCIA }}</td>
+            <td>{{ item.CONDUCTOR }}</td>
+            <td>{{ item.MARCA }}</td>
+            <td>{{ item.MODELO }}</td>
+            <td>{{ item.ANIO }}</td>
+            <td>{{ item.VERSION }}</td>
+            <td>{{ item.SERIE }}</td>
+            <td>{{ item.MOTOR }}</td>
+            <td>{{ item.COLOR }}</td>
+            <td>{{ item.MATRICULA }}</td>
+            <td>{{ item.USO }}</td>
+            <td>{{ item.SERVICIO }}</td>
+            <td>{{ item.PRIMA_NETA }}</td>
+            <td>{{ item.DESCUENTO }}</td>
+            <td>{{ item.RPF }}</td>
+            <td>{{ item.DERECHO }}</td>
+            <td>{{ item.IVA }}</td>
+            <td>{{ item.PRIMA_TOTAL }}</td>
+            <td>{{ item.COMISION }}</td>
+            <td>{{ item.PORCENTAJE_COMISION }}</td>
+            <td>{{ item.NO_RECIBO }}</td>
+            <td>{{ item.PRIMA_RECIBO }}</td>
+            <td>{{ item.RPF_RECIBO }}</td>
+            <td>{{ item.DERECHO_RECIBO }}</td>
+            <td>{{ item.IVA_RECIBO }}</td>
+            <td>{{ item.TOTAL_RECIBO }}</td>
+            <td>{{ item.COMISION_RECIBO }}</td>
+            <td>{{ item.INICIO_RECIBO }}</td>
+            <td>{{ item.FIN_RECIBO }}</td>
+            <td>{{ item.VENCIMIENTO_RECIBO }}</td>
+            <td>{{ item.CONDUCTO_DE_PAGO }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+    <button class="col-xs-12 btn btn-white" ng-click="cancelCertificates()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+    <button class="col-xs-12 btn btn-success ladda-button" ng-click="saveCertificates()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar Pólizas</button>
+  </div>
+</div>
+<script type="text/javascript">
+  function limpiar(){
+    document.getElementById('readCsvFile').value ='';
+  }
+</script>

@@ -1,0 +1,454 @@
+<div class="inmodal" id="modal_edit">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Pagar Recibos</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="ibox">
+        <div class="ibox-content wizard">
+          <div class="wizard">
+            <div class="row">
+              <div class="col-lg-12">
+                <form method="post" name="form" role="form">
+                  <div class="tabs-container" ng-init="poliza = false; recibos = true; bitacora = false">
+                    <ul class="nav nav-tabs">
+                      <li ng-class="{ 'active': recibos }">
+                        <a ng-click="recibos = true;  bitacora = false; poliza = false">Recibos</a>
+                      </li>
+                      <li ng-class="{ 'active': poliza }">
+                        <a ng-click="poliza = true;  bitacora = false; recibos = false" ng-show="myPolicy.document_type == 1 || myPolicy.document_type == 3">Información de Póliza</a>
+                        <a ng-click="poliza = true;  bitacora = false; recibos = false" ng-show="myPolicy.document_type == 7 || myPolicy.document_type == 8">Información de Fianza</a>
+                      </li>
+                      <li ng-class="{ 'active': bitacora }">
+                        <a ng-click="poliza = false; recibos = false; bitacora = true">Bitácora</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="tab-content">
+                    <div class="tab-pane" ng-class="{'active': recibos}">
+                      <div class="btn-group pull-right btn-mt option_button">
+                        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="fa fa-bolt"></span> Opciones</button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li ng-if="receipt.poliza.document_type == 1 && main.acceso_ver_pol">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 && main.acceso_ver_pol || receipt.poliza.document_type == 4 && main.acceso_ver_pol">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Pólizas de Grupo</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 11 && main.acceso_ver_pol || receipt.poliza.document_type == 12 && main.acceso_ver_pol">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Colectividad</a>
+                          </li>
+                          <li ng-if="(receipt.poliza.document_type == 7 || receipt.poliza.document_type == 8) && (main.acceso_ver_fia || main.acceso_ver_pol)">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Fianza</a>
+                          </li>
+                          <li><a ng-click="main.getPDF(myPolicy.id)">Ver PDF</a></li>
+                          <li ng-if="receipt.poliza.document_type == 1 && main.acceso_adm_pol">
+                            <a ng-click="main.openRenovateModal(myPolicy, 2)">Renovar Póliza</a>
+                          </li>
+                          <li >
+                            <a ng-click="createRecordatorio(receipt, 4)">Crear Recordatorio</a>
+                          </li>
+                          <!-- <li ng-if="receipt.poliza.document_type == 3 || receipt.poliza.document_type == 4">
+                            <a ng-click="main.openRenovateModal(myPolicy)">Renovar Colectividad</a>
+                          </li> -->
+                          <li class="dropdown-submenu" ng-if="receipt.poliza.document_type == 3 && main.acceso_adm_pol || receipt.poliza.document_type == 4 && main.acceso_adm_pol">
+                            <a>Renovar como:</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li>
+                                <a ng-click="main.openRenovateModal(myPolicy, '')">Póliza de Grupo</a>
+                              </li>
+                              <li>
+                                <a ng-click="main.openRenovateModal(myPolicy, 1)">OT</a>
+                              </li>
+                            </ul>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 1 && main.acceso_adm_pol">
+                            <a ng-click="main.goToEdit(myPolicy)">Editar Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 && main.acceso_adm_pol || receipt.poliza.document_type == 4 && main.acceso_adm_pol">
+                            <a ng-click="main.goToEdit(myPolicy)">Editar Póliza de Grupo</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 1 && main.acceso_del_pol">
+                            <a ng-click="main.deletePolicy(myPolicy)">Eliminar Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 && main.acceso_del_pol || receipt.poliza.document_type == 4 && main.acceso_del_pol">
+                            <a ng-click="main.deletePolicy(myPolicy)">Eliminar Póliza de Grupo</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="main.cartas.length">
+                            <a>Ver carta</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li ng-if="main.cartas" ng-repeat="carta in main.cartas track by $index">
+                                <a ng-click="main.viewCarta(myPolicy.id, carta.id, receipt.id)"> {{carta.name}} </a>
+                              </li>
+                            </ul>
+                          </li>
+                          <!-- <li><a ng-click="main.cancelPolicy(myPolicy.id)">Cancelar póliza</a></li> -->
+                        </ul>
+                      </div>
+                      <div class="row">
+                        <br>
+                        <div class="col-xs-12">
+                          <div class="loading active" ng-if="!main.loaded">
+                            <div class="sk-spinner sk-spinner-rotating-plane margin-top-45p"></div>
+                          </div>
+                            <div class="table-responsive">
+                              <div class="project-list">
+                                <div class="col-xs-12" ng-init="receipt = main.pago_recibo_actual[0]"><br>
+                                <button class="btn btn-default pull-right btn-tab10" style="margin-top: -7px; color: grey" title="Crear Recordatorio" ng-click="main.createRecordatorio(receipt,4)">
+                                  <i class="fa fa-clock-o"></i>
+                                </button>
+                                  <div class="col-xs-12 col-md-3">
+                                    <span class="color-blue">Tipo de Recibo:</span>
+                                    <p ng-if="receipt.receipt_type == 1">Recibo de póliza</p>
+                                    <p ng-if="receipt.receipt_type == 2">Recibo de endoso</p>
+                                    <p ng-if="receipt.receipt_type == 3">Nota de Crédito</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3">
+                                    <span class="color-blue">Serie:</span>
+                                    <p>{{receipt.recibo_numero}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.receipt_type == 2">
+                                    <span class="color-blue">Número de endoso:</span>
+                                    <p>{{receipt.endorsement.number_endorsement}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3">
+                                    <span class="color-blue" ng-if="receipt.poliza.document_type == 1">Número de Póliza:</span>
+                                    <span class="color-blue" ng-if="receipt.poliza.document_type == 3">Número de Póliza de Grupo:</span>
+                                    <span class="color-blue" ng-if="receipt.poliza.document_type == 4">Número de Póliza de Grupo:</span>
+                                    <span class="color-blue" ng-if="receipt.poliza.document_type == 7">Número de Fianza:</span>
+                                    <span class="color-blue" ng-if="receipt.poliza.document_type == 8">Número de Fianza Colectiva:</span>
+                                    <p>{{receipt.poliza.poliza_number}}{{receipt.fianza.fianza_number}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3">
+                                    <span class="color-blue">Fecha de Vencimiento:</span>
+                                    <p>{{receipt.vencimiento | date: 'dd/MM/yyyy' : 'UTC' }}</p>
+                                  </div>            
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.pay_date">
+                                    <span class="color-blue">Fecha de Pago:</span>
+                                    <p>{{receipt.pay_date | date: 'dd/MM/yyyy'}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.liquidacion_date">
+                                    <span class="color-blue">Fecha de Liquidación:</span>
+                                    <p>{{receipt.liquidacion_date | date: 'dd/MM/yyyy'}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.pay_form">
+                                    <span class="color-blue">Forma de Pago:</span>
+                                    <p ng-if="receipt.pay_form == 1">CHEQUE</p>
+                                    <p ng-if="receipt.pay_form == 2">EFECTIVO</p>
+                                    <p ng-if="receipt.pay_form == 3">TRANSFERENCIA</p>
+                                    <p ng-if="receipt.pay_form == 4">DEPOSITO BANCARIO</p>
+                                    <p ng-if="receipt.pay_form == 5">TARJETA DE CRÉDITO</p>
+                                    <p ng-if="receipt.pay_form == 7"> NOTA DE CRÉDITO</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.curr_rate">
+                                    <span class="color-blue">Tipo de Cambio:</span>
+                                    <p ng-if="receipt.curr_rate == 1"> PESO</p>
+                                    <p ng-if="receipt.curr_rate == 2"> DOLAR</p>
+                                    <p ng-if="receipt.curr_rate == 3"> YEN</p>
+                                    <p ng-if="receipt.curr_rate == 4"> LIBRA ESTERLINA</p>
+                                    <p ng-if="receipt.curr_rate == 5"> EURO</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.pay_doc">
+                                    <span class="color-blue">Documento de Pago:</span>
+                                    <p>{{receipt.pay_doc}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3" ng-if="receipt.bank">
+                                    <span class="color-blue">Banco:</span>
+                                    <p>{{banco.label}}</p>
+                                  </div>
+                                  <div class="col-xs-12 col-md-3">
+                                    <span class="color-blue"><strong>Creado por:</strong></span>
+                                    <p>{{myPolicy.owner}}</p>
+                                  </div>
+                                  <div class="col-xs-8 col-md-3 form-group">
+                                    <span class="color-blue">Promesa de pago:</span>
+                                    <p ng-if="!main.edith_promesa_pago" >{{receipt.promesa_pago | date: 'dd/MM/yyyy'}} <a class="color-blue"  ng-click="main.edith_promesa_pago=true">Editar</a></p>
+                                    <div class="datepicker-me input-group date" data-provide="datepicker" ng-if="main.edith_promesa_pago">
+                                      <input type="text" name="promesa_pago" class="width-100 text-align-center form-control" ng-model="main.new_promesa_pago" value="{{receipt.promesa_pago}}"  data-date-format="mm/dd/yyyy">
+                                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                  </div>
+                                  <div class="col-xs-4 col-md-1 form-group" ng-if="main.edith_promesa_pago">
+                                      <!--pan class="color-blue">&nbsp;</span-->
+                                      <button class="form-control btn btn-primary" type="button" ng-click="main.update_promesa_pago(receipt)" ><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                                      <button class="form-control btn btn-danger" type="button" ng-click="main.edith_promesa_pago=false;" ><i class="fa fa-times" aria-hidden="true"></i></button>
+        
+                                  </div>
+                                </div>
+                                <table class="table table-bordered table-hover">
+                                  <thead>
+                                    <th>Contratante</th>
+                                    <th>Periodo</th>
+                                    <th>Estatus</th>
+                                    <th>Prima total</th>
+                                    <th>Acciones</th>
+                                  </thead>
+                                  <tbody>
+                                    <tr ng-repeat="receipt in main.pago_recibo_actual track by receipt.id"
+                                        ng-show="receipt.isActive">
+                                      <td>{{ contratante.full_name }}{{ contratante.j_name }}</td>
+                                      <td><span class="font-weight-bold">Desde: {{ receipt.fecha_inicio | date:'dd-MM-yyyy':'UTC' }}</span><br>
+                                        <span>
+                                          Vence: {{ receipt.fecha_fin | date:'dd-MM-yyyy':'UTC' }}
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <div status-receipt-clean="receipt.status"
+                                            class="label"
+                                            ng-class="{
+                                              'label-success': receipt.status == 1,
+                                              'label-info': receipt.status == 2,
+                                              'label-primary': receipt.status == 3,
+                                              'label-warning': receipt.status >= 4
+                                            }">
+                                        </div>
+                                      </td>
+                                      <td>{{ receipt.prima_total | currency }}</td>
+                                      <td>
+                                        <a ng-if="user.permiso.editar"
+                                          class="btn btn-white btn-sm"
+                                          ng-click="dismis(receipt,soloInfo)">
+                                          <i class="fa fa-pencil"></i> Aplicar
+                                        </a>
+                                      </td>
+                                    </tr>
+                                    <!-- <tr ng-repeat="receipt in main.pago_recibo_actual track by $index" ng-if="receipt.isActive">
+                                      <td>
+                                        <span>{{ contratante.full_name }}{{ contratante.j_name }}</span>
+                                      </td>
+                                      <td class="project-title">
+                                        <span class="font-weight-bold">Desde: {{ receipt.fecha_inicio | date: 'dd-MM-yyyy' : 'UTC' }}</span>
+                                        <br>
+                                        <span>Vence: {{ receipt.fecha_fin | date: 'dd-MM-yyyy'  : 'UTC' }}</span>
+                                      </td>
+                                      <td class="project-status">
+                                        <div status-receipt-clean="{{ receipt.status }}" class="label" ng-class="{'label-success': receipt.status == 1, 'label-info' : receipt.status == 2,'label-primary' : receipt.status == 3, 'label-warning' : receipt.status == 4, 'label-warning' : receipt.status == 5, 'label-warning' : receipt.status == 9,'label-warning' : receipt.status == 6, 'label-warning' : receipt.status == 7 }">
+                                        </div>
+                                      </td>
+                                      <td>{{ receipt.prima_total | currency }}</td>
+                                      <td>
+                                      <a ng-if="user.permiso.editar" class="btn btn-white btn-sm" ng-click="dismis(receipt)">
+                                         <i class="fa fa-pencil"></i> Aplicar
+                                       </a>
+                                    </td>
+                                  </tr> -->
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" ng-class="{'active': poliza}">
+                      <div class="btn-group pull-right btn-mt option_button">
+                        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="fa fa-bolt"></span> Opciones</button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li ng-if="receipt.poliza.document_type == 1">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 || receipt.poliza.document_type == 4">
+                            <a ng-click="main.goToPolicy(myPolicy)">Ver Póliza de Grupo</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 7">
+                            <a ng-click="main.goToPolicy(myPolicy)">Fianza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 8">
+                            <a ng-click="main.goToPolicy(myPolicy)">Fianza Colectiva</a>
+                          </li>
+                          <li><a ng-click="main.getPDF(myPolicy.id)">Ver PDF</a></li>
+                          <li ng-if="receipt.poliza.document_type == 1">
+                            <a ng-click="main.openRenovateModal(myPolicy)">Renovar Póliza</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="receipt.poliza.document_type == 3 || receipt.poliza.document_type == 4">
+                            <a>Renovar como:</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li>
+                                <a ng-click="main.openRenovateModal(myPolicy, '')">Póliza de Grupo</a>
+                              </li>
+                              <li>
+                                <a ng-click="main.openRenovateModal(myPolicy, 1)">OT</a>
+                              </li>
+                            </ul>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 1">
+                            <a ng-click="main.goToEdit(myPolicy)">Editar Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 || receipt.poliza.document_type == 4">
+                            <a ng-click="main.goToEdit(myPolicy)">Editar Póliza de Grupo</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 1">
+                            <a ng-click="main.deletePolicy(myPolicy)">Eliminar Póliza</a>
+                          </li>
+                          <li ng-if="receipt.poliza.document_type == 3 || receipt.poliza.document_type == 4">
+                            <a ng-click="main.deletePolicy(myPolicy)">Eliminar Póliza de Grupo</a>
+                          </li>
+                          <li class="dropdown-submenu" ng-if="main.cartas.length">
+                            <a>Ver carta</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                              <li ng-if="main.cartas" ng-repeat="carta in main.cartas track by $index">
+                                <a ng-click="main.viewCarta(myPolicy.id, carta.id)"> {{carta.name}} </a>
+                              </li>
+                            </ul>
+                          </li>
+                          <!-- <li><a ng-click="main.cancelPolicy(myPolicy.id)">Cancelar póliza</a></li> -->
+                        </ul>
+                      </div>
+                      <div class="row">
+                        <div class="col-xs-12 btn-mt">
+                          <div class="col-xs-12 col-md-4">
+                            <legend class="legend-title" align="center">Contratante</legend>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Nombre:</span>
+                              <div>
+                                <span>{{contratante.full_name}} {{contratante.j_name}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Dirección:</span>
+                              <div>
+                                <span>{{addressContratante.route}} {{addressContratante.street_number}}, {{addressContratante.sublocality}}.</span>
+                                <div>
+                                  <span>
+                                    {{ addressContratante.administrative_area_level_1}}, {{addressContratante.administrative_area_level_2}}.
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Teléfono:</span>
+                              <div>
+                                <span>{{ contratante.phone_number | phonenumber }}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Correo Electrónico:</span>
+                              <div>
+                                <span>{{ contratante.email }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group col-xs-12" ng-if="!chngDesc">
+                            <span class="blue-color">Observaciones:</span>
+                            <button class="btn btn-white btn-sm" ng-click="changeDescriptionC(true)"><i class="fa fa-edit" aria-hidden="true"></i></button>
+                            <div>
+                              <span>{{ contratante.description }}</span>
+                            </div>
+                          </div>
+                          <div class="col-xs-12 form-group" ng-if="chngDesc">
+                            <label>Observaciones</label>
+                            <textarea class="form-control" ng-model="contratante.description" type="text"></textarea>
+                            <div class="col-xs-6">                                
+                              <button class="btn btn-primary btn-sm" ng-click="saveDescript(contratante)"><i class="fa fa-check" aria-hidden="true"></i></button>
+                              <button class="btn btn-warning btn-sm" ng-click="changeDescriptionC(false)"><i class="fa fa-times" aria-hidden="true"></i></button>
+                            </div>
+                          </div>
+                          <div class="col-xs-12 col-md-8 border-left">
+                            <legend class="legend-title" align="center">Información</legend>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color" ng-if="myPolicy.document_type ==1">Número de Póliza:</span>
+                              <span class="blue-color" ng-if="myPolicy.document_type ==3">Número de Póliza de Grupo:</span>
+                              <span class="blue-color" ng-if="myPolicy.document_type ==7">Número de Fianza:</span>
+                              <span class="blue-color" ng-if="myPolicy.document_type ==8">Número de Fianza Colectiva:</span>
+                              <div>
+                                <span>{{myPolicy.poliza_number}}{{myPolicy.fianza_number}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Aseguradora - Cve Agente:</span>
+                              <div>
+                                <span>{{myPolicy.aseguradora.alias}} - {{myPolicy.clave.clave}} {{myPolicy.afianzadora}} - {{myPolicy.clave.clave}} <span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Ramo:</span>
+                              <div>
+                                <span>{{myPolicy.ramo}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Subramo:</span>
+                              <div>
+                                <span>{{myPolicy.subramo}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Paquete:</span>
+                              <div>
+                                <span>{{myPolicy.paquete}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Vigencia:</span>
+                              <div>
+                                <span>{{myPolicy.start_of_validity | date: 'dd/MM/yyyy' : 'UTC' }} - {{myPolicy.end_of_validity | date: 'dd/MM/yyyy' : 'UTC' }}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Frecuencia de Pago:</span>
+                              <div>
+                                <span>{{forma_pago(myPolicy.forma_de_pago)}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Estatus:</span>
+                              <div>
+                                <span>{{status(myPolicy.status)}}<span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color">Moneda:</span>
+                              <div>
+                                <span ng-if="myPolicy.f_currency == 1">PESOS</span>
+                                <span ng-if="myPolicy.f_currency == 2">DOLARES</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                              <span class="blue-color"><strong>Creado por:</strong></span>
+                              <div>
+                                <span >{{myPolicy.owner}}</span>
+                              </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                              <span class="blue-color">Observaciones:</span>
+                              <div>
+                                <span>{{myPolicy.observations}}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" ng-class="{'active': bitacora}">
+                      <div class="row">
+                        <br>
+                        <div class="col-xs-12">
+                          <comments datasource="main.comments_data_receipt" typemodel="4" config="comments_config" idmodel="recibo.id" receiptmodel="receiptmodel"></comments>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+  
+  <div class="modal-footer">
+    <button class="btn btn-white" ng-click="cancel(true)" type="button">Cerrar</button>
+  </div>
+</div>
+
+<script type="text/javascript">
+  // $('#modal_email').modal({backdrop: 'static', keyboard: false})
+  // $(document).ready(function(){
+  //   $('#modal_edit').modal('hide');
+  //     if ($('.modal-backdrop').is(':visible')) {
+  //       $('body').removeClass('modal-open'); 
+  //       $('.modal-backdrop').remove(); 
+  //     };
+  //   });
+// });
+</script>

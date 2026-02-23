@@ -1,0 +1,28 @@
+<div class="inmodal">
+    <div class="modal-header modal-header modal_title nav-header">
+      <h4 class="modal-title">Renovar Póliza {{polizaarenovar.poliza_number}}</h4>
+    </div>
+    <div class="modal-body col-xs-12">
+      <div class="row">
+        <div class="ibox">
+          <div class="ibox-content ">
+            <!-- <div class="wizard"> -->
+              <div class="row">
+                <div class="form-group col-xs-12 not-scroll">
+                    <label>Número de Póliza: <span class="color-red">*</span></label>
+                    <autocomplete datasource="autocompleteData" model="vmm.policy_number" change="findPolicy(vmm.policy_number)"></autocomplete>
+                </div>
+              </div>
+              <div ng-if="vmm.policy_number.url">
+                <h4><label>Póliza a vincular: {{vmm.policy_number.value}}</label></h4>
+              </div>
+            </div>
+          </div>
+        <!-- </div> -->
+      </div>
+    </div>  
+    <div class="modal-footer">
+        <button class="btn btn-white" ng-click="close()" type="button">Cerrar</button>
+        <button class="btn btn-success ladda-button" ng-disabled="!vmm.policy_number.url" ng-click="reActivatePolicy(vmm.policy_number)" type="button">Renovar Póliza</button>
+    </div>
+</div>

@@ -1,0 +1,2465 @@
+<!-- <div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-lg-9">
+    <h2>Colectividades</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="polizas.table">Listado de Pólizas</a>
+      </li>
+      <li class="active">
+        <strong>
+          <a ng-if="caratula.poliza_number">Colectividad #{{ caratula.poliza_number }}</a>
+          <a ng-if="!caratula.poliza_number">OT {{ caratula.internal_number }}</a>
+        </strong>
+      </li>
+    </ol>
+  </div>
+</div> -->
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading page-heading--modern">
+  <div class="col-lg-12">
+    <div class="page-heading__top">
+      <h2 class="page-heading__title">
+        Colectividades
+        <span class="page-heading__badge" ng-if="caratula.poliza_number">
+          #{{caratula.poliza_number}}
+        </span>
+      </h2>
+      <h2 class="page-heading__title" ng-if="!caratula.poliza_number">
+        OT
+        <span class="page-heading__badge" ng-if="caratula.internal_number">
+          #{{caratula.internal_number}}
+        </span>
+      </h2>
+    </div>
+
+    <ol class="breadcrumb page-heading__breadcrumb">
+      <li><a ui-sref="inicio.inicio">Inicio</a></li>
+      <li><a ui-sref="polizas.table">Listado de Pólizas</a></li>
+      <li class="active" aria-current="page">
+        <strong>Colectividad</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12 form-group">
+    <button type="button" class="btn btn-success col-xs-12" data-toggle="modal" data-target="#myModal" ng-if="incompleteOT.complete">
+      Colectividad Completa
+    </button>
+    <button type="button" class="btn btn-warning col-xs-12" data-toggle="modal" data-target="#myModal" ng-if="!incompleteOT.complete">
+      Colectividad Incompleta
+    </button>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Colectividad</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+              <label>Carátula:</label>
+              <ul class="col-p0">
+                <li ng-repeat="item in incompleteOT.caratule">
+                  <small>{{ item.text }}</small>
+                </li>
+              </ul>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+              <label>Certificados:</label>
+              <ul class="col-p0">
+                <li ng-repeat="item in incompleteOT.certificates">
+                  <small>{{ item.text }}</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <ul class="tab-group">
+       <li ng-class="{ 'active-group': show_caratula }" ng-click="show_section(1)">Carátula</li>
+       <li ng-class="{ 'active-group': show_certificado }" ng-click="show_section(2)">Pólizas</li>
+    </ul>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="pull-right option_button m-b">
+      <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-bolt" aria-hidden="true"></i> Opciones
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a ng-click="editCollective(caratula)">Editar Carátula</a>
+          </li>
+          <li ng-if="acceso_adm_rehabilitar && caratula.status == 11">
+            <a ng-click="reActivatePolicy(caratula.id, caratula.poliza_number)">
+              Rehabilitar Carátula
+            </a>
+          </li>
+          <li ng-if="acceso_adm_rehabilitar && (caratula.status == 15 || caratula.status == 'No Renovada')">
+            <a ng-click="renovarPolizaRehabilitate(caratula)">
+              Rehabilitar Póliza/OT para Renovar
+            </a>
+          </li>
+          <li ng-if="caratula.status != 'Cancelada'; caratula.status != 'En trámite'; caratula.renewed_status == 0 && caratula.status != 15 || (caratula.is_renewable ==1 && !existeNueva)"><a ng-click="gotoRenewal(caratula)">Renovar</a></li>
+          <li><a ng-click="cancelRenovate(caratula)" ng-if="caratula.status != 12  && caratula.status != 15 && caratula.is_renewable == 1 && (acceso_adm_pol && caratula.status !=1 && caratula.status != 2)">No renovar Colectividad</a></li>
+          <!-- <li ng-if="caratula.status == 'En trámite'"><a ng-click="getPDF(caratula.id)">Generar PDF</a></li>
+          <li ng-if="caratula.status == 'En trámite'"><a ng-click="sendProvider(caratula)">Enviar PDF a la Compañia</a></li> -->
+          <li class="dropdown-submenu" ng-if="acceso_form">
+            <a>Descargar layouts</a>
+            <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+              <li>
+                <a href="https://miurabox-public.s3.amazonaws.com/layouts/Colectividad_Flotilla.xls"> Flotillas </a>
+              </li>
+            </ul>
+          </li>
+          <li ng-if="acceso_canc_pol"><a ng-click="cancelPolicy(caratula)">Cancelar Colectividad</a></li>
+          <li ng-if="acceso_elim_pol"><a ng-click="deletePolicy()">Eliminar Colectividad</a></li>
+          <li class="dropdown-submenu" ng-if="acceso_form">
+            <a>Ver carta</a>
+            <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+              <li ng-if="cartas" ng-repeat="carta in cartas track by $index">
+                <a ng-click="viewCarta(caratula.id, carta)"> {{carta.name}} </a>
+              </li>
+              <li><a ng-click="getPDF(caratula.id)">RESÚMEN EN PDF</a></li>
+            </ul>
+          </li>
+          <li class="dropdown-submenu" ng-if="caratula.status == 'Vigente' || caratula.status == 14">
+            <a>Compartir Pólizas de Colectividad a</a>
+            <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+              <li>
+                <a ng-click="shareCertificatesApp(caratula.id)">App</a>
+              </li>
+              <li>
+                <a ng-click="shareCertificatesEmail(caratula.id)">Correo Electrónico</a>
+              </li>
+              <li>
+                <a ng-click="shareCertificatesAPPEmail(caratula.id)">App y Correo Electrónico</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_caratula">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Carátula</h5>
+      <button class="btn btn-default pull-right" style="margin-top: -7px; color: grey" ng-click="getLog()">
+        <i class="fa fa-history"></i> <span>Log</span>
+      </button>
+      <button class="btn btn-default pull-right btn-tab10" style="margin-top: -7px; color: grey" title="Crear Recordatorio" ng-click="createRecordatorio(caratula,1)">
+        <i class="fa fa-clock-o"></i>
+      </button>
+    </div>
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12 col-md-4">
+          <legend class="legend-title" align="center">Contratante</legend>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color" ng-if="contratante.type_person == 1 || contratante.type_person == 'Física'"><b>Nombre</b>:</span>
+            <span class="blue-color" ng-if="contratante.type_person == 2 || contratante.type_person == 'Moral'"><b>Razón Social</b>:</span>
+            <div>
+              <span>{{ contratante.full_name }}{{ contratante.j_name }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">RFC:</span>
+            <div>
+              <span>{{ contratante.rfc }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Grupo:</span>
+            <div>
+              <span>{{ contratante.group }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.subgrupo">
+            <span class="blue-color">SubGrupo:</span>
+            <div>
+              <span>{{ contratante.subgrupo }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.subsubgrupo">
+            <span class="blue-color">SubsubGrupo:</span>
+            <div>
+              <span>{{ contratante.subsubgrupo }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.grouping_level && campo_agrupacion">
+            <span class="blue-color">Nivel de Agrupación:</span>
+            <div>
+              <span>{{ contratante.grouping_level }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.subgrouping && campo_agrupacion">
+            <span class="blue-color">Sub Agrupación:</span>
+            <div>
+              <span>{{ contratante.subgrouping }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.subsubgrouping && campo_agrupacion">
+            <span class="blue-color">Subsub Agrupación:</span>
+            <div>
+              <span>{{ contratante.subsubgrouping }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Correo Electrónico:</span>
+            <div style="word-wrap: break-word">
+              <span>{{ contratante.email }}</span>
+            </div>
+            <div  style="word-wrap: break-word" ng-repeat="correo in contratante.email_contractor">
+              <span> {{correo.correo}} </span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Teléfono:</span>
+            <div>
+              <span>{{ contratante.phone_number }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12" ng-repeat="phone_number in contratante.phone_contractor">
+            <span ng-if="phone_number.phone_type == 1" class="fa fa-home" aria-hidden="true"></span>
+            <span ng-if="phone_number.phone_type == 2" class="fa fa-building" aria-hidden="true"></span>
+            <span ng-if="phone_number.phone_type == 3" class="fa fa-mobile" aria-hidden="true"></span>
+            <span> {{phone_number.phone | phonenumber}} </span>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Dirección</span>
+            <div>
+              <span ng-if="contratante.direccion.route">
+                {{ contratante.direccion.route }} {{ $scope.caratula.direccion.street_number }},&nbsp;
+              </span>
+              <span ng-if="contratante.direccion.street_number_int">
+                Int. {{ contratante.direccion.street_number_int }}, 
+              </span>
+              <span ng-if="contratante.direccion.sublocality">
+                {{ contratante.direccion.sublocality }}, 
+              </span>
+              <br>
+              <span ng-if="contratante.direccion.administrative_area_level_2">
+                {{ contratante.direccion.administrative_area_level_2 }}, 
+              </span>
+              <span ng-if="contratante.direccion.administrative_area_level_1">
+                {{ contratante.direccion.administrative_area_level_1 }}, 
+              </span>
+              <span ng-if="contratante.direccion.postal_code">
+                CP. {{ contratante.direccion.postal_code }}
+              </span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="contratante.vip">
+            <span class="blue-color">VIP</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-8 border-left">
+          <legend class="legend-title" align="center">Carátula</legend>
+          <div ng-if="caratula.poliza_number" class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color"><b>Número de Carátula</b>:</span>
+            <div>
+              <span>{{ caratula.poliza_number }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Identificador:</span>
+            <div>
+              <span>{{ caratula.identifier }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Aseguradora:</span>
+            <div>
+              <span>{{ caratula.aseguradora.alias }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Clave de Agente:</span>
+            <div>
+              <span>{{ caratula.clave.clave }} <span ng-if="caratula.clave.name">- {{ caratula.clave.name }}</span></span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Ramo:</span>
+            <div>
+              <span>{{ caratula.ramo }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Subramo:</span>
+            <div>
+              <span>{{ caratula.subramo }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Vigencia:</span>
+            <div>
+              <span>{{ caratula.start_of_validity | date: 'dd/MM/yyyy': 'UTC' }} - {{ caratula.end_of_validity | date: 'dd/MM/yyyy': 'UTC' }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color"><b>Estatus</b>:</span>
+            <div>
+              <div class="label" ng-class="{'label-success': caratula.status == 1 || caratula.status == 12, 'label-info' : caratula.status == 10, 'label-primary' : caratula.status == 14, 'label-warning' : caratula.status == 2 || caratula.status == 4 || caratula.status == 11}" style="margin-right: 10px"> {{ statusPolicy(caratula.status) }} <span ng-if="caratula.renewed_status == 2"> - En proceso de renovación</strong></span></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group" ng-if="caratula.is_renewable">
+            <span class="blue-color">Tipo:</span>
+            <div>
+              <span ng-if="caratula.type_policy == 1">Abierta</span>
+              <span ng-if="caratula.type_policy == 2">Cerrada</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="caratula.reason_cancel">
+            <span class="blue-color">Motivo de Cancelación:</span>
+            <div>
+              <span>{{ caratula.reason_cancel }}<span>
+            </div>
+            <span class="blue-color" ng-if="caratula.date_cancel">Fecha de Cancelación:</span>
+            <div ng-if="caratula.date_cancel">
+              <span>{{ caratula.date_cancel | date: 'dd/MM/yyyy' : 'UTC'}}<span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group" ng-if="caratula.is_renewable">
+            <span class="blue-color">Tipo Renovable:</span>
+            <div>
+              <span ng-if="caratula.is_renewable == 1">Renovable</span>
+              <span ng-if="caratula.is_renewable == 2">No renovable</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-lg-4 form-group">
+            <span class="blue-color">Moneda:</span>
+            <div>
+              <span ng-if="caratula.f_currency == 1">Pesos</span>
+              <span ng-if="caratula.f_currency == 2">Dólares</span>
+              <span ng-if="caratula.f_currency == 3">UDI</span>
+              <span ng-if="caratula.f_currency == 4">Euros</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="celula && campo_celula">
+            <span class="blue-color">{{moduleName}}:</span>
+            <div>
+              <span>{{celula}}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="caratula.grouping_level && campo_agrupacion">
+            <span class="blue-color">Agrupación:</span>
+            <div>
+              <span>{{caratula.grouping_level.description}}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="caratula.subgrouping_level && campo_agrupacion">
+            <span class="blue-color">Subagrupación:</span>
+            <div>
+              <span>{{caratula.subgrouping_level.description}}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="caratula.subsubgrouping_level && campo_agrupacion">
+            <span class="blue-color">Subsubagrupación:</span>
+            <div>
+              <span>{{caratula.subsubgrouping_level.description}}</span>
+            </div>
+          </div>
+          <div class="col-xs-6 col-lg-4 form-group">
+            <span class="blue-color">Creado Por:</span>
+            <div>
+              <span>{{ caratula.owner }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_lineanegocio">
+            <span class="blue-color">Linea de Negocio:</span>
+            <div>
+              <span ng-if="caratula.business_line == 0">Otro</span>
+              <span ng-if="caratula.business_line == 1">Comercial</span>
+              <span ng-if="caratula.business_line == 2">Personal</span>
+              <span ng-if="caratula.business_line != 0 && caratula.business_line != 1 && caratula.business_line != 2">&nbsp;</span>
+            </div>
+          </div>
+          <div class=" col-xs-12 col-md-6 col-md-4 form-group">
+            <span class="blue-color"><i class="fa fa-star yellow"></i> Responsable:</span>
+            <div>
+              <span ng-if="caratula.responsable">{{ caratula.responsable.first_name | uppercase}} {{ caratula.responsable.last_name | uppercase}}</span>
+              <span ng-if="!caratula.responsable">&nbsp;</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Ejecutivo de Cobranza:</span>
+              <div>
+                <span ng-if="caratula.collection_executive">{{ caratula.collection_executive.first_name | uppercase}} {{ caratula.collection_executive.last_name | uppercase}}</span>
+                <span ng-if="!caratula.collection_executive">&nbsp;</span>
+              </div>
+            </div>
+          <div class="col-xs-6 col-lg-4 form-group" ng-if="caratula.vendor && caratula.ref_policy.length == 0 && acceso_ver_ref">
+            <span class="blue-color">Referenciador:</span>
+            <div>
+              <span>{{ caratula.vendor.first_name | uppercase}} {{ caratula.vendor.last_name | uppercase}}</span>
+            </div>
+          </div>
+          <div class="col-xs-6 col-lg-4 form-group" ng-if="caratula.reason_rehabilitate">
+            <span class="blue-color">Motivo de rehabilitación:</span>
+            <div>
+              <span>{{ caratula.reason_rehabilitate }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-6 col-md-4 form-group" ng-if="caratula.ref_policy.length > 0 && acceso_ver_ref">
+            <span class="blue-color">Referenciador(es):</span>
+            <div ng-repeat="refs in caratula.ref_policy">
+              <span>{{ refs.ref_name | uppercase}}</span>
+              <a ng-if="caratula.ref_policy && caratula.ref_policy.length >0" class="btn btn-sm btn-white" ng-click="cambiarReferenciador(refs,caratula)" title="Cambiar Referenciador"><i class="fa fa-rotate-right" aria-hidden="true"></i></a>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Observaciones:</span>
+            <div>
+              <span>{{ caratula.observations }}</span>
+            </div>
+          </div>
+          <div class="col-xs-6 form-group pull-right" ng-if="caratula.task_associated">
+            <!-- <button type="button" class="btn btn-white btn-sm btn-secondary" ng-click="order.toggleCollapse()"> -->
+              <button type="button" class="btn btn-white btn-sm btn-secondary" ng-click="openModal(caratula.task_associated_info)">
+              {{ order.isCollapsed ? 'Ocultar' : 'Ver' }} Tarea Origen
+            </button>
+            <div ng-show="order.isCollapsed">
+              <span class="blue-color">Tarea Origen</span>
+              <div>
+                <span>{{ caratula.task_associated_info.title }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="caratula.status ==15">
+            <span class="blue-color">Razón de No Renovación:</span>
+            <div>
+              <span>{{ caratula.reason_ren }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <button type="button" class="btn btn-secondary m-r-sm" ng-click="showRecordatorios()">{{caratula.recordatorios.length}}</button><span class="blue-color">Recordatorios</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ibox float-e-margins animate m-t" ng-if="recordatoriosFlag">
+  <div class="ibox-title">
+    <h5>Recordatorios</h5>
+    <div ibox-tools></div>
+  </div>
+  <div class="ibox-content">
+    <button class="btn btn-info m-b" ng-click="noshowRecordatorios()"><span class="fa fa-reply"></span> Regresar</button>
+    <table class="table table-hover table-bordered">
+      <thead>
+        <th>Recordatorio ID</th>
+        <th>Resumen</th>
+        <th>Descripción</th>
+        <th>Fecha programada</th>
+        <th>Hora programada</th>
+        <th>Vista</th>
+      </thead>
+      <!-- <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.NotasModal(nota,vm.insurance)"> -->
+      <tr ng-repeat="reco in caratula.recordatorios track by $index" ng-click="goToRecordatorio(reco, $index)">
+        <td>{{ reco.recordatorio.id }}</td>
+        <td >{{ reco.recordatorio.nombre}}</td>
+        <td>{{ reco.recordatorio.descr }} </td>
+        <td>{{ reco.recordatorio.fecha_programada | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+        <td>{{ reco.recordatorio.hora_programada | date: 'h:mm:ss a'  : 'UTC'}}</td>
+        <td ng-class="{'label-info' : reco.seen }" ng-if="reco.seen"><i class="fa fa-eye" aria-hidden="true"></i> Visto</td>
+        <td ng-class="{'label-success' : !reco.seen }" ng-if="!reco.seen">No visto</td>
+      </tr>
+    </table>
+   </div>
+</div>
+<div ng-if="show_caratula && policy_history.length > 0">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Histórico renovaciones y cancelaciones</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12">
+          <table class="table table-bordered table-hover table hidden-xs hidden-sm">
+            <thead>
+              <tr>
+                <th>Número de Póliza</th>
+                <th>Vigencia</th>
+                <th>Estatus</th>
+                <th>Fecha de Renovación</th>
+                <th>Renovado Por:</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="policy in policy_history track by $index" ng-click="goToPolicy(policy)">
+                <td ng-if="policy.poliza_number">{{policy.poliza_number}}</td>
+                <td ng-if="!policy.poliza_number">Sin número asignado</td>
+                <td>{{ policy.start_of_validity | date: 'dd/MM/yyyy': 'UTC'}} - {{ policy.end_of_validity | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                <td>{{status(policy.status)}}</td>
+                <td>{{policy.created_at | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                <td>{{policy.owner}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_caratula">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Bitácora</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row">
+        <div class="col-xs-12">
+          <comments datasource="comments_data" config="comments_config" typemodel="28" idmodel="caratula.id" exportable="true"></comments>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div ng-if="show_certificado && show_tableCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Pólizas</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate" ng-if="infoFlagCertificate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="allCertificates()"><i class="fa fa-bars" aria-hidden="true"></i> Todas las Pólizas</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+          <button class="col-xs-12 btn btn-primary" ng-click="showItemCertificate(4)" ng-disabled="!showOt"><i class="fa fa-list" aria-hidden="true"></i> Agregar Layout</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+          <button class="col-xs-12 btn btn-primary" ng-click="createIndividualCertificate()" ng-disabled="!showOt"><i class="fa fa-ellipsis-h" aria-hidden="true"></i> Agregar Manual</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 form-group">
+          <label>Buscar</label>
+          <div class="input-group">
+            <input class="form-control" type="text" ng-enter="search(cadena)" ng-model="cadena" placeholder="Pólizas, Marca, Serial">
+            <div class="input-group-btn">
+              <button class="btn btn-success" type="button" ng-click="search(cadena)">Buscar</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 form-group">
+          <table class="table table-bordered table-hover" ng-if="caratula.subramo == 'Automóviles'">
+            <thead>
+              <th>No. Póliza</th>
+              <th>Contratante</th>
+              <th>Estatus</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Año</th>
+              <th>Versión</th>
+              <th>Serie</th>
+              <th>Acciones</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in categorySelected.certificates | orderBy: 'id' track by $index" ng-click="selectCerficate(item)">
+                <td>{{ item.poliza_number }}</td>
+                <td>{{ item.contractor.full_name }}</td>
+                <td>
+                  <div>
+                    <div class="label" ng-class="{'label-success': item.status == 1 || item.status == 12, 'label-info' : item.status == 10, 'label-primary' : item.status == 14, 'label-warning' : item.status == 2 || item.status == 4 || item.status == 11}" style="margin-right: 10px"> {{ statusPolicy(item.status) }} <span ng-if="item.is_renewable ==1 && item.renewed_status == 2 && item.status==13 && item.org_name =='ancora'">-En Proceso de Renovación</span></span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ item.automobiles_policy[0].brand }}</td>
+                <td>{{ item.automobiles_policy[0].model }}</td>
+                <td>{{ item.automobiles_policy[0].year }}</td>
+                <td>{{ item.automobiles_policy[0].version }}</td>
+                <td>{{ item.automobiles_policy[0].serial }}</td>
+                <td ng-click="$event.stopPropagation()">
+                  <button ng-if ="acceso_adm_pol" class="btn btn-white" ng-click="editCerficate(item)" title="Editar Póliza de Colectividad"><span class="fa fa-pencil"></span></button>
+                  <button ng-if = "acceso_elim_pol" class="btn btn-white" ng-click="deleteCertificate(item)" title="Eliminar Póliza de Colectividad"><span class="fa fa-trash"></span></button>
+                  <button class="btn btn-white" ng-if="item.recibos_poliza.length" ng-click="deleteReceiptsCertificate(item)" title="Existen recibos"><span class="fa fa-list-alt"></span></button>
+                  <button class="btn btn-white" ng-click="showEndorsementsCertificate(item)">Endosos({{ item.endosos }})</button>
+                  <button class="btn btn-white" ng-click="showSinistersCertificate(item)">Siniestros({{ item.siniestros }})</button>
+                  <a ng-if="item.conducto_de_pago != 1" ng-click="$event.stopPropagation()" class="btn btn-white btn-sm" title="{{get_conductos(item.conducto_de_pago)}}">
+                    <i ng-if="item.conducto_de_pago == 2" class="fa fa-dollar" aria-hidden="true"></i>
+                    <i ng-if="item.conducto_de_pago == 3" class="fa fa-dollar" aria-hidden="true"></i>
+                    <i ng-if="item.conducto_de_pago == 4" class="fa fa-credit-card-alt" aria-hidden="true"></i>
+                    <i ng-if="item.conducto_de_pago == 5" class="fa fa-money" aria-hidden="true"></i>
+                    <i ng-if="item.conducto_de_pago == 6" class="fa fa-credit-card" aria-hidden="true"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-xs-12 text-center">
+          <nav aria-label="Page navigation example">
+            <ul class="pagination pagination_center justify-content-center">
+              <li ng-if="show_prev_block" ng-click="previousBlockPages()">
+                <a class="page-link">
+                  <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                </a>
+              </li>
+              <li class="page-item" ng-repeat="page in totalPages | slice:start:end" ng-class="{'active': page === actual_page}" ng-click="selectPage(page)" >
+                <a class="page-link" >{{ page }}</a>
+              </li>
+              <li ng-click="nextBlockPages()" ng-if="totalPages.length > 5">
+                <a class="page-link">
+                  <span><i class="glyphicon glyphicon-option-horizontal"></i></span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" ng-click="lastPage()" aria-label="Last">
+                  <span aria-hidden="true">
+                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                  </span>
+                  <span class="sr-only">Last</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 pull-right" ng-if="acceso_rep_pol">
+          <button class="btn btn-primary col-xs-12" type="button" ng-click="downloadExcel(categorySelected, 1)" ng-if="!allExcel"><i class="fa fa-download" aria-hidden="true"></i> Generar Reporte</button>
+          <button class="btn btn-primary col-xs-12" type="button" ng-click="downloadExcelAll(caratula, 1)" ng-if="allExcel"><i class="fa fa-download" aria-hidden="true"></i> Generar Reporte</button>
+        </div>
+      </div>
+      <div class="row animate" ng-if="endorsementFlagCertificate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <table class="table table-hover table-bordered">
+            <thead>
+              <th>Tipo</th>
+              <th>Número de Endoso</th>
+              <th>Concepto</th>
+              <th>Descripción</th>
+              <th>Vigencia</th>
+              <th>Estatus</th>
+              <th>Historial</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="endorsement in endorsementsCertificate track by $index" ng-click="gotoEndoso(endorsement)">
+                <td>{{ endorsement.endorsement_type }}</td>
+                <td ng-if="endorsement.number_endorsement">{{ endorsement.number_endorsement }}</td>
+                <td ng-if="!endorsement.number_endorsement">Sin número asigando</td>
+                <td>
+                  {{ concept(endorsement.concept) }}
+                  <span ng-if="concept(endorsement.concept) == 'OTRO'">: </span>{{endorsement.other_desc}}
+                </td>
+                <td>{{ endorsement.observations }}</td>
+                <td>
+                  {{ endorsement.init_date | date: 'dd/MM/yyyy': 'UTC' }} - {{ endorsement.end_date | date: 'dd/MM/yyyy': 'UTC'}}
+                </td>
+                <td ng-if="endorsement.status == 1"> Pendiente </td>
+                <td ng-if="endorsement.status == 2"> Registrado </td>
+                <td ng-if="endorsement.status == 3"> Rechazado </td>
+                <td ng-if="endorsement.status == 5"> En trámite </td>
+                <td ng-if="endorsement.status == 4"> Cancelado </td>
+                <td ng-if="endorsement.migrated"> Sin historial </td>
+                <td ng-if="endorsement.status != 2"></td>
+                <td ng-if="!endorsement.migrated && endorsement.status == 2">
+                  <button class="btn btn-white" ng-click="$event.stopPropagation(); showChange(endorsement)">
+                    <i class="fa fa-refresh" aria-hidden="true"></i> Ver Cambios
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row animate" ng-if="siniesterFlagCertificate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <table class="table table-hover table-bordered">
+            <thead>
+              <th>Folio</th>
+              <th>Número de Siniestro</th>
+              <th>Fecha de Creación</th>
+              <th>Fecha de Emisión</th>
+              <th>Estatus</th>
+              <th>Tipo de Pago</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="sinister in sinistersCertificate track by $index" ng-click="infoSinister(sinister)">
+                <td>{{ sinister.folio_compania }} </td>
+                <td>{{ sinister.numero_siniestro }} </td>
+                <td>{{ sinister.fecha_siniestro | date: 'dd/MM/yyyy h:mm:ss a': 'UTC' }} </td>
+                <td>{{ sinister.fecha_ingreso | date: 'dd/MM/yyyy h:mm:ss a' : 'UTC'}} </td>
+                <td ng-if="sinister.status == 1"> Pendiente </td>
+                <td ng-if="sinister.status == 2"> En trámite </td>
+                <td ng-if="sinister.status == 3"> Completado </td>
+                <td ng-if="sinister.status == 4"> Cancelado </td>
+                <td ng-if="sinister.status == 5"> Rechazado </td>
+                <td> {{ tipo_pago(sinister.accidente_sinister[0].tipo_pago)}} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_certificado && show_infoCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Información Póliza</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right">
+          <div class="col-xs-12 btn-group">
+            <button type="button" class="col-xs-12 btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-bolt" aria-hidden="true"></i> Opciones de la Póliza
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li>
+                <a ng-click="getLogCertificate(certificate)"><i class="fa fa-history" aria-hidden="true"></i> Log</a>
+              </li>
+              <li ng-if="acceso_adm_rehabilitar && certificate.status == 11">
+                <a ng-click="reActivatePolicy(certificate.id, certificate.poliza_number)">
+                  Rehabilitar Póliza
+                </a>
+              </li>
+              <li ng-if="acceso_adm_rehabilitar && (certificate.status == 15 || certificate.status == 'No Renovada')">
+                <a ng-click="renovarPolizaRehabilitate(certificate)">
+                  Rehabilitar Póliza/OT para Renovar
+                </a>
+              </li>
+              <li ng-if="
+                    caratula.status == 12
+                    && certificate.is_renewable == 1
+                    && certificate.renewed_status == 0
+                    && !(certificate.status == 15 
+                        || certificate.status == '15' 
+                        || certificate.status == 'No Renovada')
+              ">
+                <a ng-click="renovarPoliza(certificate)">
+                  <i class="fa fa-rotate-right" aria-hidden="true"></i> Renovar
+                </a>
+              </li>
+              <li>
+                <a ng-click="assignPolicy(certificate.id,certificate)"><i class="fa fa-share-alt" aria-hidden="true"></i> Compartir</a>
+              </li>
+              <li  ng-if="acceso_adm_end" >
+                <a ng-click="goToEndorsement('Endoso', 'endorsement.endorsement',certificate)" ng-if="certificate.status >= 10"><i class="fa fa-th-large" aria-hidden="true"></i> Crear endoso</a>
+              </li>
+              <li>
+                <a ng-click="cancelRenewal(certificate)" ng-if="(certificate.status != 15 && certificate.status != 12)"><i class="fa fa-sticky-note" aria-hidden="true"></i> No Renovar</a>
+              </li>
+              <li ng-if="acceso_adm_pol && (certificate.status ==10 || certificate.status ==13 || certificate.status ==11 || certificate.status ==15 || certificate.status ==14)">
+                <a ng-click="renovarConPolicy(certificate.id, certificate.poliza_number,certificate)"><i class="fa fa-link" aria-hidden="true"></i> Renovar con</a>
+              </li>
+              <li ng-if="acceso_canc_pol">
+                <a ng-click="cancelPolicyC(certificate)"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</a>
+              </li>
+              <li>
+                <a ng-if="caratula.subramo.subramo_code == 1" ui-sref="siniestros.create_vida({myInsurance: cert_info, contractor: cover_contractor})"><i class="fa fa-folder" aria-hidden="true"></i> Crear siniestro</a>
+              </li>
+              <li class="dropdown-submenu">
+                <a ng-if="acceso_adm_sin && caratula.ramo.ramo_code == 2"><i class="fa fa-folder" aria-hidden="true"></i> Crear siniestro</a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a ng-click="goToSiniester('', 1)">Por Titular</a>
+                  </li>
+                  <li class="dropdown-submenu">
+                    <a>Por Dependiente</a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li ng-repeat="relationship in cert_info.accidents_policy[0].relationship_accident">
+                        <a ng-click="goToSiniester(relationship, 2)">
+                          {{relationship.first_name}} {{relationship.last_name}}
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li ng-if="acceso_adm_sin">
+                <a ng-if="caratula.subramo.subramo_code == 9" ui-sref="siniestros.create_autos({myInsurance: cert_info, contractor: cover_contractor})"><i class="fa fa-folder" aria-hidden="true"></i> Crear siniestro</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-xs-12 form-group">
+          <legend class="legend-title" align="center">Póliza: {{ certificate.poliza_number }}</legend>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <legend class="legend-title" align="center">Contratante</legend>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color" ng-if="certificate.contractor.type_person == 1 || certificate.contractor.type_person == 'Física'"><b>Nombre</b>:</span>
+            <span class="blue-color" ng-if="certificate.contractor.type_person == 2 || certificate.contractor.type_person == 'Moral'"><b>Razón Social</b>:</span>
+            <div>
+              <span>{{ certificate.contractor.full_name }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">RFC:</span>
+            <div>
+              <span>{{ certificate.contractor.rfc }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Correo Electrónico:</span>
+            <div style="word-wrap: break-word">
+              <span>{{ certificate.contractor.email }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Teléfono:</span>
+            <div>
+              <span>{{ certificate.contractor.phone_number }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group">
+            <span class="blue-color">Dirección</span>
+            <div>
+              <span ng-if="certificate.contractor">
+                {{ certificate.address.route }} &nbsp;
+              </span>
+              <span ng-if="certificate.contractor">
+                Int. {{ certificate.address.street_number_int }}, 
+              </span>
+              <span ng-if="certificate.contractor">
+                {{ certificate.address.sublocality }}, 
+              </span>
+              <br>
+              <span ng-if="certificate.contratcor">
+                {{ certificate.address.administrative_area_level_2 }}, 
+              </span>
+              <span ng-if="certificate.contractor">
+                {{ certificate.address.administrative_area_level_1 }}, 
+              </span>
+              <span ng-if="certificate.contractor">
+                CP. {{ certificate.address.postal_code }}
+              </span>
+            </div>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="certificate.contractor.vip">
+            <span class="blue-color">VIP</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-8 border-left"> 
+          <button class="btn btn-default pull-right btn-tab10" style="margin-top: -7px; color: grey" title="Crear Recordatorio" ng-click="createRecordatorio(certificate,1)">
+            <i class="fa fa-clock-o"></i>
+          </button>
+          <legend class="legend-title" align="center">Información</legend>            
+          <div ng-if="certificate.automobiles_policy.length">
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">No. Póliza:</span>  
+              <div>
+                <span>{{ certificate.poliza_number }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Folio:</span>
+              <div>
+                <span>{{ certificate.folio }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Vigencia:</span>
+              <div>
+                <span>{{ certificate.start_of_validity | date: 'dd/MM/yyyy' : 'UTC'}} - {{ certificate.end_of_validity | date: 'dd/MM/yyyy' : 'UTC'}}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Estatus:</span>
+              <div>
+                <div class="label" ng-class="{'label-success': certificate.status == 1 || certificate.status == 12, 'label-info' : certificate.status == 10, 'label-primary' : certificate.status == 14, 'label-warning' : certificate.status == 2 || certificate.status == 4 || certificate.status == 11}" style="margin-right: 10px"> {{ statusPolicy(certificate.status) }} </span>
+                  <span ng-if="(certificate.renewed_status == 2 && certificate_history.length > 0) || certificate.renewed_status == 2"> - En proceso de renovación</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="certificate.reason_cancel">
+              <span class="blue-color">Motivo de Cancelación:</span>
+              <div>
+                <span>{{ certificate.reason_cancel }}<span>
+              </div>
+              <span class="blue-color" ng-if="certificate.date_cancel">Fecha de Cancelación:</span>
+              <div ng-if="certificate.date_cancel">
+                <span>{{ certificate.date_cancel | date: 'dd/MM/yyyy' : 'UTC'}}<span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Frecuencia de Pago:</span>
+              <div>
+                <span ng-if="certificate.forma_de_pago == 1">Mensual</span>
+                <span ng-if="certificate.forma_de_pago == 2">Bimestral</span>
+                <span ng-if="certificate.forma_de_pago == 3">Trimestral</span>
+                <span ng-if="certificate.forma_de_pago == 5">Contado</span>
+                <span ng-if="certificate.forma_de_pago == 6">Semestral</span>
+                <span ng-if="certificate.forma_de_pago == 12">Anual</span>
+                <span ng-if="certificate.forma_de_pago == 7">Semanal</span>
+                <span ng-if="certificate.forma_de_pago == 14">Catorcenal</span>
+                <span ng-if="certificate.forma_de_pago == 15">Quincenal</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Renovable:</span>
+              <div>
+                <span ng-if="certificate.is_renewable == 1">Renovable</span>
+                <span ng-if="certificate.is_renewable == 2">No Renovable</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Moneda:</span>
+              <div>
+                <span ng-if="certificate.f_currency == 1">Pesos</span>
+                <span ng-if="certificate.f_currency == 2">Dólares</span>
+                <span ng-if="certificate.f_currency == 3">UDI</span>
+                <span ng-if="certificate.f_currency == 4">Euros</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Paquete:</span>
+              <div>
+                <span>{{ certificate.paquete.package_name }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_lineanegocio">
+              <span class="blue-color">Linea de Negocio:</span>
+              <div>
+                <span ng-if="certificate.business_line == 0">Otro</span>
+                <span ng-if="certificate.business_line == 1">Comercial</span>
+                <span ng-if="certificate.business_line == 2">Personal</span>
+                <span ng-if="certificate.business_line != 0 && certificate.business_line != 1 && certificate.business_line != 2">&nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Conducto de Pago:</span>
+              <div>
+                <span ng-if="certificate.conducto_de_pago == 1">No domiciliada</span>
+                <span ng-if="certificate.conducto_de_pago == 2">Agente</span>
+                <span ng-if="certificate.conducto_de_pago == 3">CAC</span>
+                <span ng-if="certificate.conducto_de_pago == 4">CAT/Domiciliado</span>
+                <span ng-if="certificate.conducto_de_pago == 5">Nómina</span>
+                <span ng-if="certificate.conducto_de_pago == 6">CUT</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Sucursal:</span>
+              <div>
+                <span>{{ certificate.sucursal.sucursal_name }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_celula">
+              <span class="blue-color">Célula:</span>
+              <div>
+                <span>{{celula}}</span>
+              </div>
+            </div>
+            <!-- <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="certificate.grouping_level">
+              <span class="blue-color">Agrupación:</span>
+              <div>
+                <span>{{certificate.grouping_level.description}}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="certificate.subgrouping_level">
+              <span class="blue-color">Subagrupación:</span>
+              <div>
+                <span>{{certificate.subgrouping_level.description}}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="certificate.subsubgrouping_level">
+              <span class="blue-color">Subsubagrupación:</span>
+              <div>
+                <span>{{certificate.subsubgrouping_level.description}}</span>
+              </div>
+            </div> -->
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Responsable:</span>
+              <div>
+                <span>{{ certificate.responsable.first_name | uppercase}} {{ certificate.responsable.last_name | uppercase}}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Ejecutivo de Cobranza:</span>
+              <div>
+                <span>{{ certificate.collection_executive.first_name | uppercase}} {{ certificate.collection_executive.last_name | uppercase}}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Tipo:</span>
+              <div>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 1">Automóvil</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 2">Motocicleta</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 3">Tracto</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 4">Autobús</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 5">Pick up</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 6">Camiones hasta 1.5 ton</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 7">Chofer App</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 8">Remolque</span>
+                <span ng-if="certificate.automobiles_policy[0].policy_type == 9">Camiones + 1.5 ton</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Estado de circulación:</span>
+              <div>
+                <span>{{ getState(certificate.state_circulation) }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Procedencia:</span>
+              <div>
+                <span ng-if="certificate.automobiles_policy[0].procedencia == 0">Sin especificar</span>
+                <span ng-if="certificate.automobiles_policy[0].procedencia == 1">Residencia</span>
+                <span ng-if="certificate.automobiles_policy[0].procedencia == 2">Turista</span>
+                <span ng-if="certificate.automobiles_policy[0].procedencia == 3">Legalizado</span>
+                <span ng-if="certificate.automobiles_policy[0].procedencia == 4">Fronterizo</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Conductor:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].driver }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Marca:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].brand }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Modelo:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].model }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Año:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].year }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Versión:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].version }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Serie:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].serial }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Motor:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].engine }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Color:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].color }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Matrícula:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].license_plates }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Uso:</span>
+              <div>
+                <span ng-if="certificate.automobiles_policy[0].usage == 1">Particular</span>
+                <span ng-if="certificate.automobiles_policy[0].usage == 2">Carga Comercial</span>
+                <span ng-if="certificate.automobiles_policy[0].usage == 3">Servicio Público</span>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+              <span class="blue-color">Servicio:</span>
+              <div>
+                <span>{{ certificate.automobiles_policy[0].service }}</span>
+              </div>
+            </div>
+            <div class="col-xs-12 form-group">
+              <h4>Adaptación</h4>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                <span class="blue-color">Monto Adaptación:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].mont_adjustment  | currency}}</span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                <span class="blue-color">Adaptaciones:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].adjustment }}</span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                <span class="blue-color">Monto Equipamiento:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].mont_special_team  | currency}}</span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                <span class="blue-color">Equipamiento:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].special_team }}</span>
+                </div>
+              </div>
+            </div>            
+            <div class="col-xs-12 form-group">
+              <h4>Beneficiario Preferente</h4>
+              <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                <span class="blue-color">Beneficiario:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].beneficiary_name }}</span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                <span class="blue-color">Beneficiario Dirección:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].beneficiary_address }}</span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+                <span class="blue-color">Beneficiario RFC:</span>
+                <div>
+                  <span>{{ certificate.automobiles_policy[0].beneficiary_rfc }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 form-group">
+              <span class="blue-color">Observaciones:</span>
+              <div>
+                <span>{{ certificate.observations }} &nbsp;</span>
+              </div>
+            </div>
+            <div class="col-xs-6 col-lg-4 form-group" ng-if="certificate.reason_rehabilitate">
+              <span class="blue-color">Motivo de rehabilitación:</span>
+              <div>
+                <span>{{ certificate.reason_rehabilitate }}</span>
+              </div>
+            </div>            
+            <div class="col-xs-12 form-group">
+              <button type="button" class="btn btn-secondary m-r-sm" ng-click="showRecordatoriosC()">{{certificate.recordatorios.length}}</button><span class="blue-color">Recordatorios</span>
+            </div>
+          </div>
+          <div class="col-xs-12">
+            <hr>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Prima Neta:</span>
+            <div>
+              <span>{{ certificate.p_neta | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Descuento:</span>
+            <div>
+              <span>{{ certificate.descuento | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">RPF:</span>
+            <div>
+              <span>{{ certificate.rpf | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Derecho:</span>
+            <div>
+              <span>{{ certificate.derecho | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">IVA:</span>
+            <div>
+              <span>{{ certificate.iva | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Prima Total:</span>
+            <div>
+              <span>{{ certificate.p_total | currency }}</span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="permiso_comisiones" >
+            <span class="blue-color">Comisión:</span>
+            <div>
+              <span>{{ certificate.comision | currency }}</span>
+            </div>
+          </div>
+          <!-- <div class="col-xs-12 col-sm-6 col-md-4 form-group"  ng-if="permiso_comisiones">
+            <span class="blue-color">% Comisión:</span>
+            <div>
+              <span>{{ certificate.comision_percent}}%</span>
+            </div>
+          </div> -->        
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="permiso_comisiones">
+            <span class="blue-color">% Comisión <span ng-if="certificate.comision_derecho_percent!='0.00' || certificate.comision_rpf_percent!='0.00'">Prima Neta</span>:</span>
+            <div>{{ certificate.comision_percent }}%</div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="permiso_comisiones && certificate.comision_derecho_percent!='0.00'">
+            <span class="blue-color">% Comisión Derecho:</span>
+            <div>{{ certificate.comision_derecho_percent }}%</div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="permiso_comisiones && certificate.comision_rpf_percent!='0.00'">
+            <span class="blue-color">% Comisión RPF:</span>
+            <div>{{ certificate.comision_rpf_percent }}%</div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+            <span class="blue-color">Conducto de Pago:</span>
+            <div>
+              <span>{{ get_conductos(certificate.conducto_de_pago) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="ibox float-e-margins animate m-t" ng-if="recordatoriosFlagC">
+          <div class="ibox-title">
+            <h5>Recordatorios</h5>
+            <div ibox-tools></div>
+          </div>
+          <div class="ibox-content">
+            <button class="btn btn-info m-b" ng-click="noshowRecordatorios()"><span class="fa fa-reply"></span> Regresar</button>
+            <table class="table table-hover table-bordered">
+              <thead>
+                <th>Recordatorio ID</th>
+                <th>Resumen</th>
+                <th>Descripción</th>
+                <th>Fecha programada</th>
+                <th>Hora programada</th>
+                <th>Vista</th>
+              </thead>
+              <!-- <tr ng-repeat="nota in vm.notas track by $index" ng-click="vm.NotasModal(nota,vm.insurance)"> -->
+              <tr ng-repeat="reco in certificate.recordatorios track by $index" ng-click="goToRecordatorio(reco, $index)">
+                <td>{{ reco.recordatorio.id }}</td>
+                <td >{{ reco.recordatorio.nombre}}</td>
+                <td>{{ reco.recordatorio.descr }} </td>
+                <td>{{ reco.recordatorio.fecha_programada | date: 'dd/MM/yyyy' : 'UTC'}}</td>
+                <td>{{ reco.recordatorio.hora_programada | date: 'h:mm:ss a'  : 'UTC'}}</td>
+                <td ng-class="{'label-info' : reco.seen }" ng-if="reco.seen"><i class="fa fa-eye" aria-hidden="true"></i> Visto</td>
+                <td ng-class="{'label-success' : !reco.seen }" ng-if="!reco.seen">No visto</td>
+              </tr>
+            </table>
+           </div>
+        </div>
+        <div ng-if="caratula.recibos_poliza">
+          <div class="col-xs-12 form-group">
+            <legend class="legend-title" align="center">Recibos</legend>
+          </div>
+          <div class="col-xs-12 form-group">
+            <table class="table table-bordered table-hover" ng-if="!show_binnacle_receipt">
+              <thead>
+                <tr>
+                  <th>Serie</th>
+                  <th>Prima Neta</th>
+                  <th>RPF</th>
+                  <th>Derecho</th>
+                  <th>Iva</th>
+                  <th>Prima Total</th>
+                  <th ng-if="permiso_comisiones">Comisión</th>
+                  <th width="5%" ng-if="permiso_comisiones">Comisión Conciliada</th>
+                  <th>Vigencia</th>
+                  <th>Vencimiento</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="recibo in certificate.recibos_poliza" ng-if="recibo.receipt_type == 1 && recibo.status != 'Desactivado'" ng-click="changeStatusModal(recibo, certificate.contractor, certificate)">
+                  <td>{{recibo.recibo_numero}}</td>
+                  <td>{{recibo.prima_neta | currency}}</td>
+                  <td>{{recibo.rpf | currency}}</td>
+                  <td>{{recibo.derecho | currency}}</td>
+                  <td>{{recibo.iva | currency}}</td>
+                  <td>{{recibo.prima_total | currency}}</td>
+                  <td ng-if="permiso_comisiones">{{recibo.comision | currency}}</td>
+                  <td width="5%" ng-if="permiso_comisiones">{{recibo.comision_conciliada | currency}}</td>
+                  <td>{{recibo.fecha_inicio | date: 'dd/MM/yyyy': 'UTC'}} - {{recibo.fecha_fin | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                  <td>{{recibo.vencimiento | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                  <td>
+                    <div class="label" ng-class="{'label-success': recibo.status == 'Pendiente de pago', 
+                    'label-info' : recibo.status == 'Conciliado', 
+                    'label-primary' : recibo.status == 'Pagado' || recibo.status == 'Prorrogado', 
+                    'label-warning' : recibo.status == 'Cancelado' || recibo.status == 'Precancelado'}"> {{ recibo.status }}
+                    </div>
+                  </td>
+                  <td ng-click="$event.stopPropagation()">
+                    <a class="btn btn-sm btn-white" ng-click="editReceipt(recibo,'',certificate)"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                    <a class="btn btn-white btn-sm" ng-if="acceso_cor && !recibo.track_email" ng-click=" addEmailsConfirmPolicy(recibo, contratante)" ng-disabled="!(recibo.status == 'Pendiente de pago')">
+                      <i class="fa fa-envelope" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-primary btn-sm" ng-if="acceso_cor && recibo.track_email" ng-click=" addEmailsConfirmPolicy(recibo, contratante)" ng-disabled="recibo.status != 'Pendiente de pago'">
+                      <i class="fa fa-envelope" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-white btn-sm" ng-if="!recibo.track_bitacora" ng-click=" showBinnacleReceipt(recibo)">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-warning btn-sm" ng-if="recibo.track_bitacora" ng-click=" showBinnacleReceipt(recibo)">
+                      <i class="fa fa-comment" aria-hidden="true"></i>
+                    </a>
+                    <a ng-if="(recibo.status == 4 || recibo.status =='Pendiente de pago') && acceso_elim_rec" ng-click="$event.stopPropagation(); deleteReceipts(recibo,$index,certificate)" class="btn btn-white btn-sm" title="Eliminar recibo">
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </a>     
+
+                    <a class="btn btn-info btn-sm" title="Crear Recordatorio" ng-click=" $event.stopPropagation();createRecordatorio(recibo,4)"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                    </a> 
+                    <a class="btn btn-default sm" style="color: red" ng-click="$event.stopPropagation()" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE" ng-if="recibo.endosotramite">
+                      <i class="fa fa-exclamation-circle" aria-hidden="true" title="LA PÓLIZA DEL RECIBO TIENE OT ENDOSO(S) EN TRÁMITE"></i>
+                    </a>  
+                    <a ng-if="certificate.conducto_de_pago != 1" ng-click="$event.stopPropagation()" class="btn btn-white btn-sm" title="{{get_conductos(certificate.conducto_de_pago)}}">
+                      <i ng-if="certificate.conducto_de_pago == 2" class="fa fa-dollar" aria-hidden="true"></i>
+                      <i ng-if="certificate.conducto_de_pago == 3" class="fa fa-dollar" aria-hidden="true"></i>
+                      <i ng-if="certificate.conducto_de_pago == 4" class="fa fa-credit-card-alt" aria-hidden="true"></i>
+                      <i ng-if="certificate.conducto_de_pago == 5" class="fa fa-money" aria-hidden="true"></i>
+                      <i ng-if="certificate.conducto_de_pago == 6" class="fa fa-credit-card" aria-hidden="true"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Totales</b></td>
+                  <td><b>{{ total_prima_certificate | currency }}</b></td>
+                  <td><b>{{ total_rpf_certificate | currency }}</b></td>
+                  <td><b>{{ total_derecho_certificate | currency }}</b></td>
+                  <td><b>{{ total_iva_certificate | currency }}</b></td>
+                  <td><b>{{ total_total_certificate | currency }}</b></td>
+                  <td  ng-if="permiso_comisiones"><b>{{ total_comision_certificate | currency }}</b></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="col-xs-12" ng-if="!show_binnacle_receipt">
+              <div class="identificador-dash-email" style="width: 30px;"></div>
+              <span class="margin-right-34"> Se envio un correo.</span>
+              <div class="identificador-dash-binnacle" style="width: 30px;"></div>
+              <span class="margin-right-34"> Hay comentarios en la bitácora.</span>
+            </div>
+            <div class="row animate" ng-if="show_binnacle_receipt">
+              <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+                <a class="col-xs-12 btn btn-info pull-right" ng-click="returnToReceipts()"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</a>
+              </div>
+              <div class="col-xs-12 form-group">
+                  <h3 align="center">Bitácora de recibos</h3>
+                  <hr>
+              </div>
+              <div>
+              <div class="col-xs-12 form-group">
+                <comments datasource="comments_data_receipt" typemodel="4" config="comments_config" idmodel="receipt_id" receiptmodel="receiptmodel" exportable="true"></comments>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div class="col-xs-12">
+            <legend class="legend-title" align="center">Histórico</legend>
+            <table class="table table-bordered table-hover table hidden-xs hidden-sm">
+              <thead>
+                <tr>
+                  <th>Número de Póliza</th>
+                  <th>Vigencia</th>
+                  <th>Estatus</th>
+                  <th>Fecha de Renovación</th>
+                  <th>Renovado Por:</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="policy in certificate_history track by $index" ng-click="goToPolicy(policy)">
+                  <td ng-if="policy.poliza_number">{{policy.poliza_number}}</td>
+                  <td ng-if="!policy.poliza_number">Sin número asignado</td>
+                  <td>{{ policy.start_of_validity | date: 'dd/MM/yyyy': 'UTC'}} - {{ policy.end_of_validity | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                  <td>{{status(policy.status)}}</td>
+                  <td>{{policy.created_at | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                  <td>{{policy.owner}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        <div class="col-xs-12">
+          <legend class="legend-title" align="center">Paquete: {{ certificate.paquete.package_name }}</legend>
+          <div>
+            <table class="table table-bordered table-hover">
+              <thead>
+                <th>Cobertura</th>
+                <th>Suma Asegurada</th>
+                <th>Deducible</th>
+              </thead>
+              <tbody>
+                <tr ng-repeat="coverage in certificate.paquete.coverage_package">
+                  <td>{{ coverage.coverage_name }}</td>
+                  <td>{{ coverage.sums_coverage[0].sum_insured }}</td>
+                  <td>{{ coverage.deductible_coverage[0].deductible }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <div class="col-xs-12">
+            <div class="col-xs-12 form-group" ng-if="permiso_administrar_adjuntos">
+              <div ng-include="'templates/upload.html'"></div>
+              <div class="col-xs-12 text-right form-group">
+                <button class="btn btn-primary " ng-click="saveFiles(certificate)">Guardar Archivos</button>
+              </div>
+            </div>
+
+            <div class="col-xs-12 form-group" ng-if="certificate.files">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <br><h3><span><i>Archivos que estan actualmente en la base de datos</i></span></h3>
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th width="400px">Opciones</th>
+                      <th ng-if="permiso_archivos && permiso_administrar_adjuntos" width="200px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="file in certificate.files track by $index">
+                      <td>
+                        <strong ng-bind="file.nombre" disabled></strong>
+                        <input name='text_input' class="form-control display-none" ng-if="permiso_administrar_adjuntos" ng-model="file.nombre" onblur="blurArchivoCargado()" ng-blur="saveFile(file)">
+                      </td>
+                      <td>
+                        <a class="btn btn-success" download href="{{file.arch}}">Descargar</a>
+                        <a class="btn btn-primary" href="{{file.arch}}" target="_blank">Ver</a>
+                        <button class="btn btn-danger btn-bm0" ng-click="deleteFile(file,certificate.files,certificate)" ng-if="permiso_administrar_adjuntos">Borrar</button>
+                        <button class="btn btn-info btn-bm0" onclick="renombrarArchivoCargado(), saveInput = true" ng-if="permiso_administrar_adjuntos">Renombrar</button>
+
+                        <span class="btn btn-success display-none" ng-if="permiso_administrar_adjuntos">Guardar</span>
+                      </td>
+                      <td ng-if="permiso_archivos && permiso_administrar_adjuntos"><input type="checkbox" ng-change="saveFile(file)" ng-model="file.sensible"> * Archivo sensible</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_certificado && show_editCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5 ng-if="isEdit">Editar Póliza</h5>
+      <h5 ng-if="!isEdit">Agregar Póliza</h5>
+    </div>
+    <div class="ibox-content" ng-if="show_contractor==false">
+      <div class="row animate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="return()"><i class="fa fa-reply"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div ng-if="caratula.subramo == 'Automóviles'">
+          <form name="form" novalidate onkeypress="return event.keyCode != 13;">
+            <div>
+              <div class="row">
+                <div class="col-xs-12 form-group" ng-if="!loaderPdf">
+                  <label class="form-label">Selecciona un archivo PDF:</label>
+                  <div class="alert alert-info" role="alert">
+                    <strong>Autos:</strong> Chubb, Quálitas, GNP, AXA, HDI, Primero Seguros, ANA, Momento, Afirme, Zurich.<br>
+                  </div>
+                  <input  accept="application/pdf" class="form-control" type="file" id="file-selector"name="file" onchange="angular.element(this).scope().fileNameChanged(this); angular.element(this).scope().showFile(this)"
+                  >
+                </div>
+              </div>
+              <div class="row">
+              </div>
+              <div class="row" ng-if="!loaderPdf && fileSelected_pf">
+                <div class="col-xs-12 text-right">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-pdf"
+                    ng-click="capturarPoliza(1)">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    &nbsp;Leer datos para la póliza
+                  </button>
+                </div>
+              </div>
+              <hr>
+              <div class="row"> 
+                <div class="col-xs-12 form-group container-loader" ng-if="loaderPdf">
+                  <img src="../../assets/images/loader/blue_loader.gif">
+                </div>
+              </div>
+            </div>			    
+          </form>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>No. Póliza: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.poliza_number" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Folio: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.folio" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Vigencia Inicio: <span class="color-red">*</span></label>
+            <div class="datepicker-me input-group date">
+              <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="newCertificate.start_of_validity" value="{{newCertificate.start_of_validity}}" ng-change="checkDate(newCertificate.start_of_validity)" />
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Vigencia Fin: <span class="color-red">*</span></label>
+            <div class="datepicker-me input-group date">
+              <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="newCertificate.end_of_validity" value="{{newCertificate.end_of_validity}}" ng-change="checkEndDate(newCertificate.end_of_validity)" />
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Contratante: <span class="color-red">*</span></label>
+            <div class="input-group">
+              <autocomplete datasource="contractors_data" id="contractors" model="order.contratante" change="matchesContractors(order.contratante);order.save_info_tab()"></autocomplete>
+              <span class="input-group-btn">
+                <button class="btn btn-success btn-add-contractor" ng-click="contratanteCreator();order.save_info_tab()">
+                  <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Dirección: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="address.tipo + ' - ' + address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in addresses track by address.url" ng-change="changeAddress(addressSelected);order.save_info_tab()" ng-model="newCertificate.address" ng-disabled="!order.contratante">
+              <option value="" disabled>Selecciona una dirección</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Correo Electrónico: <span class="color-red">*</span></label>
+            <input class="form-control" type="email" ng-model="order.contratante.value.email" ng-disabled="!order.contratante" ng-change="order.save_info_tab()">
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Teléfono:</label>
+            <phonenumber-directive model="order.contratante.value.phone_number" class="ng-isolate-scope">
+              <input class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" type="tel" maxlength="25" aria-invalid="false" ng-model="inputValue" ng-change="order.save_info_tab()"/>
+            </phonenumber-directive>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Frecuencia de Pago: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="item.label for item in frequencies" ng-change="changePayment(newCertificate.forma_de_pago);order.save_info_tab()" ng-model="newCertificate.forma_de_pago" ng-disabled="isEdit">
+              <option value="">Seleccione una frecuencia</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Renovable: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="renewal.label for renewal in renewals" ng-change="changeRenewal(newCertificate.is_renewable)" ng-model="newCertificate.is_renewable" ng-blur="order.save_info_tab();order.save_info_tab()">
+              <option value="">Seleccione una opción</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Moneda: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="currency.value as currency.label for currency in currencys" ng-change="changeCurrency(newCertificate.f_currency)" ng-model="newCertificate.f_currency" >
+              <option value="">Seleccione una moneda</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Paquete: <span class="color-red">*</span>
+            <select class="form-control" ng-options="pack.package_name for pack in packages" ng-change="changePackage(newCertificate.paquete)" ng-model="newCertificate.paquete" >
+              <option value="" disabled>Seleccion un paquete</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Conducto de pago <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="conducto_de_pago.value as conducto_de_pago.label for conducto_de_pago in conducto_de_pagos" ng-model="newCertificate.conducto_de_pago" ng-change="changeConducto()" >
+              <option value="">Seleccione un conducto</option>
+            </select>
+          </div> 
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Sucursal: </label>
+            <select class="form-control" ng-options="sucursal.sucursal_name for sucursal in sucursales" ng-change="changeType(newCertificate.sucursal)" ng-model="newCertificate.sucursal" >
+              <option value="">Seleccione una sucursal</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Tipo: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="type.name for type in types" ng-change="changeType(newCertificate.datos.policy_type)" ng-model="newCertificate.datos.policy_type" >
+              <option value="">Seleccione un tipo</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Procedencia: </label>
+            <select class="form-control" ng-options="origin.label for origin in procedencias" ng-model="newCertificate.datos.procedencia" value="{{origin.value}}" >
+              <option value="">Seleccione una procedencia</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Conductor: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.driver" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Marca: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.brand" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Modelo: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.model" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Año: <span class="color-red">*</span></label>
+            <input class="form-control" type="number" ng-model="newCertificate.datos.year" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Versión: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.version" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Serie: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.serial" ng-blur="order.save_info_tab();checkNumSerie()">
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Motor: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.engine" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Color: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.color" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Matrícula: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.license_plates" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Uso: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="uso.label for uso in usages" ng-model="newCertificate.datos.usage" value="{{uso.value}}" >
+              <option value="">Seleccione un uso</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Servicio: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.service" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Estado de Circulación</label>
+            <select class="form-control" data-ng-options="estado.state for estado in statesArray track by estado.state" name="state" ng-model="newCertificate.state_circulation" required>
+              <option value="">Selecciona un estado</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <legend class="legend-title" align="center">Adaptaciones</legend>
+              <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label>Monto de adaptación</label>
+                  <input class="form-control" type="text" ng-model="newCertificate.datos.mont_adjustment" ng-change="save_info_tab()" format-currency />
+                </div>
+                <div class="form-group">
+                  <label>Adaptación</label>
+                  <textarea class="form-control" ng-model="newCertificate.datos.adjustment" ng-change="save_info_tab()"></textarea>
+                </div>
+              </div>
+
+              <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label>Monto de equipamiento</label>
+                  <input type="text" class="form-control" ng-model="newCertificate.datos.mont_special_team" ng-change="save_info_tab()" format-currency />
+                </div>
+                <div class="form-group">
+                  <label>Equipo especial</label>
+                  <textarea class="form-control" ng-model="newCertificate.datos.special_team" ng-change="save_info_tab()"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xs-12">
+              <legend class="legend-title" align="center">Beneficiario Preferente</legend>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>Nombre beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_name" />
+              </div>
+
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>Dirección beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_address" />
+              </div>
+
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>RFC beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_rfc" maxlength="13"/>
+              </div>
+            </div>
+          </div>
+         <!--  <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Correo Electrónico: <span class="color-red">*</span></label>
+            <input class="form-control" type="email" ng-model="newCertificate.datos.email">
+          </div> -->
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Observaciones: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.observations" >
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 form-group">
+          <!-- <receipts-individual form="directiveReceipts" tosave="dataToSave" type="1"></receipts-individual> -->
+          <receipts-colectivo form="directiveReceipts" tosave="dataToSave" type="1"></receipts-colectivo>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right" ng-if="!isEdit">
+          <button class="col-xs-12 btn btn-primary" ng-click="validateCertificate()"><i class="fa fa-save" aria-hidden="true"></i> Guardar Póliza</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group pull-right" ng-if="isEdit" >
+          <button class="col-xs-12 btn btn-primary" ng-click="validateCertificate()"><i class="fa fa-refresh" aria-hidden="true"></i> Actualizar Póliza</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 animate z-index-9000" ng-if="show_contractor">
+    <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+  </div>
+</div>
+<div ng-if="show_certificado && show_massCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Agregar Certificados por Layout</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply"></i> Regresar</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <legend class="legend-title" ng-if="caratula.subramo == 'Vida'">Vida</legend>
+          <legend class="legend-title" ng-if="caratula.subramo == 'Gastos Médicos'">Gastos Médicos</legend>
+          <legend class="legend-title" ng-if="caratula.subramo == 'Automóviles'">Automóviles</legend>
+          <legend class="legend-title" ng-if="caratula.subramo == 'Incendio'">Incendio</legend>
+          <legend class="legend-title" ng-if="caratula.subramo == 'Diversos'">Diversos</legend>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <div class="col-xs-12 form-group">
+            <label>Contratante: <span class="color-red">*</span></label>
+            <autocomplete datasource="contractors_data" id="contractors" model="order.searchContratante" change="matchesContractors(order.searchContratante)"></autocomplete>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="order.searchContratante">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Contratante</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <small>ID para layout: </small><span class="font-weight-bold">{{ contractorLayout.id }}</span>
+                    <br>
+                    <small>Nombre: <span>{{ contractorLayout.name }}</span></small>
+                    <br>
+                    <small>ID para Layout Tipo: <span class="font-weight-bold">{{ contractorLayout.type }}</span></small>
+                    <br>
+                    <small ng-if="contractorLayout.type == 1">Tipo Contratante: <span>Física</span></small>
+                    <small ng-if="contractorLayout.type == 2">Tipo Contratante: <span>Moral</span></small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="order.searchContratante">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Direcciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in contractorLayout.address">
+                  <td>
+                    <small>ID para layout: </small><span class="font-weight-bold">{{ item.id }}</span>
+                    <br>
+                    <small>Nombre: <span>{{ item.administrative_area_level_2 }}, {{ item.administrative_area_level_1 }}</span></small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 border-left">
+          <div class="col-xs-12 form-group">
+            <label>Paquete: </label>
+            <select class="form-control" data-ng-options="package.package_name for package in paquetesLayout | orderBy:'package_name' track by package.url" ng-change="changePackageLay(paqueteLay)" name="paquete" ng-model="paqueteLay">
+              <option value="">Selecciona un paquete</option>
+            </select>
+            <span ng-if="!paquetesLayout.length">No hay paquetes en este subramo</span>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="paquetesLayout">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Paquete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <small>ID para layout: </small><span class="font-weight-bold">{{ paqueteLay.id }}</span>
+                    <br>
+                    <small>Nombre: <span>{{ paqueteLay.package_name }}</span></small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 border-left">
+          <div class="col-xs-12 form-group">
+            <label>Sucursal: </label>
+            <select class="form-control" data-ng-options="sucursal as sucursal.sucursal_name for sucursal in sucursalesLay" ng-change="changeSucursalLay(sucursalLay)" name="sucursals" ng-model="sucursalLay">
+              <option value="">Selecciona un sucursal</option>
+            </select>
+            <span ng-if="!sucursalesLay.length">No hay sucursales</span>
+          </div>
+          <div class="col-xs-12 form-group" ng-if="sucursalLay">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Sucursal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <small>ID para layout: </small><span class="font-weight-bold">{{ sucursalLay.id }}</span>
+                    <br>
+                    <small>Nombre: <span>{{ sucursalLay.sucursal_name }}</span></small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row" ng-if="!showTableCertificates">
+        <div class="col-sm-6 col-md-3 form-group" ng-if="!loader">
+          <label class="col-xs-12 btn btn-success">Agregar Archivo <i class="fa fa-upload" aria-hidden="true"></i>
+            <input class="display-none" type="file" fileread name="readCsvFile" id="readCsvFile" ng-model="excelFile" ng-change="validateExcel(excelFile)" onclick="limpiar()">
+          </label>
+        </div>
+        <div class="col-xs-12 text-center" ng-if="loader">
+          <i class="fa fa-cog fa-spin fa-5x"></i>
+          <div>
+              <span>Cargando pólizas...</span>
+          </div>
+        </div>
+      </div>
+      <div class="row" ng-if="showTableCertificates">
+        <div class="col-xs-12 form-group">
+          <legend class="legend-title" align="center">{{ caratula.subramo.subramo_name }}</legend>
+        </div>
+        <div class="col-xs-1 form-group">
+          <select class="form-control" ng-options="renewal.value for renewal in optionsViews" ng-change="selectViews(optionViews)" ng-model="optionViews">
+          </select>
+        </div>
+        <div>
+          <label>Del {{ valueInitial }} al {{ valueFinal }} de {{ excelJson.length }} </label>
+          <button class="btn btn-white" ng-click="addViews(-1)" ng-disabled="valueInitial == 1"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+          <button class="btn btn-white" ng-click="addViews(+1)" ng-disabled="valueFinal == excelJson.length"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <div class="panel-body table-over-y">
+            <table class="table table-bordered table-hover" ng-if="caratula.subramo == 'Automóviles'">
+              <thead>
+                <tr>
+                  <td>No Carátula</td>
+                  <td>Folio</td>
+                  <td>No. Póliza</td>
+                  <td>Contratante</td>
+                  <td>Tipo Contratante</td>
+                  <td>Dirección</td>
+                  <!-- <td>Correo</td>
+                  <td>Teléfono</td> -->
+                  <td>Vigencia Inicio</td>
+                  <td>Vigencia Fin</td>
+                  <td>Frecuencia Pago</td>
+                  <td>Renovable</td>
+                  <td>Moneda</td>
+                  <td>Paquete</td>
+                  <td>Sucursal</td>
+                  <td>Tipo</td>
+                  <td>Procedencia</td>
+                  <td>Conductor</td>
+                  <td>Marca</td>
+                  <td>Modelo</td>
+                  <td>Año</td>
+                  <td>Versión</td>
+                  <td>Serie</td>
+                  <td>Motor</td>
+                  <td>Color</td>
+                  <td>Matrícula</td>
+                  <td>Uso</td>
+                  <td>Servicio</td>
+                  <td>Adaptaciones</td>
+                  <td>Monto Adaptaciones</td>
+                  <td>Equipamiento</td>
+                  <td>Monto Equipamiento</td>
+                  <td>Beneficiario</td>
+                  <td>Beneficiario Dirección</td>
+                  <td>Beneficiario RFC</td>
+                  <td>Prima Neta</td>
+                  <td>Descuento</td>
+                  <td>RPF</td>
+                  <td>Derecho</td>
+                  <td>Iva</td>
+                  <td>Prima Total</td>
+                  <td>Comisión</td>
+                  <td>% Comisión</td>
+                  <td>No. Recibo</td>
+                  <td>Prima Recibo</td>
+                  <td>RPF Recibo</td>
+                  <td>Derecho Recibo</td>
+                  <td>IVA Recibo</td>
+                  <td>Total Recibo</td>
+                  <td>Comisión Recibo</td>
+                  <td>Inicio Recibo</td>
+                  <td>Fin Recibo</td>
+                  <td>Vencimiento Recibo</td>
+                  <td>Conducto de Pago</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in excelJsonViews">
+                  <td>{{ item.NO_CARATULA }}</td>
+                  <td>{{ item.FOLIO }}</td>
+                  <td>{{ item.NO_POLIZA }}</td>
+                  <td>{{ item.CONTRATANTE }}</td>
+                  <td>{{ item.TIPO_CONTRATANTE }}</td>
+                  <td>{{ item.DIRECCION }}</td>
+                  <!-- <td>{{ item.CORREO }}</td>
+                  <td>{{ item.TELEFONO }}</td> -->
+                  <td>{{ item.VIGENCIA_INICIO }}</td>
+                  <td>{{ item.VIGENCIA_FIN }}</td>
+                  <td>{{ item.FRECUENCIA_PAGO }}</td>
+                  <td>{{ item.RENOVABLE }}</td>
+                  <td>{{ item.MONEDA }}</td>
+                  <td>{{ item.PAQUETE }}</td>
+                  <td>{{ item.SUCURSAL }}</td>
+                  <td>{{ item.TIPO }}</td>
+                  <td>{{ item.PROCEDENCIA }}</td>
+                  <td>{{ item.CONDUCTOR }}</td>
+                  <td>{{ item.MARCA }}</td>
+                  <td>{{ item.MODELO }}</td>
+                  <!-- <td>{{  }}</td> -->
+                  <td>{{ item.ANIO }}</td>
+                  <td>{{ item.VERSION }}</td>
+                  <td>{{ item.SERIE }}</td>
+                  <td>{{ item.MOTOR }}</td>
+                  <td>{{ item.COLOR }}</td>
+                  <td>{{ item.MATRICULA }}</td>
+                  <td>{{ item.USO }}</td>
+                  <td>{{ item.SERVICIO }}</td>
+                  <td>{{ item.ADAPTACIONES }}</td>
+                  <td>{{ item.MONTO_ADAPTACIONES }}</td>
+                  <td>{{ item.EQUIPAMIENTO }}</td>
+                  <td>{{ item.MONTO_EQUIPAMIENTO }}</td>
+                  <td>{{ item.BENEFICIARIO_PREFERENTE}}</td>
+                  <td>{{ item.BENEFICIARIO_RFC}}</td>
+                  <td>{{ item.BENEFICIARIO_DIRECCION}}</td>
+                  <td>{{ item.PRIMA_NETA }}</td>
+                  <td>{{ item.DESCUENTO }}</td>
+                  <td>{{ item.RPF }}</td>
+                  <td>{{ item.DERECHO }}</td>
+                  <td>{{ item.IVA }}</td>
+                  <td>{{ item.PRIMA_TOTAL }}</td>
+                  <td>{{ item.COMISION }}</td>
+                  <td>{{ item.PORCENTAJE_COMISION }}</td>
+                  <td>{{ item.NO_RECIBO }}</td>
+                  <td>{{ item.PRIMA_RECIBO }}</td>
+                  <td>{{ item.RPF_RECIBO }}</td>
+                  <td>{{ item.DERECHO_RECIBO }}</td>
+                  <td>{{ item.IVA_RECIBO }}</td>
+                  <td>{{ item.TOTAL_RECIBO }}</td>
+                  <td>{{ item.COMISION_RECIBO }}</td>
+                  <td>{{ item.INICIO_RECIBO }}</td>
+                  <td>{{ item.FIN_RECIBO }}</td>
+                  <td>{{ item.VENCIMIENTO_RECIBO }}</td>
+                  <td>{{ item.CONDUCTO_DE_PAGO }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-white" ng-click="cancelCertificates()"><i class="fa fa-close" aria-hidden="true"></i> Cancelar</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-success ladda-button" ng-click="saveCertificates()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar Pólizas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_certificado && show_receiptCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Creación de Recibos en Certificados</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply"></i> Regresar</button>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <span class="blue-color">Total de Certificados: </span>
+          <div>
+            <span>{{ categorySelected.config.count }}</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <span class="blue-color">Frecuencia de Pago: </span>
+          <div>
+            <span>{{ statusPayment(caratula.forma_de_pago) }}</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <span class="blue-color">Subramo: </span>
+          <div>
+            <span>{{ caratula.subramo.subramo_name }}</span>
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 form-group" ng-if="caratula.recibos_poliza.length == 0">
+          <receipts-colectivo form="directiveReceipts" tosave="dataToSave" type="2"></receipts-colectivo>
+        </div>
+        <div class="col-xs-12 form-group" ng-if="caratula.recibos_poliza.length == 0">
+          <div class="alert alert-info alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Información:</strong> Se crearán los recibos a nivel carátula, cuando estos ya existan y se agreguen o se quiten certificados, estos se actualizarán automaticamente.
+          </div>
+        </div>
+        <div class="col-xs-12 form-group" ng-if="caratula.recibos_poliza.length > 0">
+          <div class="alert alert-info alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Información:</strong> Los recibos a nivel carátula ya han sido creados, si necesitas modificarlos por favor edita la carátula.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3 pull-right form-group">
+          <button class="col-xs-12 btn btn-success ladda-button" ng-click="saveReceiptsCertificates()"><i class="fa fa-save" aria-hidden="true"></i> Crear Recibos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div ng-if="show_certificado && show_showReceiptCertificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5>Recibos en Certificados</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <button class="col-xs-12 btn btn-info" ng-click="showItemCertificate(1)"><i class="fa fa-reply" aria-hidden="true"></i> Regresar</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <label>Periodo: </label>
+          <select class="form-control" ng-options="period.label for period in periods track by period.value" ng-change="changePeriod(periodSelected)" ng-model="periodSelected">
+          </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t">
+          <span class="blue-color">Vigencia del Periodo: </span>
+          <div><span>{{ receiptsPeriods[0].fecha_inicio | date: 'dd/MM/yyyy' : 'UTC'}} - {{ receiptsPeriods[0].fecha_fin | date: 'dd/MM/yyyy' : 'UTC'}}</span></div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t">
+          <span class="blue-color">Total Certificados: </span>
+          <div><span>{{ receiptsPeriods.length }}</span></div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+          <label>Estatus: </label>
+          <select class="form-control" ng-options="status.label for status in statusReceiptCertificates track by status.value" ng-change="changeStatusReceipt(statusReceiptCertificateSelected)" ng-model="statusReceiptCertificateSelected">
+          </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-9 form-group">
+          <label>Buscar</label>
+          <div class="input-group">
+            <input class="form-control" type="text" ng-enter="searchReceipt(cadena)" ng-model="cadena" placeholder="Certificado, Nombre Titular, Beneficiarios, Dependientes, Marca, Serial">
+            <div class="input-group-btn">
+              <button class="btn btn-success" type="button" ng-click="searchReceipt(cadena)">Buscar</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t pull-right" ng-if="!desSelected">
+          <button class="btn btn-primary col-xs-12" ng-click="allReciptsSelected(true)"><i class="fa fa-list-alt" aria-hidden="true"></i> Seleccionar Todos</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 form-group m-t pull-right" ng-if="desSelected">
+          <button class="btn btn-primary col-xs-12" ng-click="allReciptsSelected(false)"><i class="fa fa-list-alt" aria-hidden="true"></i> Deseleccionar Todos</button>
+        </div>
+        <div class="col-xs-12 form-group">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Serie</th>
+                <th>No. Certificado</th>
+                <th>Prima Neta</th>
+                <th>RPF</th>
+                <th>Derecho</th>
+                <th>IVA</th>
+                <th>Prima Total</th>
+                <th>Comisión</th>
+                <th>Vigencia</th>
+                <th>Estatus</th>
+                <th>Selección</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="receipt in receiptsPeriods track by receipt.id">
+                <td>{{ receipt.recibo_numero }}</td>
+                <td>{{ receipt.poliza }}</td>
+                <td>{{ receipt.prima_neta }}</td>
+                <td>{{ receipt.rpf }}</td>
+                <td>{{ receipt.derecho }}</td>
+                <td>{{ receipt.iva }}</td>
+                <td>{{ receipt.prima_total }}</td>
+                <td>{{ receipt.comision }}</td>
+                <td>{{ receipt.fecha_inicio | date: 'dd/MM/yyyy': 'UTC' }} - {{ receipt.fecha_fin | date: 'dd/MM/yyyy': 'UTC' }}</td>
+                <td>
+                  <div class="label" ng-class="{'label-success': receipt.status == 4, 'label-info' : receipt.status == 5 || receipt.status == 6, 'label-primary' : receipt.status == 1 || receipt.status == 3, 'label-warning' : receipt.status == 2 || receipt.status == 8}"> {{ statusReceipt(receipt.status) }}
+              </div>
+                </td>
+                <td>
+                  <input type="checkbox" name="" ng-model="receipt.selected" ng-click="sumReceipts(receipt)" ng-disabled="receipt.status == 1" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-2 form-group pull-right">
+          <small>Total Seleccionado</small>
+          <br>
+          <label>{{ totalReceiptSelected | currency }}</label>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-2 form-group pull-right">
+          <small>Total Pendiente</small>
+          <br>
+          <label>{{ totalReceiptPending | currency }}</label>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-2 form-group pull-right">
+          <small>Total Pagado</small>
+          <br>
+          <label>{{ totalReceiptPay | currency }}</label>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-2 form-group pull-right">
+          <small>Total Periodo</small>
+          <br>
+          <label>{{ totalReceiptPeriod | currency }}</label>
+        </div>
+      </div>
+      <div class=" row">
+        <!-- <div class="col-xs-12 form-group col-sm-6 col-md-3 form-group m-t">
+          <button class="btn btn-primary col-xs-12"><i class="fa fa-download" aria-hidden="true"></i> Descargar Reporte</button>
+        </div> -->
+        <div class="col-xs-12 form-group col-sm-6 col-md-3 form-group m-t pull-right">
+          <button class="btn btn-success col-xs-12" ng-click="payReceipts()"><i class="fa fa-dollar" aria-hidden="true"></i> Pagar Recibos Seleccionados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- renovar póliza de colectividad -->
+<div ng-if="show_renewal_certificate">
+  <div class="ibox float-e-margins animate">
+    <div class="ibox-title">
+      <h5 ng-if="isRenewal">Renovación de Póliza de Flotilla</h5>
+    </div>
+    <div class="ibox-content">
+      <div class="row animate">
+        <div class="col-xs-12 text-align-center">
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <strong>Carátula de la colectividad que será asociada a la renovación</strong>
+            </div>
+            <div class="panel-body">
+              <p>
+                <strong>Carátula Número de Póliza:</strong>
+                {{ caratula.nueva.poliza_number }}
+              </p>
+              <p>
+                <strong>Vigencia:</strong>
+                {{ caratula.nueva.start_of_validity | date:'dd/MM/yyyy':'UTC' }}
+                {{ caratula.nueva.end_of_validity | date:'dd/MM/yyyy':'UTC' }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div ng-if="caratula.subramo == 'Automóviles'">
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>No. Poliza: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.poliza_number" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Folio: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.folio" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Vigencia Inicio: <span class="color-red">*</span></label>
+            <div class="datepicker-me input-group date">
+              <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="newCertificate.start_of_validity" value="{{newCertificate.start_of_validity}}" ng-change="checkDate(newCertificate.start_of_validity)" />
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Vigencia Fin: <span class="color-red">*</span></label>
+            <div class="datepicker-me input-group date">
+              <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="newCertificate.end_of_validity" value="{{newCertificate.end_of_validity}}" ng-change="checkEndDate(newCertificate.end_of_validity)" />
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Contratante: <span class="color-red">*</span></label>
+            <div class="input-group">
+              <autocomplete datasource="contractors_data" id="contractors" model="order.contratante" change="matchesContractors(order.contratante);order.save_info_tab()"></autocomplete>
+              <span class="input-group-btn">
+                <button class="btn btn-success btn-add-contractor" ng-click="contratanteCreator();order.save_info_tab()">
+                  <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Dirección: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="address.tipo + ' - ' + address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in addresses track by address.url" ng-change="changeAddress(addressSelected);order.save_info_tab()" ng-model="newCertificate.address" ng-disabled="!order.contratante">
+              <option value="" disabled>Selecciona una dirección</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Correo Electrónico: <span class="color-red">*</span></label>
+            <input class="form-control" type="email" ng-model="order.contratante.value.email" ng-disabled="!order.contratante" ng-change="order.save_info_tab()">
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Teléfono:</label>
+            <phonenumber-directive model="order.contratante.value.phone_number" class="ng-isolate-scope">
+              <input class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" type="tel" maxlength="25" aria-invalid="false" ng-model="inputValue" ng-change="order.save_info_tab()"/>
+            </phonenumber-directive>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Frecuencia de Pago: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="item.label for item in frequencies" ng-change="changePayment(newCertificate.forma_de_pago);order.save_info_tab()" ng-model="newCertificate.forma_de_pago" ng-disabled="isEdit">
+              <option value="">Seleccione una frecuencia</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Renovable: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="renewal.label for renewal in renewals" ng-change="changeRenewal(newCertificate.is_renewable)" ng-model="newCertificate.is_renewable" ng-blur="order.save_info_tab();order.save_info_tab()">
+              <option value="">Seleccione una opción</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Moneda: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="currency.value as currency.label for currency in currencys" ng-change="changeCurrency(newCertificate.f_currency)" ng-model="newCertificate.f_currency" >
+              <option value="">Seleccione una moneda</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Paquete: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="pack.package_name for pack in packages" ng-change="changePackage(newCertificate.paquete)" ng-model="newCertificate.paquete" >
+              <option value="" disabled>Seleccion un paquete</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Conducto de pago <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="conducto_de_pago.value as conducto_de_pago.label for conducto_de_pago in conducto_de_pagos" ng-model="newCertificate.conducto_de_pago" ng-change="changeConducto()" >
+              <option value="">Seleccione un conducto</option>
+            </select>
+          </div> 
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Sucursal: </label>
+            <select class="form-control" ng-options="sucursal.sucursal_name for sucursal in sucursales" ng-change="changeType(newCertificate.sucursal)" ng-model="newCertificate.sucursal" >
+              <option value="">Seleccione una sucursal</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Tipo: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="type.name for type in types" ng-change="changeType(newCertificate.datos.policy_type)" ng-model="newCertificate.datos.policy_type" >
+              <option value="">Seleccione un tipo</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Procedencia: </label>
+            <select class="form-control" ng-options="origin.label for origin in procedencias" ng-model="newCertificate.datos.procedencia" value="{{origin.value}}" >
+              <option value="">Seleccione una procedencia</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Conductor: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.driver" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Marca: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.brand" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Modelo: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.model" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Año: <span class="color-red">*</span></label>
+            <input class="form-control" type="number" ng-model="newCertificate.datos.year" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Versión: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.version" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Serie: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.serial" ng-blur="order.save_info_tab();checkNumSerie()">
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Motor: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.engine" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Color: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.color" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Matrícula: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.license_plates" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Uso: <span class="color-red">*</span></label>
+            <select class="form-control" ng-options="uso.label for uso in usages" ng-model="newCertificate.datos.usage" value="{{uso.value}}" >
+              <option value="">Seleccione un uso</option>
+            </select>
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Servicio: <span class="color-red">*</span></label>
+            <input class="form-control" type="text" ng-model="newCertificate.datos.service" >
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 form-group">
+            <label>Estado de Circulación</label>
+            <select class="form-control" data-ng-options="estado.state for estado in statesArray track by estado.state" name="state" ng-model="newCertificate.state_circulation" required>
+              <option value="">Selecciona un estado</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <legend class="legend-title" align="center">Adaptaciones</legend>
+              <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label>Monto de adaptación</label>
+                  <input class="form-control" type="text" ng-model="newCertificate.datos.mont_adjustment" ng-change="save_info_tab()" format-currency />
+                </div>
+                <div class="form-group">
+                  <label>Adaptación</label>
+                  <textarea class="form-control" ng-model="newCertificate.datos.adjustment" ng-change="save_info_tab()"></textarea>
+                </div>
+              </div>
+
+              <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label>Monto de equipamiento</label>
+                  <input type="text" class="form-control" ng-model="newCertificate.datos.mont_special_team" ng-change="save_info_tab()" format-currency />
+                </div>
+                <div class="form-group">
+                  <label>Equipo especial</label>
+                  <textarea class="form-control" ng-model="newCertificate.datos.special_team" ng-change="save_info_tab()"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xs-12">
+              <legend class="legend-title" align="center">Beneficiario Preferente</legend>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>Nombre beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_name" />
+              </div>
+
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>Dirección beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_address" />
+              </div>
+
+              <div class="col-xs-12 col-md-6 form-group">
+                <label>RFC beneficiario</label>
+                <input type="text" class="form-control" ng-model="newCertificate.datos.beneficiary_rfc" maxlength="13"/>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 form-group">
+            <label>Observaciones: </label>
+            <input class="form-control" type="text" ng-model="newCertificate.observations" >
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 form-group">
+          <receipts-colectivo form="directiveReceipts" tosave="dataToSave" type="1"></receipts-colectivo>
+        </div>
+        <div class="col-xs-12">
+          <hr>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 pull-right form-group" ng-if="isRenewal">
+          <button class="col-xs-12 btn btn-secondary" ng-click="returnInfo()"><i class="fa fa-close" aria-hidden="true"></i>Cancelar Renovación</button>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 text-align-center form-group" ng-if="isRenewal">
+          <button class="col-xs-12 btn btn-success ladda-button-ren" ng-click="validatePolizaFlotilla()"><i class="fa fa-save" aria-hidden="true"></i> Renovar Póliza</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- renivar póliza de colectividad renovación* -->
+<script type="text/javascript">
+  function renombrarArchivoCargado(){
+    var strongTag = $(event.target).parent().parent().find("td strong");
+    var inputTag = $(event.target).parent().parent().find("[name='text_input']");
+
+    inputTag.removeClass('display-none');
+    strongTag.addClass('display-none');
+    inputTag.focus();
+  }
+  function blurArchivoCargado(){
+    var strongTag = $(event.target).parent().parent().find("td strong");
+    var inputTag = $(event.target).parent().parent().find("[name='text_input']");
+
+    inputTag.addClass('display-none');
+    strongTag.removeClass('display-none');
+  }
+
+  function limpiar(){
+    document.getElementById('readCsvFile').value ='';
+  }
+</script>

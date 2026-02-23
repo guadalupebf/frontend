@@ -1,0 +1,64 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-9">
+	    <h2>Lectura de documentos</h2>
+	    <ol class="breadcrumb margin-top-15">
+	    	<li>
+	        	<a ui-sref="inicio.inicio">Inicio</a>
+	      	</li>
+	    	<li class="active">
+	        	<strong>Lectura de documentos</strong>
+	      	</li>
+	    </ol>
+	</div>
+</div>
+<div>
+	<div class="row">
+	    <div class="col-xs-12">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>Plantillas entrenadas</h5>
+				</div>
+				<div class="ibox-content">
+					<div class="row">
+						<!-- <div class="col-xs-12 col-sm-3">
+							<button class="col-xs-12 btn btn-primary ladda-button">Editar</button>
+						</div> -->
+						<div class="col-xs-12 col-sm-3 form-group pull-right m-t">
+							<button class="col-xs-12 btn btn-primary ladda-button2" ng-click="eliminar()">Eliminar</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="panel-body table-over-y animate">
+							<table class="table table-hover table-bordered">
+								<thead>
+									<tr>
+										<th></th>
+										<th>Nombre</th>
+										<th>Aseguradora</th>
+										<th>Fecha de Entrenamiento</th>
+										<th>Ramo</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="lectura in vm.lecturas track by $index" ng-click="open(lectura)">
+										<td ng-click="$event.stopPropagation()"><input ng-model="lectura.selected" type="checkbox" /></td>
+										<td>{{lectura.nombre}}</td>
+										<td>{{lectura.aseguradora}}</td>
+										<td>{{lectura.created_at | date: 'dd/MM/yyyy'}}</td>
+										<td>{{lectura.ramo}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="col-xs-12 col-sm-3 pull-right m-t">
+								<button class="col-xs-12 btn btn-primary ladda-button" ng-click="edit()">Entrenar póliza</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+	</div>
+
+	
+</div>

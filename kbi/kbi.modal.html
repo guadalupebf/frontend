@@ -1,0 +1,46 @@
+<div class="inmodal" id="modal_email">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Reporte por</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="row">
+          <div class="row">
+            <div class="row">              
+              <div class="col-xs-12 form-group text-center" >
+                <label for="selectType" align="center">Elija una opción:</label>
+                <br>
+                <hr>
+              </div>
+              <div class="col-xs-12 checkbox" align="center">
+                <label>
+                  <input type="checkbox" ng-model="financiero" ng-change="checkReport(financiero)">Financiero
+                </label>
+              </div>
+              <div class="col-xs-12 checkbox" align="center">
+                <label>
+                  <input type="checkbox" ng-model="produccion" ng-change="checkReport(produccion)">Producción
+                </label>
+              </div>
+              <div class="col-xs-12 checkbox" align="center">
+                <label>
+                  <input type="checkbox" ng-model="cotizaciones" ng-change="checkReport(cotizaciones)">Cotizaciones
+                </label>
+              </div>
+              <div class="col-xs-12 checkbox" align="center">
+                <label>
+                  <input type="checkbox" ng-model="gastos" ng-change="checkReport(gastos)">Gastos
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+    <button type="button" class="btn btn-primary ladda-button" ng-click="downloadReport(optionSent)">Generar reporte</button>
+  </div>
+</div>

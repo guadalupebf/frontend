@@ -1,0 +1,63 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-lg-9">
+    <h2>Colectividades</h2>
+    <ol class="breadcrumb margin-top-15">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Colectividades</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="panel-group">
+      <div class="panel panel-default" ng-init="showCar = false">
+        <div class="panel-heading" ng-click="showCar ? showCar = false : showCar = true">
+          <h4 class="panel-title">
+            <a>
+              Carátula
+              <span class="pull-right">
+                <i class="fa fa-chevron-right" aria-hidden="true" ng-if="showCar"></i>
+                <i class="fa fa-chevron-down" aria-hidden="true" ng-if="!showCar"></i>
+              </span>
+            </a>
+          </h4>
+        </div>
+        <div class="panel-body" ng-hide="showCar">
+          <div class="col-xs-12 animate z-index-9000" ng-if="show_contractor">
+            <ng-include src="'app/contratantes/contratantes.add.html'" ng-controller="ContratantesCtrl as vm"></ng-include>
+          </div>
+          <div class="col-xs-12 animate" ng-show="!show_contractor">
+            <br>
+            <div ng-include src="'app/flotillas/ordenes.html'"></div>
+          </div>
+          <div class="col-xs-12 col-sm-4 col-sm-offset-4 form-group" ng-if="!dataCaratula.id">
+            <button class="btn btn-primary col-xs-12 m-t ladda-button" ng-click="validityInsurance()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Crear Carátula</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:none;" class="panel panel-default" ng-init="showPol = true">
+        <div class="panel-heading" ng-click="showPol ? showPol = false : showPol = true">
+          <h4 class="panel-title">
+            <a>
+              Pólizas
+              <span class="pull-right">
+                <i class="fa fa-chevron-right" aria-hidden="true" ng-if="showPol"></i>
+                <i class="fa fa-chevron-down" aria-hidden="true" ng-if="!showPol"></i>
+              </span>
+            </a>
+          </h4>
+        </div>
+        <div class="panel-body" ng-hide="showPol">
+          <br>
+          <div ng-include src="'app/flotillas/polizas.html'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

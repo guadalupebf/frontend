@@ -1,0 +1,184 @@
+<toaster-container></toaster-container>
+<div class="pull-right option_button m-b">
+  <div class="btn-group">
+    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-bolt" aria-hidden="true"></i> Opciones
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right" ng-if="order.acceso_form">
+      <li class="dropdown-submenu">
+        <a>Descargar layouts</a>
+        <ul class="dropdown-menu" style="float: static; top: 0; left: -160px;">
+          <li>
+            <a href="https://miurabox.s3.amazonaws.com/layouts/Colectividad_Flotilla.xls"> Flotillas </a>
+          </li>
+        </ul>
+      </li>
+  </ul>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12 col-sm-6 form-group" ng-if="showOt">
+  	<label>Número de Carátula: <span class="color-red">*</span></label>
+  	<input class="form-control" type="text" ng-blur="checkNumPolicy()" ng-model="caratula.poliza_number" ng-blur="save_info_tab()">
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Identificador: <span class="color-red">*</span></label>
+    <input class="form-control" type="text" ng-model="caratula.identifier" ng-blur="save_info_tab()">
+  </div>
+  <div class="col-xs-12 col-sm-6  form-group">
+    <label>Vigencia: <span class="color-red">*</span></label>
+    <div class="datepicker-me input-group date">
+      <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="startDate" value="{{startDate}}" ng-change="checkDate(startDate)" />
+      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Al: <span class="color-red">*</span></label>
+    <div class="datepicker-me input-group date">
+      <input type="text" class="width-100 text-align-center form-control" data-provide="datepicker" ng-model="endDate" value="{{endDate}}" ng-change="checkEndDate(endDate)" />
+      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+  	<label>Contratante: <span class="color-red">*</span></label>
+    <div class="input-group">
+      <autocomplete datasource="contractors_data" id="contractors" model="order.contratante" change="matchesContractors(order.contratante)" ng-blur="save_info_tab()"></autocomplete>
+      <span class="input-group-btn">
+        <button class="btn btn-success btn-add-contractor" ng-click="contratanteCreator()">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+  	<label>Dirección: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="address.tipo + ' - ' + address.route + ' ' + address.street_number + ' Int. '+ address.street_number_int + ' ' + address.sublocality + ' ' + address.administrative_area_level_2 + ', ' + address.administrative_area_level_1 for address in addresses track by address.url" ng-change="changeAddress(addressSelected)" ng-model="addressSelected" ng-disabled="!order.contratante">
+      <option value="" disabled>Selecciona una dirección</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Correo Electrónico:</label>
+    <input class="form-control" type="email" ng-model="order.contratante.value.email" ng-disabled="!order.contratante">
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group">
+    <label>Teléfono:</label>
+    <phonenumber-directive model="order.contratante.value.phone_number" class="ng-isolate-scope">
+      <input class="phonenumber form-control ng-pristine ng-valid ng-valid-maxlength ng-touched" type="tel" maxlength="25" aria-invalid="false" ng-model="inputValue" />
+    </phonenumber-directive>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Aseguradora: <span class="color-red">*</span></label>
+    <div class="input-group"> 
+    	<select class="form-control" ng-options="aseguradora.alias for aseguradora in providers | orderBy: 'alias' track by aseguradora.url" ng-change="getClaves(aseguradoraSelected); save_info_tab();" ng-model="aseguradoraSelected" >
+        <option value="">Selecciona un proveedor</option>
+      </select>
+      <span class="input-group-btn">
+        <button class="btn btn-success" ng-click="refreshProvider()">
+          <i class="glyphicon glyphicon-refresh"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Clave de Agente: <span class="color-red">*</span></label>
+    <input ng-if="claves.length == 0" class="form-control" type="text" placeholder="Elige una aseguradora aseguradora" disabled />
+    <input ng-if="claves.length == 1" class="form-control" type="text" value="{{claves[0].clave + ' - ' + claves[0].name}}" disabled />
+  	<select ng-if="claves.length > 1" class="form-control" ng-options="clave as clave.clave + ' - ' + clave.name for clave in claves | orderBy: 'clave' track by clave.url" ng-change="changeClave(claveSelected); save_info_tab();" ng-model="claveSelected" ng-disabled="!aseguradoraSelected" >
+      <option value="" disabled>Selecciona una clave de agente</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Ramo: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="ramo.ramo_name for ramo in ramos track by ramo.url" ng-change="changeRamo(ramoSelected); save_info_tab();" ng-model="ramoSelected" ng-disabled="!aseguradoraSelected" >
+      <option value="">Selecciona un ramo</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+  	<label>Subramo: <span class="color-red">*</span></label>
+  	<select class="form-control" ng-options="subramo.subramo_name for subramo in subramos track by subramo.url" ng-change="changeSubramo(subramoSelected); save_info_tab();" ng-model="subramoSelected" ng-disabled="!ramoSelected" >
+      <option value="">Selecciona un subramo</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Tipo de Carátula: <span class="color-red">*</span></label>
+    <select class="form-control" ng-options="type.label for type in types" ng-change="changeType(typeSelected); save_info_tab();" ng-model="typeSelected">
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Moneda:</label>
+    <select class="form-control" ng-options="currency.value as currency.label for currency in currencys" ng-change="changeCurrency(currencySelected); save_info_tab();" ng-model="currencySelected" >
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_lineanegocio">
+    <label>Línea de Negocio</label>
+    <select class="form-control"
+      ng-options="bline.name for bline in businessline | orderBy:'id' track by bline.id"
+      ng-change="changeBline(lineaSelected); save_info_tab();" name="business" ng-model="lineaSelected">
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Responsable:</label>
+    <select class="form-control" ng-options="responsable.id as responsable.first_name + ' ' + responsable.last_name for responsable in users" ng-change="changeResponsable(responsableSelected); save_info_tab();" ng-model="responsableSelected">
+      <option value="">Seleccione un responsable</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group">
+    <label>Renovable: <span class="color-red">*</span></label>
+    <select class="form-control" ng-options="renewal.label for renewal in renewals" ng-change="changeRenewal(renewalSelected); save_info_tab();" ng-model="renewalSelected">
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_celula">
+    <label>{{moduleName}}:</label>
+    <select class="form-control" ng-options="celula.celula_name for celula in celulas | orderBy:'id' track by celula.id" ng-change="changeCelula(celulaSelected); save_info_tab();" ng-model="celulaSelected">
+      <option value="" disabled="">Seleccione una opción</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+    <label>Agrupación</label>
+    <select class="form-control" ng-options="item.description for item in agrupaciones | orderBy:'id' track by item.id" ng-change="changeAgrupacion(grouping_levelSelected)" ng-model="grouping_levelSelected">
+      <option value="" disabled="">Seleccione una agrupación</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+    <label>Subagrupación</label>
+    <select class="form-control" ng-options="item.description for item in sub_asignaciones | orderBy:'id' track by item.id" ng-change="changeSubagrupacion(subgroupingSelected)" ng-model="subgroupingSelected" ng-disabled="!grouping_levelSelected">
+      <option value="" disabled="">Seleccione una subagrupación</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-if="campo_agrupacion">
+    <label>Subsubagrupación</label>
+    <select class="form-control" ng-options="item.description for item in sub_subasignaciones | orderBy:'id' track by item.id" ng-change="changeSubsubagrupacion(subsubgroupingSelected)" ng-model="subsubgroupingSelected" ng-disabled="!subgroupingSelected">
+      <option value="" disabled="">Seleccione una subsubagrupación</option>
+    </select>
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-4 form-group" ng-class="{ 'has-error': form.ejecutivo_cobranza.$invalid && !form.ejecutivo_cobranza.$pristine }">
+    <label for="ejecutivo_cobranza">Ejecutivo de cobranza</label>
+    <div>
+      <select class="form-control" ng-model="ejecutivoCobranzaSelected" ng-change="changeEjecutivoCobranza(ejecutivoCobranzaSelected); save_info_tab();" ng-options="ejecutivo_cobranza.id as ejecutivo_cobranza.first_name + ' ' + ejecutivo_cobranza.last_name for ejecutivo_cobranza in users" >
+        <option value="">Seleccione un Ejecutivo</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-xs-12 col-sm-6 form-group hidden-xs hidden-sm" ng-if="order.acceso_ver_ref">
+    <label>Referenciadores <span ng-if="!order.acc_referenciador_obligatorio" class="color-red">*</span>:</label>
+    <div ng-repeat="item in referenciadorArray">
+      <div class="col-xs-12 input-group form-group">
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-danger" name="button" ng-click="deleteReferenciador($index,item)" ng-disabled="referenciadorArray.length <= 1">
+            <i class="glyphicon glyphicon-minus"></i>
+          </button>
+        </div>
+        <select class="form-control" ng-options="referenciador.url as referenciador.first_name + ' ' + referenciador.last_name for referenciador in referenciadores" ng-model="item.referenciador" ng-change="save_info_tab()">
+          <option value="" selected>Seleccione el referenciador</option>
+        </select>
+        <div class="input-group-btn wb102">
+          <!-- <input class="form-control wb102" type="text" placeholder="% Comisión" ng-disabled="referenciadorArray.length <= 1" ng-change="changeComRef(item.comision_vendedor, $index,item)" ng-model="item.comision_vendedor"/>  -->
+          <input class="form-control wb102" type="text" placeholder="% Comisión" ng-disabled="referenciadorArray.length <= 1" ng-change="changeComRef(item.comision_vendedor, $index,item)" ng-model="item.comision_vendedor"/> 
+          <button class="btn btn-success" ng-click="addReferenciador()" type="button">
+            <i class="glyphicon glyphicon-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>{{ gc.pageTitle }}</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li>
+        <a ui-sref="help.manual">Ayuda</a>
+      </li>
+      <li class="active">
+        <strong>Ayuda Póliza</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="ibox float-e-margins">
+  <div class="ibox-title">
+    <h5>¿Cómo hacer una póliza?</h5>
+    <div ibox-tools></div>
+  </div>
+  
+  <div class="ibox-content">
+    <div class="row">
+      <div class="col-xs-8 col-xs-offset-2 form-group">
+        <legend class="legend-title blue-color" align="center">Objetivo</legend>
+        <p align="center">
+          Conocer la forma de crear pólizas individuales así como Ots, recibos y adjuntar archivos.
+        </p>
+        <div style="text-align: center; margin: 40px 0;">
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/lTiExQ3qY5Y" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+
+        <div>
+          <legend class="legend-title blue-color" align="center">Paso 1 - Llena la información.</legend>
+          <p>
+            Campos marcados con asterisco.
+          </p>
+          <p>
+            Al no llenar los campos requeridos el sistema arrojará un error o la información quedará incompleta y algunas funciones estarán deshabilitadas.
+          </p>
+        </div>
+
+        <div>
+          <legend class="legend-title blue-color" align="center">Paso 2 - Genera los recibos.</legend>
+          <p>
+            Primas de la póliza.
+          </p>
+          <p>
+            Es necesario que conozcas los costos para poder generar correctamente los recibos que posteriormente usaremos en otras funciones.
+          </p>
+        </div>
+
+        <div>
+          <legend class="legend-title blue-color" align="center">Paso 3 - Sube adjuntos.</legend>
+          <p>
+            Un archivo.
+          </p>
+          <p>
+            Para mayor detalle y una referencia documental en tu póliza.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-xs-8 col-xs-offset-2 form-group legend-gray" style="margin-top: 80px; padding-bottom: 20px;">
+        <legend class="legend-title">¿Te ayudó esta información?</legend>
+        <button class="btn btn-white" ng-click="showResult(true)">
+          Sí
+        </button>
+
+        <button class="btn btn-white" ng-click="showResult(false)">
+          No
+        </button>
+
+        <div ng-if="showAnswerAfirmative" style="margin: 30px;">
+          <p> Gracias por tus sugerencias.</p>
+        </div>
+        
+        <div class="col-sm-12 form-group m-t" ng-if="showAnswerNegative">
+          <label>Lamentamos esa respuesta</label>
+          <p>¿Tienes alguna sugerencia?</p>
+          <textarea class="form-control" type="text" ng-model="vm.form.description"></textarea>
+           <button class="btn btn-success pull-right m-t" ng-click="">Enviar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-xs-12 col-md-9">
+    <h2>Ayuda de SAAM</h2>
+    <ol class="breadcrumb">
+      <li>
+        <a ui-sref="inicio.inicio">Inicio</a>
+      </li>
+      <li class="active">
+        <strong>Ayuda</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<br>
+<div class="row">
+  <div class="col-xs-8 col-xs-offset-2 form-group container-box">
+    <ul class="list-group" style="margin: 0;">
+      <li class="list-group-item" ng-repeat="item in manuals track by $index" ng-init="isSeller[$index] = false; main_index = $index" class="pull-right" style="padding-bottom: 0;">
+        <p class="legend-title" ng-click="isSeller[$index] ? isSeller[$index] = false : isSeller[$index] = true ;checkSelected(isSeller[$index], users[$index])" style="font-size: 16px;">
+          {{ item.title }} <span class="pull-right" style="font-size: 12px;"><i class="fa fa-chevron-down"></i></span>
+        </p>
+        <div class="row address_components" ng-if="isSeller[$index]" style="padding: 20px 0 10px;">
+          <div class="col-xs-12" style="padding: 0;">
+            <!-- ui-sref="help.policy" -->
+            <div ng-repeat="section in item.sections track by $index" class="col-md-12">
+              <a class="col-md-6" href="{{section.url}}" target="_blank"><p class="blue-color" style="display: block; text-align: center; font-size: 14px;">{{ section.subtitle }}</p>
+              </a>
+              <div class="col-md-6" align="center" ng-if="section.url">
+                <a class="btn btn-primary btn-xs" href="{{section.url}}" target="_blank">Obtener Manual</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
