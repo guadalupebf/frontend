@@ -1,0 +1,46 @@
+<div class="inmodal">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Cancelar Póliza</h4>
+  </div>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content wizard">
+        <div class="wizard">
+            <div class="row">
+              <div class="form-group col-sm-12">
+                <label for="selectType">Elija una opción:</label>
+                <br>
+                <select class="form-control m-b" ng-model="optionCancel" ng-options="item as item.label for item in optionsCancel track by item.value">
+                  <option disabled="" value="">Selecciona una opción</option>
+                </select>
+              </div>
+              <div class="form-group col-sm-12">
+                <label for="motivo">Motivo de cancelación: <span class="color-red">*</span></label>
+                <input type="text" name="motivo" ng-model="vm.insurance.reason_cancel" class="form-control">
+              </div>
+              <div class="form-group col-sm-12" ng-if="(optionCancel.value == 3 || optionCancel.value == '3') || (optionCancel.value == 4 || optionCancel.value == '4')">
+                <label for="datecancel">Fecha de cancelación: <span class="color-red">*</span></label>
+                <!-- <input type="text" name="datecancel" ng-model="vm.insurance.date_cancel" class="form-control"> -->
+                <div class="datepicker-me input-group date" data-provide="datepicker" >
+                  <input type="text" name="startDate" class="width-100 text-align-center form-control" ng-model="date_cancel" value="{{date_cancel}}" ng-disabled="!date_cancel" data-date-format="mm/dd/yyyy" ng-init="date_cancel" ng-change="checkCancelDate(date_cancel)">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                </div>
+              </div>
+              <div class="col-xs-12 checkbox" align="center" ng-if="(optionCancel.value == 3 || optionCancel.value == '3') || (optionCancel.value == 4 || optionCancel.value == '4')">
+                <label>
+                  <input type="checkbox" ng-model="addnotasToCancel" ng-change="addnotasToCancelF(addnotasToCancel)">DESEA CANCELAR NOTAS DE CREDITO PENDIENTE DE PAGO
+                </label>
+              </div>   
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>
+<div class="modal-footer">
+  <button class="btn btn-white" ng-click="close()" type="button">Cerrar</button>
+  <button class="btn btn-success ladda-button" ng-disabled="!vm.insurance.reason_cancel" ng-click="cancelPolicy(optionCancel, vm.insurance.reason_cancel,date_cancel, addnotasToCancel)" type="button">Cancelar Póliza</button>
+</div>

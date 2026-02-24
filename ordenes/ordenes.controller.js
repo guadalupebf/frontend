@@ -11,11 +11,11 @@
   OrderCtrl.$inject = ['$parse','datesFactory', 'SweetAlert','ContratanteService','$http','$state', 'models', 'tiposBeneficiarios', 'sex', 'formService', '$timeout', '$q', 'url', '$uibModalInstance',
                     '$localStorage', 'FileUploader', '$scope', '$rootScope','$filter', 'groupService', 'providerService', 'insuranceService', 'receiptService', 'generalService',
                     'toaster', 'payform', 'helpers', 'MESSAGES', '$uibModal', '$sessionStorage', '$location', '$stateParams', 'packageService', 'coverageService', 'formatValues','dataFactory',
-                    'emailService','$sce','PaquetesMatcher'];
+                    'emailService','$sce','PaquetesMatcher','CondicionesGeneralesService'];
 
   function OrderCtrl($parse,datesFactory, SweetAlert, ContratanteService,$http, $state, models, tiposBeneficiarios, sex, formService, $timeout, $q, url, $uibModalInstance, $localStorage, FileUploader,
                     $scope, $rootScope, $filter, groupService, providerService, insuranceService, receiptService, generalService, toaster, payform, helpers, MESSAGES, $uibModal,
-                    $sessionStorage, $location, $stateParams, packageService, coverageService, formatValues,dataFactory, emailService, $sce,PaquetesMatcher) {
+                    $sessionStorage, $location, $stateParams, packageService, coverageService, formatValues,dataFactory, emailService, $sce,PaquetesMatcher,CondicionesGeneralesService) {
 
 
       var decryptedUser = sjcl.decrypt("User", $sessionStorage.user);
@@ -5027,6 +5027,152 @@
       catch(e){}
     };
 
+    function getNumericIdFromValue(value) {
+      if (angular.isNumber(value)) {
+        return value;
+      }
+      if (angular.isString(value)) {
+        var cleanValue = value.replace(/\/$/, '');
+        var parts = cleanValue.split('/');
+        var parsedId = parseInt(parts[parts.length - 1], 10);
+        return isNaN(parsedId) ? null : parsedId;
+      }
+      if (value && angular.isNumber(value.id)) {
+        return value.id;
+      }
+      return null;
+    }
+    // inicializa
+    order.cg = order.cg || {
+      mode: 'AUTO',          // AUTO | SELECT | NONE
+      catalog: [],
+      selectedDocs: []
+    };
+
+    function getProviderId() {
+      return order.form.aseguradora && (order.form.aseguradora.id || order.form.aseguradora);
+    }
+    function getSubramoId() {
+      return order.form.subramo && (order.form.subramo.id || order.form.subramo);
+    }
+
+    // cada vez que cambie aseguradora/subramo, recarga catálogo y limpia selección
+    $scope.$watchGroup([
+      function(){ return getProviderId(); },
+      function(){ return getSubramoId(); }
+      ], function(newVals, oldVals){
+
+      var providerId = newVals[0];
+      var subramoId  = newVals[1];
+
+      if(!providerId || !subramoId) {
+        order.cg.catalog = [];
+        // opcional: NO borres selectedDocs, solo si quieres:
+        order.cg.selectedDocs = [];
+        return;
+      }
+
+      order.cg.loading = true;
+
+      // 1) catálogo
+      CondicionesGeneralesService.list({ aseguradora: providerId, subramo: subramoId })
+        .then(function(res){
+          order.cg.selectedDocs = [];
+          order.cg.catalog = res.data.results || res.data || [];
+          // 2) seleccionados existentes de la póliza (si hay póliza guardada)
+          var policyId = order.form.id || order.policy_id;
+          if(!policyId) return [];
+
+          return CondicionesGeneralesService.getByPolicy(policyId, { org: org });
+        })
+        .then(function(res){
+          if(!res || !res.data) return;
+          var rows = res.data.results || res.data || [];
+          // tu API devuelve {condicion_detalle: {...}}
+          var selected = rows
+            .map(function(r){ return r.condicion_detalle; })
+            .filter(function(x){ return x && x.id; });
+          // importante: asigna objetos (para que ui-select pinte nombre/tipo)
+          order.cg.selectedDocs = selected;
+        })
+        .finally(function(){
+          order.cg.loading = false;
+        });
+
+    });
+
+    // --- En tu función de guardar póliza ---
+    // arma qué vas a asignar
+    function buildGeneralConditionsAssignment() {
+      var providerId = getProviderId();
+      var subramoId = getSubramoId();
+
+      if (!providerId || !subramoId) return null;
+
+      if (order.cg.mode === 'NONE') {
+        return { enabled: false };
+      }
+
+      if (order.cg.mode === 'AUTO') {
+        // asignar todas por aseguradora/subramo
+        return {
+          enabled: true,
+          mode: 'AUTO',
+          aseguradora: providerId,
+          subramo: subramoId
+        };
+      }
+
+      // SELECT
+      var ids = (order.cg.selectedDocs || []).map(function(d){ return d.id; }).filter(Boolean);
+      return {
+        enabled: true,
+        mode: 'SELECT',
+        aseguradora: providerId,
+        subramo: subramoId,
+        document_ids: ids
+      };
+    }
+    function assignGeneralConditionsToPolicy(policyData) {
+      if (!policyData || !policyData.id) return $q.when();
+      // provider / aseguradora
+      var providerId =
+        getNumericIdFromValue(policyData.aseguradora) ||
+        (order.form.aseguradora ? getNumericIdFromValue(order.form.aseguradora.id || order.form.aseguradora) : null);
+
+      // subramo
+      var subramoId =
+        getNumericIdFromValue(policyData.subramo) ||
+        (order.form.subramo ? getNumericIdFromValue(order.form.subramo.id || order.form.subramo) : null);
+
+      if (!providerId || !subramoId) return $q.when();
+
+      // Modo: AUTO | SELECT | NONE
+      var mode = (order.cg && order.cg.mode) ? order.cg.mode : 'AUTO';
+      if (mode === 'NONE') return $q.when();
+
+      var payload = {
+        policy_id: policyData.id,
+        aseguradora: providerId,
+        subramo: subramoId,
+        replace: true
+      };
+
+      // Si el usuario eligió cuáles
+      if (mode === 'SELECT') {
+        var ids = (order.cg.selectedDocs || []).map(function(d){ return d && d.id; }).filter(Boolean);
+        payload.document_ids = ids;
+      }
+
+      // 👇 importante: tu backend espera org en querystring
+      var endpoint = 'asignar-condiciones-generales-poliza/';
+      return dataFactory.post(endpoint, payload)
+        .catch(function(error) {
+          console.log('No se pudieron asignar condiciones generales', error);
+          // no rompas el guardado de póliza por esto
+          return $q.when();
+        });
+    }
     $scope.addNewPackage = function () {
       $scope.show_new_pack = true;
       $scope.create_pack = true;
@@ -6160,8 +6306,8 @@
     };
 
     $scope.changeRamo = function() {
-      $scope.dataToSave.ramo = order.form.ramo.id;
-      order.defaults.subramos = order.form.ramo.subramo_ramo;
+      $scope.dataToSave.ramo =  order.form && order.form.ramo ? order.form.ramo.id: $scope.dataToSave.ramo;
+      order.defaults.subramos = order.form && order.form.ramo && order.form.ramo.subramo_ramo ? order.form.ramo.subramo_ramo: order.defaults.subramos;
       if($localStorage.orderFormCotizacion){
         order.defaults.subramos.forEach(function(subram){
           if (subram.subramo_name == $localStorage.orderFormCotizacion.subramo){
@@ -7370,6 +7516,7 @@
                   .then(function success (data){
                     $scope.idPolicy = data.data.id;
                     $scope.poliza_creada = data.data;
+                    assignGeneralConditionsToPolicy(data.data);
                     $localStorage.orderFormCotizacion={};
                     if($rootScope.from_task && $rootScope.task_associated && $rootScope.task_associated.url){
                       $http.patch($rootScope.task_associated.url,{'ot_model':1, 'ot_id_reference':$scope.idPolicy});

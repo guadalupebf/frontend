@@ -7,11 +7,11 @@
   RenovacionesModalCtrl.$inject = ['$location','packageService','datesFactory','models','ContratanteService','$q','$http','tiposBeneficiarios', 'sex', 'FileUploader','formService','$timeout',
                                 'url', '$localStorage', '$scope', '$filter', 'groupService', 'providerService', 'insuranceService', 'receiptService', 'generalService',
                                 'toaster', 'formaPago', 'helpers', 'MESSAGES', 'fileService','SweetAlert', '$sessionStorage', '$state', '$stateParams', 'formatValues',
-                                'coverageService', 'dataFactory','$rootScope', 'emailService','$uibModal','appStates','$sce'];
+                                'coverageService', 'dataFactory','$rootScope', 'emailService','$uibModal','appStates','$sce','CondicionesGeneralesService'];
 
   function RenovacionesModalCtrl($location,packageService,datesFactory, models, ContratanteService,$q,$http,tiposBeneficiarios, sex, FileUploader, formService,$timeout, url, $localStorage,
                             $scope, $filter, groupService, providerService, insuranceService, receiptService, generalService, toaster, formaPago, helpers, MESSAGES,
-                            fileService,SweetAlert, $sessionStorage, $state, $stateParams, formatValues, coverageService, dataFactory,$rootScope, emailService, $uibModal,appStates,$sce) {
+                            fileService,SweetAlert, $sessionStorage, $state, $stateParams, formatValues, coverageService, dataFactory,$rootScope, emailService, $uibModal,appStates,$sce,CondicionesGeneralesService) {
 
     function getRenewalDraft() {
       return angular.copy($rootScope.renewalDraftPolicy) || null;
@@ -44,7 +44,9 @@
     
     $scope.disabled_ot = false
     order.renewal = {};
-    $scope.es_renovacion=false;
+    // https://miurabox.atlassian.net/browse/DES-875
+    $scope.es_renovacion=true;//era false
+    // https://miurabox.atlassian.net/browse/DES-875
     $scope.esEdicion=false;
     order.renewal.is_renewable = 1;
     order.renewal.options = [
@@ -1483,6 +1485,153 @@
     function isString(x) {
       return Object.prototype.toString.call(x) === "[object String]"
     }
+    // https://miurabox.atlassian.net/browse/DES-875
+    function getNumericIdFromValue(value) {
+      if (angular.isNumber(value)) {
+        return value;
+      }
+      if (angular.isString(value)) {
+        var cleanValue = value.replace(/\/$/, '');
+        var parts = cleanValue.split('/');
+        var parsedId = parseInt(parts[parts.length - 1], 10);
+        return isNaN(parsedId) ? null : parsedId;
+      }
+      if (value && angular.isNumber(value.id)) {
+        return value.id;
+      }
+      return null;
+    }
+    // inicializa
+    order.cgrenovacion = order.cgrenovacion || {
+      mode: 'AUTO',          // AUTO | SELECT | NONE
+      catalog: [],
+      selectedDocs: []
+    };
+
+    function getProviderId() {
+      return order.form.aseguradora && (order.form.aseguradora.id || order.form.aseguradora);
+    }
+    function getSubramoId() {
+      return order.form.subramo && (order.form.subramo.id || order.form.subramo);
+    }
+
+    // cada vez que cambie aseguradora/subramo, recarga catálogo y limpia selección
+    $scope.$watchGroup([
+      function(){ return getProviderId(); },
+      function(){ return getSubramoId(); }
+      ], function(newVals, oldVals){
+
+      var providerId = newVals[0];
+      var subramoId  = newVals[1];
+
+      if(!providerId || !subramoId) {
+        order.cgrenovacion.catalog = [];
+        // opcional: NO borres selectedDocs, solo si quieres:
+        order.cgrenovacion.selectedDocs = [];
+        return;
+      }
+
+      order.cgrenovacion.loading = true;
+
+      // 1) catálogo
+      CondicionesGeneralesService.list({ aseguradora: providerId, subramo: subramoId })
+        .then(function(res){
+          order.cgrenovacion.selectedDocs = [];
+          order.cgrenovacion.catalog = res.data.results || res.data || [];
+          // 2) seleccionados existentes de la póliza (si hay póliza guardada)
+          var policyId = order.form.id || order.policy_id;
+          if(!policyId) return [];
+
+          return CondicionesGeneralesService.getByPolicy(policyId, { org: org });
+        })
+        .then(function(res){
+          if(!res || !res.data) return;
+          var rows = res.data.results || res.data || [];
+          // tu API devuelve {condicion_detalle: {...}}
+          var selected = rows
+            .map(function(r){ return r.condicion_detalle; })
+            .filter(function(x){ return x && x.id; });
+          // importante: asigna objetos (para que ui-select pinte nombre/tipo)
+          order.cgrenovacion.selectedDocs = selected;
+        })
+        .finally(function(){
+          order.cgrenovacion.loading = false;
+        });
+
+    });
+
+    // --- En tu función de guardar póliza ---
+    // arma qué vas a asignar
+    function buildGeneralConditionsAssignment() {
+      var providerId = getProviderId();
+      var subramoId = getSubramoId();
+
+      if (!providerId || !subramoId) return null;
+
+      if (order.cgrenovacion.mode === 'NONE') {
+        return { enabled: false };
+      }
+
+      if (order.cgrenovacion.mode === 'AUTO') {
+        // asignar todas por aseguradora/subramo
+        return {
+          enabled: true,
+          mode: 'AUTO',
+          aseguradora: providerId,
+          subramo: subramoId
+        };
+      }
+
+      // SELECT
+      var ids = (order.cgrenovacion.selectedDocs || []).map(function(d){ return d.id; }).filter(Boolean);
+      return {
+        enabled: true,
+        mode: 'SELECT',
+        aseguradora: providerId,
+        subramo: subramoId,
+        document_ids: ids
+      };
+    }
+    function assignGeneralConditionsToPolicy(policyData) {
+      if (!policyData || !policyData.id) return $q.when();
+      // provider / aseguradora
+      var providerId =
+        getNumericIdFromValue(policyData.aseguradora) ||
+        (order.form.aseguradora ? getNumericIdFromValue(order.form.aseguradora.id || order.form.aseguradora) : null);
+
+      // subramo
+      var subramoId =
+        getNumericIdFromValue(policyData.subramo) ||
+        (order.form.subramo ? getNumericIdFromValue(order.form.subramo.id || order.form.subramo) : null);
+
+      if (!providerId || !subramoId) return $q.when();
+      var mode = (order.cgrenovacion && order.cgrenovacion.mode) ? order.cgrenovacion.mode : 'AUTO';
+      console.log('auto**********',mode)
+      if (mode === 'NONE') return $q.when();
+
+      var payload = {
+        policy_id: policyData.id,
+        aseguradora: providerId,
+        subramo: subramoId,
+        replace: true
+      };
+      console.log('auto**********',mode,payload)
+
+      // Si el usuario eligió cuáles
+      if (mode === 'SELECT') {
+        var ids = (order.cgrenovacion.selectedDocs || []).map(function(d){ return d && d.id; }).filter(Boolean);
+        payload.document_ids = ids;
+      }
+      console.log('auto**********',mode,payload)
+      var endpoint = 'asignar-condiciones-generales-poliza/';
+      return dataFactory.post(endpoint, payload)
+        .catch(function(error) {
+          console.log('No se pudieron asignar condiciones generales', error);
+          // no rompas el guardado de póliza por esto
+          return $q.when();
+        });
+    }
+    // https://miurabox.atlassian.net/browse/DES-875
     $scope.yaTermino=false;
     order.save = {
       /* Guardar como OT */
@@ -2557,6 +2706,7 @@
             insuranceService.createInsuranceReno(form).then(function(res) {
               $scope.yaTermino=false;
               $scope.idPolicy = res.id;
+              assignGeneralConditionsToPolicy(res);
               resetRenovationDraft();
               $scope.poliza_data = myInsurance;
               var data = {
@@ -3105,7 +3255,6 @@
                 };
                 form.recibos_poliza.push(saveReceiptRequest)
             });
-            console.log('form-------',form,$scope.dataToSave)
             form.document_type=1
             insuranceService.createInsuranceNoRenovacion(form).then(function(res) {
               
@@ -3141,6 +3290,7 @@
                 base_policy: myInsurance.url,
                 new_policy: res.url
               }
+              assignGeneralConditionsToPolicy(res);
 
               insuranceService.createOldPolicy(oldPolicy)
               .then(function(responseOldPolicy){

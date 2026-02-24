@@ -5,12 +5,12 @@
       .controller('PolizasInfoCtrl', PolizasInfoCtrl);
 
   PolizasInfoCtrl.$inject = ['$timeout', 'FileUploader', 'providerService', 'dataFactory', 'SweetAlert','$scope','$rootScope','MESSAGES','toaster','endorsementService','insuranceService',
-                             'receiptService', '$stateParams', '$state', 'helpers','formService', '$http','url','$uibModal', 'datesFactory',
+                             'receiptService', '$stateParams', '$state', 'helpers','formService', '$http','url','$uibModal', 'datesFactory','CondicionesGeneralesService',
                              '$q','$localStorage', '$sessionStorage', 'statusReceiptsFactory', '$sce', 'formatValues', 'fileService','emailService', 'appStates', 'whatsappWebFlagService', 'exportFactory'];
 
 
   function PolizasInfoCtrl($timeout, FileUploader, providerService, dataFactory, SweetAlert, $scope , $rootScope, MESSAGES, toaster, endorsementService, insuranceService,
-                          receiptService, $stateParams, $state, helpers, formService, $http, url, $uibModal, datesFactory,  $q,
+                          receiptService, $stateParams, $state, helpers, formService, $http, url, $uibModal, datesFactory,CondicionesGeneralesService,  $q,
                           $localStorage, $sessionStorage, statusReceiptsFactory,  $sce, formatValues, fileService, emailService, appStates, whatsappWebFlagService, exportFactory) {
 
 
@@ -391,6 +391,17 @@
       })
     }
     vm.repeat = [];
+     vm.cg = {
+      catalog: [],
+      selectedDocs: [],
+      loading: false,
+      saving: false,
+      selectedIds: [],// <-- ids, no objetos
+    };
+    vm.loadGeneralConditions = loadGeneralConditions;
+    vm.onGeneralConditionsChange = onGeneralConditionsChange;
+    vm.removeGeneralCondition = removeGeneralCondition;
+    vm.isGeneralConditionFile = isGeneralConditionFile;
     activate();
     // functions
     vm.goToEndoso = goToEndoso
@@ -1953,6 +1964,7 @@
           }else if($scope.param == 'ot'){
             SweetAlert.swal("¡Listo!", MESSAGES.OK.UPGRADEOT, "success");
           }else{
+            closeUiSelect();
             SweetAlert.swal('¡Listo!', 'Archivos cargados exitosamente.', 'success');
           }
           $state.go('polizas.info', { polizaId: vm.insurance.id });
@@ -2599,8 +2611,94 @@
         resetLoading();
       });
     }
+    function getProviderIdFromInsurance() {
+      console.log('iiiiiii',vm.insurance)
+      if (!vm.insurance || !vm.insurance.aseguradora) return null;
+      return vm.insurance.aseguradora.id || vm.insurance.aseguradora;
+    }
 
+    function getSubramoIdFromInsurance() {
+      if (!vm.insurance || !vm.insurance.subramo) return null;
+      if (angular.isObject(vm.insurance.subramo)) {
+        return vm.insurance.subramo.id || null;
+      }
+      return vm.insurance.subramo || null;
+    }
+
+    function loadGeneralConditions() {
+      var providerId = getProviderIdFromInsurance();
+      var subramoId = getSubramoIdFromInsurance();
+      if (!providerId || !subramoId) {
+        vm.cg.catalog = [];
+        vm.cg.selectedDocs = [];
+        return;
+      }
+
+      vm.cg.loading = true;
+      CondicionesGeneralesService.list({ aseguradora: providerId, subramo: subramoId })
+        .then(function(res) {
+          vm.cg.catalog = res.data.results || res.data || [];
+          vm.cg.byId = {};
+          vm.cg.catalog.forEach(function(c){
+            vm.cg.byId[c.id] = c;
+          });
+          return CondicionesGeneralesService.getByPolicy(vm.insurance.id);
+        })
+        .then(function(res) {
+          var rows = res.data.results || res.data || [];
+          vm.cg.selectedDocs = rows
+            .map(function(r){ return r.condicion_detalle; })
+            .filter(function(x){ return !!x && !!x.id; });
+        })
+        // .then(function(res) {
+        //   vm.cg.selectedDocs = res.data.results || res.data || [];
+        // })
+        .catch(function() {
+          vm.cg.catalog = [];
+          vm.cg.selectedDocs = [];
+        })
+        .finally(function() {
+          vm.cg.loading = false;
+        });
+    }
+    function closeUiSelect() {
+      vm.cg.isOpen = false;
+      try { document.activeElement && document.activeElement.blur(); } catch(e) {}
+    }
+    function onGeneralConditionsChange() {
+      if (!vm.insurance || !vm.insurance.id) return;
+      vm.cg.saving = true;
+      // var ids = (vm.cg.selectedDocs || []).map(function(item) { return item.id; });
+      var ids = (vm.cg.selectedDocs || [])
+        .map(function(item){ return item.id; })
+        .filter(function(x){ return !!x; });
+      CondicionesGeneralesService.saveSelectionForPolicy(vm.insurance.id, ids)
+        .then(function() {
+          return $http.get(url.IP + 'polizas/' + vm.insurance.id + '/archivos/');
+        })
+        .then(function(response) {
+          vm.files = response.data.results || [];
+          $scope.files = vm.files;
+        })
+        .finally(function() {
+          vm.cg.saving = false;
+        });
+    }
+
+    function removeGeneralCondition(doc) {
+      if (!vm.insurance || !vm.insurance.id || !doc || !doc.id) return;
+      vm.cg.selectedDocs = (vm.cg.selectedDocs || []).filter(function(item) { return item.id !== doc.id; });
+      onGeneralConditionsChange();
+    }
+
+    function isGeneralConditionFile(file) {
+      return !!(file && (file.condicion_general || file.is_condicion_general || file.origin === 'CG'));
+    }
     function deleteFile(file,container) {
+      if (isGeneralConditionFile(file)) {
+        SweetAlert.swal("Acción no permitida", "Las Condiciones Generales sólo se administran desde el módulo centralizado.", "info");
+        return;
+      }
       SweetAlert.swal({
         title: '¿Está seguro?',
         text: "No será posible recuperar este archivo",
@@ -3251,6 +3349,7 @@
                     vm.files = response.data.results;
                     $scope.files = response.data.results;
                     $scope.show_files_policy = true;
+                    loadGeneralConditions();
                   } else if(response.status === 403) {
                     $scope.show_files_policy = false;
                   }
@@ -4259,7 +4358,7 @@
       },
       function(isConfirm){
         if (isConfirm) {
-          $http.patch(vm.insurance.url,{'status': $scope.status_nuevo})
+          $http.patch(vm.insurance.url,{'status': $scope.status_nuevo,'renewed_status':0,'reason_ren':null})
           .then(upgPolicyComplete)
           .catch(upgPolicyFailed);
           function upgPolicyComplete(response, status, headers, config) {

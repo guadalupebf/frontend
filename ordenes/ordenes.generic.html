@@ -922,6 +922,59 @@
 		</fieldset>
 	</div>
     <div class="col-xs-12 form-group" ng-if="order.permiso_administrar_adjuntos">
+		<div class="form-group" ng-if="order.form.aseguradora && order.form.subramo">
+			<label class="control-label">
+				Condiciones Generales al guardar
+			</label>
+
+			<div class="radio">
+				<label>
+				<input type="radio" ng-model="order.cg.mode" value="AUTO">
+				Asignar automáticamente (todas las condiciones del catálogo)
+				</label>
+			</div>
+
+			<div class="radio">
+				<label>
+				<input type="radio" ng-model="order.cg.mode" value="SELECT">
+				Elegir cuáles asignar
+				</label>
+			</div>
+
+			<div class="radio">
+				<label>
+				<input type="radio" ng-model="order.cg.mode" value="NONE">
+				No asignar condiciones
+				</label>
+			</div>
+
+			<!-- Selector múltiple SOLO si elige SELECT -->
+			<div class="m-t-sm" ng-if="order.cg.mode === 'SELECT'">
+				<ui-select multiple theme="bootstrap"
+						ng-model="order.cg.selectedDocs"
+						close-on-select="false"
+						style="width:100%;">
+				<ui-select-match placeholder="Selecciona condiciones...">
+					{{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+				</ui-select-match>
+				<ui-select-choices repeat="c in (order.cg.catalog | filter:$select.search) track by c.id">
+					<div class="clearfix">
+					<strong>{{c.nombre}}</strong>
+					<span class="pull-right text-muted">{{c.tipo}}</span>
+					</div>
+					<small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+				</ui-select-choices>
+				</ui-select>
+
+				<p class="help-block text-muted" style="margin-bottom:0;">
+				Estas se asignarán a la póliza al guardar.
+				</p>
+			</div>
+
+			<p class="help-block text-info" style="margin-bottom:0;">
+				Al guardar, se asignarán según tu selección.
+			</p>
+		</div>
     	<div class="row">
     		<div ng-include="'templates/upload.html'"></div>
     	</div>

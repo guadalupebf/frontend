@@ -1,0 +1,29 @@
+<div class="inmodal">
+    <div class="modal-header modal-header modal_title nav-header">
+      <h4 class="modal-title">Rehabilitar Póliza</h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="ibox float-e-margins">
+          <div class="ibox-content wizard">
+            <div class="wizard">
+              <div class="row">
+                <div class="form-group col-sm-11">
+                  <label for="motivo">Motivo de rehabilitación: <span class="color-red">*</span></label>
+                  <textarea type="text" name="motivo" ng-model="motivo_rehabilitacion" class="form-control"></textarea>
+                </div>
+              </div>
+              <div ng-if="mostrar_alerta">
+                <h3>*Al rehabilitar una póliza de grupo se activaran todos sus certificados</h4>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>  
+    <div class="modal-footer">
+        <button class="btn btn-white" ng-click="close()" type="button">Cerrar</button>
+        <button class="btn btn-success ladda-button" ng-disabled="!motivo_rehabilitacion" ng-click="reActivatePolicy()" type="button">Rehabilitar Póliza</button>
+    </div>
+</div>

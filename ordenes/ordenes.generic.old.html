@@ -607,6 +607,192 @@
 
     <div class="col-md-12 col-sm-12 form-group">
         <div class="row"  ng-if="order.permiso_administrar_adjuntos">
+            <div class="row" ng-if="order.form.aseguradora && order.form.subramo && !es_renovacion">
+            <div class="col-xs-12">
+                <h4>Condiciones Generales</h4>
+                <p class="text-muted">Administra qué condiciones quedan asociadas a esta póliza (sin borrar archivos).</p>
+
+                <!-- Estado actual -->
+                <div class="panel panel-default" ng-if="order.cg.currentDocs && order.cg.currentDocs.length">
+                <div class="panel-heading">
+                    <strong>Asociadas actualmente</strong>
+                </div>
+                <div class="panel-body" style="padding:10px;">
+                    <ul class="list-unstyled" style="margin:0;">
+                    <li ng-repeat="d in order.cg.currentDocs" style="margin-bottom:6px;">
+                        <span class="label label-default">{{d.tipo}}</span>
+                        <strong style="margin-left:6px;">{{d.nombre}}</strong>
+                        <small class="text-muted"> · {{d.provider}} · {{d.subramo_name}}</small>
+                        <a class="pull-right" ng-href="{{d.arch}}" target="_blank">Ver PDF</a>
+                    </li>
+                    </ul>
+                </div>
+                </div>
+
+                <div class="alert alert-info" ng-if="!order.cg.currentDocs || !order.cg.currentDocs.length">
+                Esta póliza no tiene Condiciones Generales asociadas.
+                </div>
+
+                <!-- Acción al guardar -->
+                <label class="control-label">Acción al guardar</label>
+
+                <div class="radio">
+                <label>
+                    <input type="radio" ng-model="order.cg.editAction" value="KEEP" ng-change="order.cg.onActionChange()">
+                    Mantener como está (no cambiar condiciones)
+                </label>
+                </div>
+
+                <div class="radio">
+                <label>
+                    <input type="radio" ng-model="order.cg.editAction" value="REPLACE" ng-change="order.cg.onActionChange()">
+                    Reemplazar selección
+                </label>
+                </div>
+
+                <div class="radio">
+                <label>
+                    <input type="radio" ng-model="order.cg.editAction" value="ADD" ng-change="order.cg.onActionChange()">
+                    Agregar a lo existente
+                </label>
+                </div>
+
+                <!-- REPLACE options -->
+                <div class="well well-sm" ng-if="order.cg.editAction === 'REPLACE'" style="margin-top:10px;">
+                <label class="control-label">¿Cómo reemplazar?</label>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cg.replaceMode" value="AUTO">
+                    Asignar automáticamente (todas las condiciones del catálogo)
+                    </label>
+                </div>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cg.replaceMode" value="NONE">
+                    Quitar todas (dejar sin condiciones)
+                    </label>
+                </div>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cg.replaceMode" value="SELECT">
+                    Elegir cuáles quedarán
+                    </label>
+                </div>
+
+                <!-- selector (solo si SELECT) -->
+                <div class="m-t-sm" ng-if="order.cg.replaceMode === 'SELECT'">
+                    <ui-select multiple theme="bootstrap"
+                            ng-model="order.cg.selectedDocs"
+                            close-on-select="false"
+                            append-to-body="true"
+                            style="width:100%;">
+                    <ui-select-match placeholder="Selecciona condiciones...">
+                        {{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="c in (order.cg.catalog | filter:$select.search) track by c.id">
+                        <div class="clearfix">
+                        <strong>{{c.nombre}}</strong>
+                        <span class="pull-right text-muted">{{c.tipo}}</span>
+                        </div>
+                        <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+                    </ui-select-choices>
+                    </ui-select>
+                    <p class="help-block text-muted" style="margin-bottom:0;">
+                    Estas serán las únicas que quedarán asociadas.
+                    </p>
+                </div>
+                </div>
+
+                <!-- ADD selector -->
+                <div class="well well-sm" ng-if="order.cg.editAction === 'ADD'" style="margin-top:10px;">
+                <label class="control-label">Selecciona condiciones a agregar</label>
+
+                <ui-select multiple theme="bootstrap"
+                            ng-model="order.cg.addDocs"
+                            close-on-select="false"
+                            append-to-body="true"
+                            style="width:100%;">
+                    <ui-select-match placeholder="Selecciona para agregar...">
+                    {{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="c in (order.cg.catalog | filter:$select.search) track by c.id">
+                    <div class="clearfix">
+                        <strong>{{c.nombre}}</strong>
+                        <span class="pull-right text-muted">{{c.tipo}}</span>
+                    </div>
+                    <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+                    </ui-select-choices>
+                </ui-select>
+
+                <p class="help-block text-muted" style="margin-bottom:0;">
+                    Se agregarán sin quitar las existentes.
+                </p>
+                </div>
+
+                <p class="text-muted m-t-sm" ng-if="order.cg.loading">Cargando catálogo...</p>
+                <p class="text-muted m-t-sm" ng-if="order.cg.saving">Aplicando cambios...</p>
+
+                <div class="alert alert-warning m-t-sm">
+                Estos archivos no se eliminan desde la póliza, solo se asocian o desasocian.
+                </div>
+            </div>
+            </div>
+            <div class="form-group" ng-if="order.form.aseguradora && order.form.subramo && es_renovacion">
+                <label class="control-label">
+                    Condiciones Generales al guardar
+                </label>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cgrenovacion.mode" value="AUTO">
+                    Asignar automáticamente (todas las condiciones del catálogo)
+                    </label>
+                </div>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cgrenovacion.mode" value="SELECT">
+                    Elegir cuáles asignar
+                    </label>
+                </div>
+
+                <div class="radio">
+                    <label>
+                    <input type="radio" ng-model="order.cgrenovacion.mode" value="NONE">
+                    No asignar condiciones
+                    </label>
+                </div>
+
+                <!-- Selector múltiple SOLO si elige SELECT -->
+                <div class="m-t-sm" ng-if="order.cgrenovacion.mode === 'SELECT'">
+                    <ui-select multiple theme="bootstrap"
+                            ng-model="order.cgrenovacion.selectedDocs"
+                            close-on-select="false"
+                            style="width:100%;">
+                    <ui-select-match placeholder="Selecciona condiciones...">
+                        {{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="c in (order.cgrenovacion.catalog | filter:$select.search) track by c.id">
+                        <div class="clearfix">
+                        <strong>{{c.nombre}}</strong>
+                        <span class="pull-right text-muted">{{c.tipo}}</span>
+                        </div>
+                        <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+                    </ui-select-choices>
+                    </ui-select>
+
+                    <p class="help-block text-muted" style="margin-bottom:0;">
+                    Estas se asignarán a la póliza al guardar.
+                    </p>
+                </div>
+
+                <p class="help-block text-info" style="margin-bottom:0;">
+                    Al guardar, se asignarán según tu selección.
+                </p>
+            </div>
             <div ng-if="order.acceso_adm_pol" ng-include="'templates/upload.html'"></div>
         </div>
         <div class="row">

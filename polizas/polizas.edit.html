@@ -1,0 +1,57 @@
+<toaster-container></toaster-container>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2 ng-if="order.show.isPolicy && order.acceso_adm_pol">Pólizas</h2>
+        <h2 ng-if="!order.show.isPolicy && order.acceso_adm_ot">OT</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a ui-sref="inicio.inicio">Inicio</a>
+            </li>
+            <li>
+                <a ui-sref="polizas.table">Pólizas</a>
+            </li>
+            <li>
+                <a ui-sref="polizas.info({polizaId: order.insuranceObject.id})">
+                    <span ng-if="order.show.isPolicy && order.acceso_adm_pol">Póliza #{{order.insuranceObject.poliza_number}}</span>
+                    <span ng-if="!order.show.isPolicy && order.acceso_adm_ot">Orden</span>
+                </a>
+            </li>
+            <li class="active">
+                <strong ng-if="order.show.isPolicy && order.acceso_adm_pol">Editar póliza #{{order.insuranceObject.poliza_number}}</strong>
+                <strong ng-if="!order.show.isPolicy && order.acceso_adm_ot">Editar OT</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<br>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5 ng-if="order.show.isPolicy && order.acceso_adm_pol">Editar póliza</h5>
+                <h5 ng-if="!order.show.isPolicy && order.acceso_adm_ot">Editar OT</h5>
+                <div ibox-tools></div>
+            </div>
+            <div class="ibox-content">
+                <div ng-include="'app/ordenes/ordenes.generic.old.html'"></div>
+            
+            
+                <!-- <button ng-if="!order.show.isPolicy" type="button" class="btn btn-warning" ng-click="order.save.getPdf()">PDF</button> -->
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="order.show.isPolicy && order.acceso_adm_pol">
+                    <button type="button" class="col-xs-12 btn btn-primary ladda-button" ng-click="validatePolicy('poliza')" data-style="expand-right">Guardar cambios</button>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="!order.show.isPolicy && order.acceso_adm_ot">
+                    <button type="button" class="col-xs-12 btn btn-success ladda-button-ot" ng-click="validatePolicy('ot')" data-style="expand-right">Guardar cambios OT</button>
+                </div>
+                <!-- contención 27/06/2019 -->
+             <!--    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right" ng-if="!order.show.isPolicy && order.acceso_adm_pol">
+                    <button type="button" class="col-xs-12 btn btn-primary ladda-button" ng-click="order.save.saveInsurance()" data-style="expand-right">Guardar como Póliza</button>
+                </div> -->
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 form-group pull-right">
+                    <button type="button" class="col-xs-12 btn btn-danger margin-right-10" ng-click="order.save.cancel()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

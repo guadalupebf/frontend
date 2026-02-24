@@ -1,0 +1,85 @@
+<div class="inmodal" id="modal_email">
+  <div class="modal-header modal-header modal_title nav-header">
+    <h4 class="modal-title">Agregar Recibo</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-12">
+        <h3>Estatus actual: </h3>
+          <div ng-bind="rec.status | receipts" class="label" ng-class="{'label-success': rec.status == 1 || rec.status == 5, 'label-danger': rec.status == 2, 'label-warning' : rec.status == 3 || rec.status == 4, 'label-default': rec.status == 6 || rec.receipt.status == 7  || rec.status == 8}" >
+          </div>
+      </div>
+      <div class="form-group col-xs-12">
+        <hr>
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label ng-if="rec.tipo != 3">Serie:</label>
+        <label ng-if="rec.tipo == 3">Folio:</label>
+        <!-- <input class="form-control" ng-model="rec.recibo_numero" type="text" ng-disabled="rec.tipo != 3"> -->
+        <input class="form-control" ng-model="rec.recibo_numero" type="text">
+      </div>
+      <div ng-if="rec.tipo != 3" class="form-group col-xs-12 col-md-4">
+        <label ng-if="rec.tipo != 3">Serie recibo manual ({{rec.recibo_numero}}/ ?):</label>
+        <input class="form-control col-md-2" ng-model="rec.serie_manual" type="number">
+      </div>
+      
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Fecha de inicio</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="" class="form-control width-100 text-align-center" ng-change="change_date(rec.fecha_inicio)" ng-model="rec.fecha_inicio" ng-value="{{rec.init}}" data-date-format="dd/mm/yyyy" required />
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Fecha de fin</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="" class="form-control width-100 text-align-center" ng-model="rec.fecha_fin" ng-value="{{rec.end}}" data-date-format="dd/mm/yyyy" ng-change="validateDates_1(rec.fecha_fin)" required />
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Prima neta:</label>
+        <input class="form-control" step="0.01" ng-value="0.00" ng-model="rec.prima_neta" step="any" type="text" ng-change="validateDecimal(rec.prima_neta);changePrimas(rec)">
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label ng-if="recibo.receipt_type !=2">RPF:</label>
+        <label ng-if="recibo.receipt_type ==2">Gastos de expedición:</label>
+        <!--<label ng-if="recibo.receipt_type ==2">Gastos de trámite:</label>-->
+        <input class="form-control" ng-model="rec.rpf" type="text" ng-change="validateDecimal(rec.rpf);changePrimas(rec)">
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Derecho:</label>
+        <input class="form-control" ng-model="rec.derecho" type="text" ng-change="validateDecimal(rec.derecho);changePrimas(rec)">
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Subtotal:</label>
+        <input class="form-control" ng-model="rec.sub_total" type="text" ng-change="validateDecimal(rec.sub_total)" disabled>
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Iva:</label>
+        <input class="form-control" ng-model="rec.iva" type="text" ng-change="changePrimas(rec)">
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Comisión:</label>
+        <input class="form-control" ng-model="rec.comision" type="text" ng-change="validateDecimal(rec.comision)" >
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Prima Total:</label>
+        <input class="form-control" ng-model="rec.prima_total" type="text" ng-change="validateDecimal(rec.prima_total)">
+      </div>
+      <div class="form-group col-xs-12 col-md-4">
+        <label>Vencimiento</label>
+        <div class="datepicker-me input-group date" data-provide="datepicker">
+          <input type="text" name="" class="form-control width-100 text-align-center" ng-model="rec.vencimiento" ng-value="{{rec.venc}}" data-date-format="dd/mm/yyyy" ng-change="validateDates_venc(rec.vencimiento)" required />
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-white" ng-click="cancel()">Cerrar</button>
+    <button type="button" class="btn btn-success ladda-button" ng-click="saveRecibo(rec)">Guardar Cambios</button>
+  </div>
+</div>
+
+
