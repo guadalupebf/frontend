@@ -106,7 +106,7 @@
                                 </div>
                               </div>
                             </div>
-                            <table ng-if="files && files.length && permiso_administrar_adjuntos" class="table table-bordered">
+                            <table ng-if="((files && files.length) || (selectedDocs && selectedDocs.length!=0)) && permiso_administrar_adjuntos" class="table table-bordered">
                             <br>
                             <h3><span><i>Seleccione los archivos que desea compartir:</i></span></h3>
                             <thead>
@@ -128,6 +128,20 @@
                                   </div>
                                   <div class="col-md-4">
                                     <a class="btn btn-primary pull-right" href="{{file.arch}}" target="_blank">Ver</a>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr ng-repeat="filec in selectedDocs track by $index">
+                                <td>
+                                  <strong ng-bind="filec.nombre" disabled></strong><br>
+                                </td>
+                                <td>
+                                  <div class="col-md-4">
+                                    <input type="checkbox" ng-model="filec.shared" ng-change="condicionesShared(filec)">
+                                    <label>Compartir</label>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <a class="btn btn-sm btn-info" href="{{filec.arch}}" target="_blank">Ver</a>
                                   </div>
                                 </td>
                               </tr>

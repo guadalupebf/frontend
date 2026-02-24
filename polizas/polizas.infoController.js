@@ -6,12 +6,12 @@
 
   PolizasInfoCtrl.$inject = ['$timeout', 'FileUploader', 'providerService', 'dataFactory', 'SweetAlert','$scope','$rootScope','MESSAGES','toaster','endorsementService','insuranceService',
                              'receiptService', '$stateParams', '$state', 'helpers','formService', '$http','url','$uibModal', 'datesFactory','CondicionesGeneralesService',
-                             '$q','$localStorage', '$sessionStorage', 'statusReceiptsFactory', '$sce', 'formatValues', 'fileService','emailService', 'appStates', 'whatsappWebFlagService', 'exportFactory'];
+                             '$q','$localStorage', '$sessionStorage', 'statusReceiptsFactory', '$sce', 'formatValues', 'fileService','emailService', 'appStates', 'whatsappWebFlagService', 'exportFactory','$document'];
 
 
   function PolizasInfoCtrl($timeout, FileUploader, providerService, dataFactory, SweetAlert, $scope , $rootScope, MESSAGES, toaster, endorsementService, insuranceService,
                           receiptService, $stateParams, $state, helpers, formService, $http, url, $uibModal, datesFactory,CondicionesGeneralesService,  $q,
-                          $localStorage, $sessionStorage, statusReceiptsFactory,  $sce, formatValues, fileService, emailService, appStates, whatsappWebFlagService, exportFactory) {
+                          $localStorage, $sessionStorage, statusReceiptsFactory,  $sce, formatValues, fileService, emailService, appStates, whatsappWebFlagService, exportFactory,$document) {
 
 
     /* Información de usuario */
@@ -396,6 +396,7 @@
       selectedDocs: [],
       loading: false,
       saving: false,
+      isOpen: true,
       selectedIds: [],// <-- ids, no objetos
     };
     vm.loadGeneralConditions = loadGeneralConditions;
@@ -1964,6 +1965,7 @@
           }else if($scope.param == 'ot'){
             SweetAlert.swal("¡Listo!", MESSAGES.OK.UPGRADEOT, "success");
           }else{
+            vm.cg.isOpen = true;
             closeUiSelect();
             SweetAlert.swal('¡Listo!', 'Archivos cargados exitosamente.', 'success');
           }
@@ -2612,7 +2614,6 @@
       });
     }
     function getProviderIdFromInsurance() {
-      console.log('iiiiiii',vm.insurance)
       if (!vm.insurance || !vm.insurance.aseguradora) return null;
       return vm.insurance.aseguradora.id || vm.insurance.aseguradora;
     }
@@ -2661,6 +2662,44 @@
           vm.cg.loading = false;
         });
     }
+    // click fuera: cierra ui-select
+    function onDocClick(){
+      $scope.$applyAsync(function(){
+        vm.closeSelectUI();
+      });
+    }
+
+    // registra listener
+    $document.on('click', onDocClick);
+
+    // limpia al destruir (evita leaks)
+    $scope.$on('$destroy', function(){
+      $document.off('click', onDocClick);
+    });
+
+    // OPCIONAL: si usas dropdown de bootstrap, cuando se abre también cerramos
+    $(document).on('shown.bs.dropdown', function(){
+      $timeout(function(){ vm.closeSelectUI(); }, 0);
+    });
+
+    $scope.$on('$destroy', function(){
+      $(document).off('shown.bs.dropdown');
+    });
+    vm.closeSelectUI = closeSelectUI;
+    function closeSelectUI() {
+      vm.cg.isOpen = false;
+      try { 
+        document.activeElement && document.activeElement.blur();
+        document.on('click', function(){
+          $scope.$applyAsync(function(){
+            vm.cg.isOpen = true;
+          });
+        });
+        $scope.$on('$destroy', function(){
+          document.off('click');
+        });
+      } catch(e) {}
+    }
     function closeUiSelect() {
       vm.cg.isOpen = false;
       try { document.activeElement && document.activeElement.blur(); } catch(e) {}
@@ -2668,17 +2707,17 @@
     function onGeneralConditionsChange() {
       if (!vm.insurance || !vm.insurance.id) return;
       vm.cg.saving = true;
+      vm.adjuntos=[];
       // var ids = (vm.cg.selectedDocs || []).map(function(item) { return item.id; });
       var ids = (vm.cg.selectedDocs || [])
         .map(function(item){ return item.id; })
         .filter(function(x){ return !!x; });
       CondicionesGeneralesService.saveSelectionForPolicy(vm.insurance.id, ids)
         .then(function() {
-          return $http.get(url.IP + 'polizas/' + vm.insurance.id + '/archivos/');
+          return $http.get(url.IP + 'polizas/' + vm.insurance.id + '/adjuntos/');
         })
         .then(function(response) {
-          vm.files = response.data.results || [];
-          $scope.files = vm.files;
+          vm.adjuntos= response.data.results || response.data; 
         })
         .finally(function() {
           vm.cg.saving = false;
@@ -3344,11 +3383,16 @@
 
 
                 vm.files = [];
+                vm.adjuntos = [];
                 $http.get(url.IP + 'polizas/'+ vm.insurance.id +'/archivos/').then(function(response) {
                   if(response.status === 200) {
                     vm.files = response.data.results;
                     $scope.files = response.data.results;
                     $scope.show_files_policy = true;
+                    dataFactory.get('polizas/' + vm.insurance.id + '/adjuntos/')
+                    .then(function(res){
+                      vm.adjuntos = res.data.results || res.data; 
+                    });
                     loadGeneralConditions();
                   } else if(response.status === 403) {
                     $scope.show_files_policy = false;
@@ -4596,6 +4640,8 @@
     }
 
     function assignPolicy(id){
+      closeUiSelect();
+      vm.cg.isOpen = false;
       var modalInstance = $uibModal.open({
           templateUrl: 'app/polizas/polizas.assign.html',
           controller: assignModalView,
@@ -4610,6 +4656,9 @@
               },
               permiso_administrar_adjuntos: function() {
                   return $scope.permiso_administrar_adjuntos;
+              },
+              selectedDocs: function(){
+                return vm.cg.selectedDocs;
               }
           },
           backdrop: 'static', /* this prevent user interaction with the background */
@@ -4618,13 +4667,14 @@
     }
 
 
-    function assignModalView($scope, $uibModalInstance, policy_id, url, contratante,permiso_administrar_adjuntos,dataFactory){
+    function assignModalView($scope, $uibModalInstance, policy_id, url, contratante,permiso_administrar_adjuntos,dataFactory,selectedDocs){
       $scope.email = contratante.email;
       $scope.soloEmail=true;
       $scope.permiso_administrar_adjuntos=permiso_administrar_adjuntos;
       $scope.tipopoliza='Póliza individual'
       $scope.emailscontractor=contratante.email_contractor
       $scope.contratanteInfo=contratante;
+      $scope.selectedDocs = selectedDocs;
       var vmm = this;
       var share_via_email = [];
       var share_via_email_r = [];
@@ -4743,7 +4793,20 @@
         $scope.send= false;
         var l = Ladda.create( document.querySelector( '.ladda-button' ) );
         l.start();
-        var data_shared = {'id': vm.insurance.id, 'emails': $scope.emails, 'files':share_via_email, 'files_r':share_via_email_r,'subject':vmm.subjectEmail,'first_comment':vmm.first_comment, 'second_comment':vmm.second_comment, 'model': 1, 'custom_email':vmm.custom_email}
+        var idsShared = ($scope.selectedDocs || [])
+          .filter(function(x){ return x && x.shared === true && x.id; })
+          .map(function(x){ return x.id; });
+
+        // quitar duplicados
+        var seen = {};
+        idsShared = idsShared.filter(function(id){
+          if (seen[id]) return false;
+          seen[id] = true;
+          return true;
+        });
+
+        console.log(idsShared); // [4]
+        var data_shared = {'id': vm.insurance.id, 'emails': $scope.emails,'idsShared':idsShared, 'files':share_via_email, 'files_r':share_via_email_r,'subject':vmm.subjectEmail,'first_comment':vmm.first_comment, 'second_comment':vmm.second_comment, 'model': 1, 'custom_email':vmm.custom_email}
         $http.post(url.IP+'share-policy-manual/', data_shared)
         .then(
           function success(request) {
@@ -4869,7 +4932,9 @@
         });
 
       }
-
+      $scope.condicionesShared = function(cgshared){
+        console.log('iiiiia compartir*',cgshared,cgshared.shared)
+      }
       $scope.shareFile = function(file) {
         $http.get(url.IP+'patch-policy-file/'+file.id)
           .then(function(response) {
@@ -4946,6 +5011,7 @@
 
       $scope.cancel = function () {
       if($uibModalInstance)
+          vm.cg.isOpen = true;
           $uibModalInstance.dismiss('cancel');
       };
     }

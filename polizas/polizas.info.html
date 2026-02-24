@@ -31,7 +31,7 @@
 </div>
 
 <br>
-<div class="btn-group pull-right m-b option_button">
+<div class="btn-group pull-right m-b option_button" ng-click="vm.closeSelectUI()">
   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <span class="fa fa-bolt"></span> Opciones
   </button>
@@ -1588,9 +1588,8 @@
           <div class="col-xs-12">
             <h4>Condiciones Generales</h4>
             <p class="text-muted">Selecciona una o varias condiciones generales para anexarlas a la póliza.</p>
-            <ui-select multiple theme="bootstrap" ng-model="vm.cg.selectedDocs" is-open="vm.cg.isOpen" uis-open-close="vm.cg.isOpen = $open" on-select="vm.onGeneralConditionsChange()" on-remove="vm.onGeneralConditionsChange()" close-on-select="false">
+            <!-- <ui-select multiple theme="bootstrap" ng-model="vm.cg.selectedDocs" is-open="vm.cg.isOpen" uis-open-close="vm.cg.isOpen = $open" on-select="vm.onGeneralConditionsChange()" on-remove="vm.onGeneralConditionsChange()" close-on-select="false">
               <ui-select-match placeholder="Buscar condiciones generales...">{{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span></ui-select-match>
-              <!-- <ui-select-choices repeat="c in vm.cg.catalog | filter:$select.search track by c.id"> -->
               <ui-select-choices repeat="c in (vm.cg.catalog | filter:$select.search) track by c.id">
                 <div class="clearfix">
                   <strong>{{c.nombre}}</strong>
@@ -1598,7 +1597,27 @@
                 </div>
                 <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
               </ui-select-choices>
-            </ui-select>
+            </ui-select> -->
+            <div class="ui-select-wrap">
+              <ui-select multiple theme="bootstrap"
+                        ng-model="vm.cg.selectedDocs"
+                        is-open="vm.cg.isOpen"
+                        uis-open-close="vm.cg.isOpen = $open"
+                        on-select="vm.onGeneralConditionsChange()"
+                        on-remove="vm.onGeneralConditionsChange()"
+                        close-on-select="false">
+                <ui-select-match placeholder="Buscar condiciones generales...">
+                  {{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span>
+                </ui-select-match>
+                <ui-select-choices repeat="c in (vm.cg.catalog | filter:$select.search) track by c.id">
+                  <div class="clearfix">
+                    <strong>{{c.nombre}}</strong>
+                    <span class="pull-right text-muted">{{c.tipo}}</span>
+                  </div>
+                  <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+                </ui-select-choices>
+              </ui-select>
+            </div>
             <p class="text-muted m-t-sm" ng-if="vm.cg.saving">Guardando selección...</p>
             <div class="alert alert-warning m-t-sm" ng-if="vm.cg.selectedDocs.length">
               Las Condiciones Generales no se pueden eliminar desde la póliza, sólo desasociar o administrar desde el módulo centralizado.
@@ -1632,6 +1651,16 @@
                 </span>
               </td>
               <td ng-if="vm.permiso_archivos && vm.permiso_administrar_adjuntos"><input type="checkbox" ng-change="saveFile(file)" ng-model="file.sensible"> * Archivo sensible</td>
+            </tr>
+            <tr ng-repeat="filecg in vm.adjuntos track by $index">
+              <td>
+                <strong ng-bind="filecg.nombre" disabled></strong>
+              </td>
+              <td>
+                <a class="btn btn-success" target="_blank" download href="{{filecg.url}}">Descargar</a>
+                <a class="btn btn-primary" href="{{filecg.url}}" target="_blank">Ver</a>
+              </td>
+              <td> <div class="alert alert-warning">Condiciones Generales</div></td>
             </tr>
           </tbody>
         </table>
