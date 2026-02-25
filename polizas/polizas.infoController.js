@@ -4688,16 +4688,16 @@
       $scope.send = true;
       $scope.maxShareMb = 25;
       $scope.condiciones_app= [];
-      // $http.get(url.IP + 'polizas/' + policy_id + '/condiciones-generales/')
-      // .then(function (response) {
-      //   var data = response.data.results || response.data || [];
-      //   if (!$scope.condiciones_app) $scope.condiciones_app = [];
-      //   $scope.condiciones_app.length = 0;
-      //   Array.prototype.push.apply($scope.condiciones_app, data);
-      // })
-      // .catch(function (e) {
-      //   console.log('error - catch', e);
-      // });
+      $http.get(url.IP + 'polizas/' + policy_id + '/condiciones-generales/')
+      .then(function (response) {
+        var data = response.data.results || response.data || [];
+        if (!$scope.condiciones_app) $scope.condiciones_app = [];
+        $scope.condiciones_app.length = 0;
+        Array.prototype.push.apply($scope.condiciones_app, data);
+      })
+      .catch(function (e) {
+        console.log('error - catch', e);
+      });
       dataFactory.get('emailtemplate-unpag/',{'template_model':2,'id_policy':policy_id})
       .then(function success(response) {
         $scope.plantillas = response.data;
