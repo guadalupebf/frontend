@@ -70,6 +70,20 @@
                                   </div>
                                 </td>
                               </tr>
+                              <tr ng-repeat="filec in condiciones_app track by filec.id" ng-show="condiciones_app.length">
+                                <td>
+                                  <strong ng-bind="filec.condicion_detalle.nombre" disabled></strong><br>
+                                </td>
+                                <td>
+                                  <div class="col-md-4">
+                                    <input type="checkbox" ng-model="filec.shared" ng-model-options="{ debounce: 300 }" ng-click="$event.stopPropagation();condicionesShared(filec)">
+                                    <label>Compartir</label>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <a class="btn btn-sm btn-info" href="{{filec.condicion_detalle.arch}}" target="_blank">Ver</a>
+                                  </div>
+                                </td>
+                              </tr>
                             </tbody>
                           </table>
                           <div>
@@ -137,7 +151,7 @@
                                 </td>
                                 <td>
                                   <div class="col-md-4">
-                                    <input type="checkbox" ng-model="filec.shared" ng-change="condicionesShared(filec)">
+                                    <input type="checkbox" ng-model="filec.shared">
                                     <label>Compartir</label>
                                   </div>
                                   <div class="col-md-4">

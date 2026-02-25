@@ -1584,23 +1584,14 @@
           <button class="btn btn-primary" ng-click="saveFiles(vm.insurance.id)">Guardar Archivos</button>
         </div>
         <hr>
-        <div class="row">
-          <div class="col-xs-12">
-            <h4>Condiciones Generales</h4>
+        <!-- <div class="row">
+          <div class="col-xs-6 col-md-6 col-lg-6 col-sm-6">
+            <h4 class="alert alert-warning m-t-sm">Condiciones Generales</h4>
             <p class="text-muted">Selecciona una o varias condiciones generales para anexarlas a la póliza.</p>
-            <!-- <ui-select multiple theme="bootstrap" ng-model="vm.cg.selectedDocs" is-open="vm.cg.isOpen" uis-open-close="vm.cg.isOpen = $open" on-select="vm.onGeneralConditionsChange()" on-remove="vm.onGeneralConditionsChange()" close-on-select="false">
-              <ui-select-match placeholder="Buscar condiciones generales...">{{$item.nombre}} <span class="text-muted">({{$item.tipo}})</span></ui-select-match>
-              <ui-select-choices repeat="c in (vm.cg.catalog | filter:$select.search) track by c.id">
-                <div class="clearfix">
-                  <strong>{{c.nombre}}</strong>
-                  <span class="pull-right text-muted">{{c.tipo}}</span>
-                </div>
-                <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
-              </ui-select-choices>
-            </ui-select> -->
             <div class="ui-select-wrap">
               <ui-select multiple theme="bootstrap"
                         ng-model="vm.cg.selectedDocs"
+                        append-to-body="false"
                         is-open="vm.cg.isOpen"
                         uis-open-close="vm.cg.isOpen = $open"
                         on-select="vm.onGeneralConditionsChange()"
@@ -1618,9 +1609,89 @@
                 </ui-select-choices>
               </ui-select>
             </div>
+          </div>
+          <div class="col-xs-6 col-md-6 col-lg-6 col-sm-6">
             <p class="text-muted m-t-sm" ng-if="vm.cg.saving">Guardando selección...</p>
             <div class="alert alert-warning m-t-sm" ng-if="vm.cg.selectedDocs.length">
               Las Condiciones Generales no se pueden eliminar desde la póliza, sólo desasociar o administrar desde el módulo centralizado.
+            </div>
+          </div>
+        </div> -->
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="panel panel-default m-t-sm">
+              <div class="panel-heading">
+                <h4 class="panel-title" style="display:flex; align-items:center; justify-content:space-between;">
+                  <span>
+                    <i class="fa fa-file-text-o"></i> Condiciones Generales
+                  </span>
+                  <small class="text-muted">Adjunto oficial de la póliza</small>
+                </h4>
+              </div>
+
+              <div class="panel-body">
+                <div class="row">
+
+                  <!-- Selector -->
+                  <div class="col-xs-12 col-md-7">
+                    <label class="control-label">Selecciona una o varias condiciones</label>
+                    <p class="text-muted" style="margin-top:-4px;">
+                      Se anexarán a la póliza y estarán disponibles para compartir (app/correo).
+                    </p>
+
+                    <div class="ui-select-wrap">
+                      <ui-select multiple theme="bootstrap"
+                                ng-model="vm.cg.selectedDocs"
+                                is-open="vm.cg.isOpen"
+                                uis-open-close="vm.cg.isOpen = $open"
+                                on-select="vm.onGeneralConditionsChange()"
+                                on-remove="vm.onGeneralConditionsChange()"
+                                close-on-select="false">
+
+                        <ui-select-match placeholder="Buscar condiciones generales...">
+                          {{$item.nombre}}
+                          <span class="text-muted">({{$item.tipo}})</span>
+                        </ui-select-match>
+
+                        <ui-select-choices repeat="c in (vm.cg.catalog | filter:$select.search) track by c.id">
+                          <div class="clearfix">
+                            <strong>{{c.nombre}}</strong>
+                            <span class="pull-right label label-default" ng-if="c.tipo=='CONDICIONES'">CONDICIONES</span>
+                            <span class="pull-right label label-info" ng-if="c.tipo=='GUIA'">GUÍA</span>
+                            <span class="pull-right label label-warning" ng-if="c.tipo=='OTRO'">OTRO</span>
+                          </div>
+                          <small class="text-muted">{{c.provider}} · {{c.subramo_name}}</small>
+                        </ui-select-choices>
+
+                      </ui-select>
+                    </div>
+                  </div>
+
+                  <!-- Estado / avisos -->
+                  <div class="col-xs-12 col-md-5">
+                    <div class="m-t-sm" ng-if="vm.cg.saving">
+                      <span class="text-muted">
+                        <i class="fa fa-spinner fa-spin"></i> Guardando selección...
+                      </span>
+                    </div>
+
+                    <div class="alert alert-warning m-t-sm" ng-if="vm.cg.selectedDocs.length">
+                      <strong>Importante:</strong> Las Condiciones Generales no se pueden eliminar desde la póliza.
+                      Solo puedes desasociarlas o administrarlas desde el módulo Operación / Póliza / <strong>Condiciones Generales</strong> .
+                    </div>
+
+                    <div class="alert alert-info m-t-sm" ng-if="!vm.cg.selectedDocs.length">
+                      No hay condiciones seleccionadas actualmente.
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="panel-footer text-muted small">
+                <i class="fa fa-lock"></i> Los archivos se almacenan una sola vez y se reutilizan para evitar duplicidad.
+              </div>
+
             </div>
           </div>
         </div>

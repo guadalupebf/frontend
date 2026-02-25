@@ -4762,12 +4762,10 @@ order.cg.editAction  = order.cg.editAction  || 'KEEP';   // KEEP | REPLACE | ADD
       if(!policyId){
         policyId=$scope.insuranceOK && ($scope.insuranceOK.id || $scope.insuranceOK)
       }
-      console.log('cccccccccccccccccc',subramoId,policyId,providerId)
       if(!providerId || !subramoId){
         order.cg.catalog = [];
         // no borres currentDocs si no quieres; yo lo dejo:
         order.cg.currentDocs = [];
-        console.log('ossssssssss',order.cg)
         return $q.when();
       }
 

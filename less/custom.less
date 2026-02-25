@@ -530,10 +530,15 @@
 .matched-text {
     color: #ff0000;
 }
-body > .ui-select-container {
-    z-index:2050 !important;
+/*
+ * ui-select sometimes gets appended to <body>. Keep it below Bootstrap
+ * modal/backdrop layers to avoid visual overlap when dialogs are open.
+ */
+.ui-select-container,
+body > .ui-select-container,
+body.modal-open .ui-select-container.open {
+    z-index: 1030 !important;
 }
-
 
 
 .wizard,
@@ -3013,5 +3018,32 @@ border-color: #000 transparent transparent transparent;
 
 .page-heading__breadcrumb .active strong{
   color: #0f172a;
+  font-weight: 600;
+}
+/* NO flotante: el dropdown entra al flujo y empuja el layout */
+.ui-select-wrap .ui-select-bootstrap .ui-select-dropdown{
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  margin-top: 6px;
+  box-shadow: none; /* opcional */
+}
+
+/* limita altura del listado y agrega scroll interno */
+.ui-select-wrap .ui-select-bootstrap .ui-select-choices{
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* opcional: controla el área de chips */
+.ui-select-wrap .ui-select-multiple.ui-select-bootstrap .ui-select-match{
+  max-height: 70px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.ui-select-wrap .ui-select-container{
+  width: 100%;
+}
+.panel-title{
   font-weight: 600;
 }

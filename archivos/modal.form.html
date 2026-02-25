@@ -24,7 +24,8 @@
       <label>Aseguradora</label>
       <select class="form-control"
               ng-model="md.form.aseguradora"
-              ng-options="a.id as a.nombre for a in md.aseguradoras">
+              ng-change="md.getAseguradoraID(md.form.aseguradora)"
+              ng-options="a.id as a.alias for a in md.aseguradoras">
         <option value="">Selecciona...</option>
       </select>
     </div>
@@ -33,7 +34,7 @@
       <label>Subramo</label>
       <select class="form-control"
               ng-model="md.form.subramo"
-              ng-options="s.id as s.nombre for s in md.subramos">
+              ng-options="s.id as s.subramo_name for s in md.subramos">
         <option value="">Selecciona...</option>
       </select>
     </div>
@@ -41,7 +42,7 @@
 
   <div class="form-group" ng-if="!md.item">
     <label>PDF</label>
-    <input type="file" class="form-control" file-model="md.file" accept="application/pdf">
+    <input type="file" class="form-control" accept="application/pdf" onchange="angular.element(this).scope().md.setFile(this.files)">
     <p class="text-muted small">Sube un PDF (hasta 25MB). Se guardará una sola vez.</p>
   </div>
 

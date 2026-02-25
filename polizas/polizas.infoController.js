@@ -4687,6 +4687,17 @@
       vmm.correos=[]
       $scope.send = true;
       $scope.maxShareMb = 25;
+      $scope.condiciones_app= [];
+      // $http.get(url.IP + 'polizas/' + policy_id + '/condiciones-generales/')
+      // .then(function (response) {
+      //   var data = response.data.results || response.data || [];
+      //   if (!$scope.condiciones_app) $scope.condiciones_app = [];
+      //   $scope.condiciones_app.length = 0;
+      //   Array.prototype.push.apply($scope.condiciones_app, data);
+      // })
+      // .catch(function (e) {
+      //   console.log('error - catch', e);
+      // });
       dataFactory.get('emailtemplate-unpag/',{'template_model':2,'id_policy':policy_id})
       .then(function success(response) {
         $scope.plantillas = response.data;
@@ -4804,8 +4815,6 @@
           seen[id] = true;
           return true;
         });
-
-        console.log(idsShared); // [4]
         var data_shared = {'id': vm.insurance.id, 'emails': $scope.emails,'idsShared':idsShared, 'files':share_via_email, 'files_r':share_via_email_r,'subject':vmm.subjectEmail,'first_comment':vmm.first_comment, 'second_comment':vmm.second_comment, 'model': 1, 'custom_email':vmm.custom_email}
         $http.post(url.IP+'share-policy-manual/', data_shared)
         .then(
@@ -4933,7 +4942,18 @@
 
       }
       $scope.condicionesShared = function(cgshared){
-        console.log('iiiiia compartir*',cgshared,cgshared.shared)
+        var policyId = policy_id;
+        var newValue = cgshared.shared;
+        if($scope.soloEmail){
+          return CondicionesGeneralesService.patchShared(policyId, cgshared.id, newValue)
+          .then(function(){
+            cgshared.shared = newValue; // actualiza UI
+            console.log('Actualizado',cgshared);
+          })
+          .catch(function(){
+            console.log('No se pudo actualizar');
+          });
+        }
       }
       $scope.shareFile = function(file) {
         $http.get(url.IP+'patch-policy-file/'+file.id)
